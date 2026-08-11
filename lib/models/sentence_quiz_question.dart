@@ -1,16 +1,13 @@
+import 'layered_person_outfit.dart';
 import 'sentence_quiz_sentence.dart';
 
 class SentenceQuizQuestion {
-  final SentencePerson person;
-  final GarmentColor shirtColor;
-  final GarmentColor jeansColor;
+  final LayeredPersonOutfit outfit;
   final List<SentenceQuizSentence> options;
   final int correctIndex;
 
   SentenceQuizQuestion({
-    required this.person,
-    required this.shirtColor,
-    required this.jeansColor,
+    required this.outfit,
     required List<SentenceQuizSentence> options,
     required this.correctIndex,
   }) : options = List.unmodifiable(options) {
@@ -19,15 +16,7 @@ class SentenceQuizQuestion {
 
   SentenceQuizSentence get solution => options[correctIndex];
 
-  SentenceQuizSentence get visibleShirt => SentenceQuizSentence(
-    person: person,
-    color: shirtColor,
-    piece: ClothingPiece.shirt,
-  );
+  SentenceQuizSentence get visibleShirt => outfit.visibleShirt;
 
-  SentenceQuizSentence get visibleJeans => SentenceQuizSentence(
-    person: person,
-    color: jeansColor,
-    piece: ClothingPiece.jeans,
-  );
+  SentenceQuizSentence get visibleJeans => outfit.visibleJeans;
 }

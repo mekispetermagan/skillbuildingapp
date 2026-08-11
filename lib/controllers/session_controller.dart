@@ -29,6 +29,7 @@ import 'memory_controller.dart';
 import 'missing_letters_controller.dart';
 import 'phrase_building_controller.dart';
 import 'sentence_quiz_controller.dart';
+import 'sentence_composer_controller.dart';
 
 enum SessionStatus {
   menu,
@@ -40,6 +41,7 @@ enum SessionStatus {
   letterCatching,
   conveyor,
   sentenceQuiz,
+  sentenceComposer,
 }
 
 class SessionController extends ChangeNotifier {
@@ -62,12 +64,15 @@ class SessionController extends ChangeNotifier {
   String? _memoryError;
   bool _disposed = false;
   late final SentenceQuizController _sentenceQuizController;
+  late final SentenceComposerController _sentenceComposerController;
   SessionStatus status = SessionStatus.menu;
 
   SessionController({AssetBundle? assetBundle, AssetAudioPlayer? audioPlayer})
     : _assetBundle = assetBundle ?? rootBundle,
       _audioPlayer = audioPlayer ?? SoloudAssetAudioPlayer() {
     _sentenceQuizController = SentenceQuizController()
+      ..addListener(_forwardFeatureNotification);
+    _sentenceComposerController = SentenceComposerController()
       ..addListener(_forwardFeatureNotification);
     unawaited(_initializePhraseBuilding());
     unawaited(_initializeLetterDragging());
@@ -87,6 +92,7 @@ class SessionController extends ChangeNotifier {
     ('Letter catching', openLetterCatching),
     ('Word conveyor', openConveyor),
     ('Sentence quiz', openSentenceQuiz),
+    ('Sentence composer', openSentenceComposer),
   ];
 
   bool get phraseBuildingIsLoading =>
@@ -190,6 +196,16 @@ class SessionController extends ChangeNotifier {
   }
 
   void restartSentenceQuiz() => _sentenceQuizController.start();
+
+  SentenceComposerController get sentenceComposerController =>
+      _sentenceComposerController;
+
+  void openSentenceComposer() {
+    _sentenceComposerController.start();
+    _open(SessionStatus.sentenceComposer);
+  }
+
+  void restartSentenceComposer() => _sentenceComposerController.start();
 
   bool get missingLettersIsLoading =>
       _missingLettersController == null && _missingLettersError == null;
@@ -422,6 +438,8 @@ class SessionController extends ChangeNotifier {
     _memoryController?.dispose();
     _sentenceQuizController.removeListener(_forwardFeatureNotification);
     _sentenceQuizController.dispose();
+    _sentenceComposerController.removeListener(_forwardFeatureNotification);
+    _sentenceComposerController.dispose();
     super.dispose();
   }
 }

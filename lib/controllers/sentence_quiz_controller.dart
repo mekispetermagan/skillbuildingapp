@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import '../models/layered_person_outfit.dart';
 import '../models/sentence_quiz_question.dart';
 import '../models/sentence_quiz_sentence.dart';
 
@@ -67,12 +68,10 @@ class SentenceQuizController extends ChangeNotifier {
   }
 
   void _generateQuestion() {
-    final person =
-        SentencePerson.values[_random.nextInt(SentencePerson.values.length)];
-    final shirtColor =
-        GarmentColor.values[_random.nextInt(GarmentColor.values.length)];
-    final jeansColor =
-        GarmentColor.values[_random.nextInt(GarmentColor.values.length)];
+    final outfit = LayeredPersonOutfit.random(_random);
+    final person = outfit.person;
+    final shirtColor = outfit.shirtColor;
+    final jeansColor = outfit.jeansColor;
     final visible = <SentenceQuizSentence>{
       SentenceQuizSentence(
         person: person,
@@ -101,9 +100,7 @@ class SentenceQuizController extends ChangeNotifier {
     final options = [solution, ...distractors.take(3)]..shuffle(_random);
 
     question = SentenceQuizQuestion(
-      person: person,
-      shirtColor: shirtColor,
-      jeansColor: jeansColor,
+      outfit: outfit,
       options: options,
       correctIndex: options.indexOf(solution),
     );

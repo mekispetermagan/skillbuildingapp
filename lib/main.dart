@@ -118,6 +118,11 @@ class AppRootState extends State<AppRoot> {
           onBack: _sessionController.openMenu,
           onRestart: _sessionController.restartSentenceQuiz,
         ),
+        SessionStatus.sentenceComposer => SentenceComposerScreen(
+          controller: _sessionController.sentenceComposerController,
+          onBack: _sessionController.openMenu,
+          onRestart: _sessionController.restartSentenceComposer,
+        ),
       },
     );
   }
