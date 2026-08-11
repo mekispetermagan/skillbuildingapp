@@ -1,0 +1,1 @@
+enum MissingLettersState { solving, solved }

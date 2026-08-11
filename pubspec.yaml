@@ -1,0 +1,27 @@
+name: literacy_game
+description: "An offline-first literacy learning game."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  characters: ^1.4.1
+  collection: ^1.19.1
+  flutter:
+    sdk: flutter
+  flutter_soloud: ^4.0.13
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/data/
+    - assets/audio/letter_dragging/
+    - assets/audio/sentences/
+    - assets/images/

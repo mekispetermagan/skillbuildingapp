@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "string": "The cat sits on the mat.",
+    "audio_path": "assets/audio/sentences/001.mp3"
+  },
+  {
+    "id": 2,
+    "string": "A red bird can fly.",
+    "audio_path": "assets/audio/sentences/002.mp3"
+  },
+  {
+    "id": 3,
+    "string": "The dog runs in the park.",
+    "audio_path": "assets/audio/sentences/003.mp3"
+  },
+  {
+    "id": 4,
+    "string": "We read a good book.",
+    "audio_path": "assets/audio/sentences/004.mp3"
+  },
+  {
+    "id": 5,
+    "string": "The sun is warm today.",
+    "audio_path": "assets/audio/sentences/005.mp3"
+  },
+  {
+    "id": 6,
+    "string": "My friend has a blue bag.",
+    "audio_path": "assets/audio/sentences/006.mp3"
+  },
+  {
+    "id": 7,
+    "string": "Two fish swim in the pond.",
+    "audio_path": "assets/audio/sentences/007.mp3"
+  },
+  {
+    "id": 8,
+    "string": "The child opens the door.",
+    "audio_path": "assets/audio/sentences/008.mp3"
+  },
+  {
+    "id": 9,
+    "string": "I see a green tree.",
+    "audio_path": "assets/audio/sentences/009.mp3"
+  },
+  {
+    "id": 10,
+    "string": "Our teacher tells a story.",
+    "audio_path": "assets/audio/sentences/010.mp3"
+  }
+]

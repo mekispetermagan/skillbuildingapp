@@ -1,0 +1,14 @@
+[
+  {"id": 1, "word": "word1", "image_path": "assets/images/word1.png"},
+  {"id": 2, "word": "word2", "image_path": "assets/images/word2.png"},
+  {"id": 3, "word": "word3", "image_path": "assets/images/word3.png"},
+  {"id": 4, "word": "word4", "image_path": "assets/images/word4.png"},
+  {"id": 5, "word": "word5", "image_path": "assets/images/word5.png"},
+  {"id": 6, "word": "word6", "image_path": "assets/images/word6.png"},
+  {"id": 7, "word": "word7", "image_path": "assets/images/word7.png"},
+  {"id": 8, "word": "word8", "image_path": "assets/images/word8.png"},
+  {"id": 9, "word": "word9", "image_path": "assets/images/word9.png"},
+  {"id": 10, "word": "word10", "image_path": "assets/images/word10.png"},
+  {"id": 11, "word": "word11", "image_path": "assets/images/word11.png"},
+  {"id": 12, "word": "word12", "image_path": "assets/images/word12.png"}
+]

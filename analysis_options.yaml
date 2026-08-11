@@ -1,0 +1,6 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - dev_tools/letterdragging_lib/**
+    - dev_tools/phrasecards_lib/**
