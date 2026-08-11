@@ -16,8 +16,10 @@ class LiteracyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Literacy Game',
       theme: ThemeData(
-        brightness: Brightness.dark,
-        colorSchemeSeed: Colors.blue,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.purple,
+          dynamicSchemeVariant: DynamicSchemeVariant.rainbow,
+        ),
       ),
       home: const AppRoot(),
     );
