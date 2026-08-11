@@ -6,11 +6,10 @@ import 'package:flutter/foundation.dart';
 import '../models/layered_person_outfit.dart';
 import '../models/sentence_quiz_question.dart';
 import '../models/sentence_quiz_sentence.dart';
+import '../models/view_data.dart';
 
 const sentenceQuizWinningScore = 10;
 const sentenceQuizFeedbackDuration = Duration(seconds: 1);
-
-enum SentenceQuizState { guessing, feedback, won }
 
 class SentenceQuizController extends ChangeNotifier {
   final Random _random;

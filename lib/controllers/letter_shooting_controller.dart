@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../models/letter_shooting_config.dart';
 import '../models/letter_shooting_word.dart';
 import '../models/letter_shooting_world.dart';
+import '../models/view_data.dart';
 
 const letterShootingConfig = LetterShootingConfig(
   projectileSpeed: 600,
@@ -24,8 +25,6 @@ const letterShootingConfig = LetterShootingConfig(
   maximumUpdateStep: 1 / 120,
   winningScore: 10,
 );
-
-enum LetterShootingState { playing, ended }
 
 class LetterShootingController extends ChangeNotifier {
   final LetterShootingWorld world;

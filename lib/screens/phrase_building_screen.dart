@@ -1,27 +1,19 @@
 import 'package:flutter/material.dart';
 
-import '../models/phrase_building_state.dart';
 import '../models/phrase_building_tile.dart';
+import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/phrase_building_card.dart';
 
 class PhraseBuildingScreen extends StatelessWidget {
-  final bool isLoading;
-  final String? errorMessage;
-  final List<PhraseBuildingTile> sourcePool;
-  final List<PhraseBuildingTile> targetPool;
-  final PhraseBuildingState state;
+  final PhraseBuildingViewData viewData;
   final VoidCallback onBack;
   final void Function(PhraseBuildingTile)? onMove;
   final Future<void> Function()? onSubmit;
   final Future<void> Function() onPlayAudio;
 
   const PhraseBuildingScreen({
-    required this.isLoading,
-    required this.errorMessage,
-    required this.sourcePool,
-    required this.targetPool,
-    required this.state,
+    required this.viewData,
     required this.onBack,
     required this.onMove,
     required this.onSubmit,
@@ -33,7 +25,7 @@ class PhraseBuildingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: FeatureAppBar(title: 'Phrase building', onBack: onBack),
-      body: switch ((isLoading, errorMessage)) {
+      body: switch ((viewData.isLoading, viewData.errorMessage)) {
         (true, _) => const Center(child: CircularProgressIndicator()),
         (_, final String message) => Center(child: Text(message)),
         _ => _buildExercise(),
@@ -55,11 +47,11 @@ class PhraseBuildingScreen extends StatelessWidget {
                   spacing: 4,
                   runSpacing: 4,
                   children: [
-                    for (final tile in targetPool)
+                    for (final tile in viewData.targetPool)
                       PhraseBuildingCard(
                         key: ValueKey('target-${tile.id}'),
                         tile: tile,
-                        state: state,
+                        state: viewData.state,
                         onMove: onMove,
                       ),
                   ],
@@ -74,11 +66,11 @@ class PhraseBuildingScreen extends StatelessWidget {
                   spacing: 4,
                   runSpacing: 4,
                   children: [
-                    for (final tile in sourcePool)
+                    for (final tile in viewData.sourcePool)
                       PhraseBuildingCard(
                         key: ValueKey('source-${tile.id}'),
                         tile: tile,
-                        state: state,
+                        state: viewData.state,
                         onMove: onMove,
                       ),
                   ],

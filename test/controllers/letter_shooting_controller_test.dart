@@ -5,6 +5,7 @@ import 'package:literacy_game/controllers/letter_shooting_controller.dart';
 import 'package:literacy_game/models/letter_shooting_config.dart';
 import 'package:literacy_game/models/letter_shooting_word.dart';
 import 'package:literacy_game/models/letter_shooting_world.dart';
+import 'package:literacy_game/models/view_data.dart';
 
 const _word = LetterShootingWord(id: 1, word: 'DAD');
 

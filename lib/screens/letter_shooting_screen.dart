@@ -1,23 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 
-import '../controllers/letter_shooting_controller.dart';
 import '../games/letter_shooting_game.dart';
 import '../models/letter_shooting_world.dart';
+import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/rewards.dart';
 
 class LetterShootingScreen extends StatelessWidget {
-  final bool isLoading;
-  final String? errorMessage;
-  final LetterShootingController? controller;
+  final LetterShootingViewData viewData;
+  final void Function(double width, double height) onResize;
+  final ValueChanged<double> onTick;
+  final ValueChanged<GamePoint> onTap;
+  final ValueChanged<GamePoint> onBeginAim;
+  final ValueChanged<GamePoint> onUpdateAim;
+  final VoidCallback onReleaseAim;
   final VoidCallback onBack;
   final VoidCallback onRestart;
 
   const LetterShootingScreen({
-    required this.isLoading,
-    required this.errorMessage,
-    required this.controller,
+    required this.viewData,
+    required this.onResize,
+    required this.onTick,
+    required this.onTap,
+    required this.onBeginAim,
+    required this.onUpdateAim,
+    required this.onReleaseAim,
     required this.onBack,
     required this.onRestart,
     super.key,
@@ -27,12 +35,23 @@ class LetterShootingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: FeatureAppBar(title: 'Letter shooting', onBack: onBack),
-      body: switch ((isLoading, errorMessage, controller)) {
+      body: switch ((
+        viewData.isLoading,
+        viewData.errorMessage,
+        viewData.world,
+      )) {
         (true, _, _) => const Center(child: CircularProgressIndicator()),
         (_, final String message, _) => Center(child: Text(message)),
-        (_, _, final LetterShootingController controller) => SafeArea(
+        (_, _, final LetterShootingWorld world) => SafeArea(
           child: _LetterShootingPlayArea(
-            controller: controller,
+            world: world,
+            state: viewData.state,
+            onResize: onResize,
+            onTick: onTick,
+            onTap: onTap,
+            onBeginAim: onBeginAim,
+            onUpdateAim: onUpdateAim,
+            onReleaseAim: onReleaseAim,
             onRestart: onRestart,
           ),
         ),
@@ -43,11 +62,25 @@ class LetterShootingScreen extends StatelessWidget {
 }
 
 class _LetterShootingPlayArea extends StatefulWidget {
-  final LetterShootingController controller;
+  final LetterShootingWorld world;
+  final LetterShootingState state;
+  final void Function(double width, double height) onResize;
+  final ValueChanged<double> onTick;
+  final ValueChanged<GamePoint> onTap;
+  final ValueChanged<GamePoint> onBeginAim;
+  final ValueChanged<GamePoint> onUpdateAim;
+  final VoidCallback onReleaseAim;
   final VoidCallback onRestart;
 
   const _LetterShootingPlayArea({
-    required this.controller,
+    required this.world,
+    required this.state,
+    required this.onResize,
+    required this.onTick,
+    required this.onTap,
+    required this.onBeginAim,
+    required this.onUpdateAim,
+    required this.onReleaseAim,
     required this.onRestart,
   });
 
@@ -57,7 +90,11 @@ class _LetterShootingPlayArea extends StatefulWidget {
 }
 
 class _LetterShootingPlayAreaState extends State<_LetterShootingPlayArea> {
-  late final LetterShootingGame _game = LetterShootingGame(widget.controller);
+  late final LetterShootingGame _game = LetterShootingGame(
+    gameWorld: widget.world,
+    onResize: widget.onResize,
+    onTick: widget.onTick,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -69,56 +106,45 @@ class _LetterShootingPlayAreaState extends State<_LetterShootingPlayArea> {
               Positioned.fill(
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTapUp: (details) => widget.controller.tap(
+                  onTapUp: (details) => widget.onTap(
                     GamePoint(
                       details.localPosition.dx,
                       details.localPosition.dy,
                     ),
                   ),
-                  onPanStart: (details) => widget.controller.beginAim(
+                  onPanStart: (details) => widget.onBeginAim(
                     GamePoint(
                       details.localPosition.dx,
                       details.localPosition.dy,
                     ),
                   ),
-                  onPanUpdate: (details) => widget.controller.updateAim(
+                  onPanUpdate: (details) => widget.onUpdateAim(
                     GamePoint(
                       details.localPosition.dx,
                       details.localPosition.dy,
                     ),
                   ),
-                  onPanEnd: (_) => widget.controller.releaseAim(),
-                  onPanCancel: widget.controller.releaseAim,
+                  onPanEnd: (_) => widget.onReleaseAim(),
+                  onPanCancel: widget.onReleaseAim,
                   child: GameWidget(game: _game),
                 ),
               ),
-              Positioned.fill(
-                child: ListenableBuilder(
-                  listenable: widget.controller,
-                  builder: (_, _) =>
-                      widget.controller.state == LetterShootingState.ended
-                      ? ColoredBox(
-                          color: Colors.black54,
-                          child: Center(
-                            child: FilledButton(
-                              onPressed: widget.onRestart,
-                              child: const Text('Play again?'),
-                            ),
-                          ),
-                        )
-                      : const SizedBox.shrink(),
+              if (widget.state == LetterShootingState.ended)
+                Positioned.fill(
+                  child: ColoredBox(
+                    color: Colors.black54,
+                    child: Center(
+                      child: FilledButton(
+                        onPressed: widget.onRestart,
+                        child: const Text('Play again?'),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
             ],
           ),
         ),
-        SizedBox(
-          height: 46,
-          child: ListenableBuilder(
-            listenable: widget.controller,
-            builder: (_, _) => Rewards(count: widget.controller.world.score),
-          ),
-        ),
+        SizedBox(height: 46, child: Rewards(count: widget.world.score)),
       ],
     );
   }

@@ -1,31 +1,20 @@
 import 'package:flutter/material.dart';
 
-import '../models/missing_letter_slot.dart';
-import '../models/missing_letter_tile.dart';
 import '../models/missing_letters_state.dart';
+import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/rewards.dart';
 import '../widgets/missing_letter_card.dart';
 
 class MissingLettersScreen extends StatelessWidget {
-  final bool isLoading;
-  final String? errorMessage;
-  final List<MissingLetterSlot> slots;
-  final List<MissingLetterTile> pool;
-  final MissingLettersState state;
-  final int score;
+  final MissingLettersViewData viewData;
   final VoidCallback onBack;
   final VoidCallback? onNext;
   final bool Function({required int targetId, required int tileId}) canDrop;
   final void Function({required int targetId, required int tileId}) onDrop;
 
   const MissingLettersScreen({
-    required this.isLoading,
-    required this.errorMessage,
-    required this.slots,
-    required this.pool,
-    required this.state,
-    required this.score,
+    required this.viewData,
     required this.onBack,
     required this.onNext,
     required this.canDrop,
@@ -37,7 +26,7 @@ class MissingLettersScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: FeatureAppBar(title: 'Missing letters', onBack: onBack),
-      body: switch ((isLoading, errorMessage)) {
+      body: switch ((viewData.isLoading, viewData.errorMessage)) {
         (true, _) => const Center(child: CircularProgressIndicator()),
         (_, final String message) => Center(child: Text(message)),
         _ => _buildExercise(context),
@@ -62,7 +51,7 @@ class MissingLettersScreen extends StatelessWidget {
             Wrap(
               alignment: WrapAlignment.center,
               children: [
-                for (final slot in slots)
+                for (final slot in viewData.slots)
                   slot.isMissing
                       ? MissingLetterTargetCard(
                           key: ValueKey('target-${slot.id}'),
@@ -83,7 +72,7 @@ class MissingLettersScreen extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                for (final tile in pool)
+                for (final tile in viewData.pool)
                   DraggableMissingLetterCard(
                     key: ValueKey('pool-${tile.id}'),
                     tile: tile,
@@ -92,14 +81,16 @@ class MissingLettersScreen extends StatelessWidget {
             ),
             ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 34),
-              child: Rewards(count: score),
+              child: Rewards(count: viewData.score),
             ),
             Align(
               alignment: Alignment.centerRight,
               child: FilledButton(
                 onPressed: onNext,
                 child: Text(
-                  state == MissingLettersState.solved ? 'Next' : 'Find both',
+                  viewData.state == MissingLettersState.solved
+                      ? 'Next'
+                      : 'Find both',
                 ),
               ),
             ),

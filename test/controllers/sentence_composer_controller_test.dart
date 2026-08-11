@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:literacy_game/controllers/sentence_composer_controller.dart';
 import 'package:literacy_game/models/sentence_quiz_sentence.dart';
+import 'package:literacy_game/models/view_data.dart';
 
 SentenceComposerController _controller() => SentenceComposerController(
   random: Random(12),

@@ -5,13 +5,10 @@ import 'package:flutter/foundation.dart';
 
 import '../models/layered_person_outfit.dart';
 import '../models/sentence_quiz_sentence.dart';
+import '../models/view_data.dart';
 
 const sentenceComposerWinningScore = 10;
 const sentenceComposerFeedbackDuration = Duration(seconds: 1);
-
-enum SentenceComposerState { composing, feedback, won }
-
-enum ComposerChoiceFeedback { neutral, correct, wrong }
 
 class SentenceComposerController extends ChangeNotifier {
   final Random _random;

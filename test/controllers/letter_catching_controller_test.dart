@@ -5,6 +5,7 @@ import 'package:literacy_game/controllers/letter_catching_controller.dart';
 import 'package:literacy_game/models/letter_catching_config.dart';
 import 'package:literacy_game/models/letter_catching_word.dart';
 import 'package:literacy_game/models/letter_catching_world.dart';
+import 'package:literacy_game/models/view_data.dart';
 
 const _config = LetterCatchingConfig(
   fallingSpeed: 0,

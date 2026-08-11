@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:literacy_game/models/missing_letter_slot.dart';
 import 'package:literacy_game/models/missing_letter_tile.dart';
 import 'package:literacy_game/models/missing_letters_state.dart';
+import 'package:literacy_game/models/view_data.dart';
 import 'package:literacy_game/screens/missing_letters_screen.dart';
 
 void main() {
@@ -28,12 +29,14 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: MissingLettersScreen(
-          isLoading: false,
-          errorMessage: null,
-          slots: slots,
-          pool: pool,
-          state: MissingLettersState.solving,
-          score: 0,
+          viewData: MissingLettersViewData(
+            isLoading: false,
+            errorMessage: null,
+            slots: slots,
+            pool: pool,
+            state: MissingLettersState.solving,
+            score: 0,
+          ),
           onBack: () {},
           onNext: null,
           canDrop: ({required targetId, required tileId}) => false,

@@ -5,6 +5,7 @@ import 'package:literacy_game/controllers/conveyor_controller.dart';
 import 'package:literacy_game/models/conveyor_config.dart';
 import 'package:literacy_game/models/conveyor_word.dart';
 import 'package:literacy_game/models/conveyor_world.dart';
+import 'package:literacy_game/models/view_data.dart';
 
 const _config = ConveyorConfig(
   leftBeltWidth: 290,

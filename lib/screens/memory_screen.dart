@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/memory_board_layout.dart';
 import '../models/memory_card_data.dart';
+import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/memory_card.dart';
 
@@ -11,19 +12,13 @@ class MemoryScreen extends StatelessWidget {
   static const _columnCount = 3;
   static const _rowCount = 6;
 
-  final bool isLoading;
-  final String? errorMessage;
-  final List<MemoryCardData> cards;
-  final bool isComplete;
+  final MemoryViewData viewData;
   final VoidCallback onBack;
   final Future<void> Function(int cardId) onSelect;
   final VoidCallback onNewGame;
 
   const MemoryScreen({
-    required this.isLoading,
-    required this.errorMessage,
-    required this.cards,
-    required this.isComplete,
+    required this.viewData,
     required this.onBack,
     required this.onSelect,
     required this.onNewGame,
@@ -35,7 +30,11 @@ class MemoryScreen extends StatelessWidget {
     return Scaffold(
       appBar: FeatureAppBar(title: 'Memory cards', onBack: onBack),
       body: SafeArea(
-        child: switch ((isLoading, errorMessage, cards.length)) {
+        child: switch ((
+          viewData.isLoading,
+          viewData.errorMessage,
+          viewData.cards.length,
+        )) {
           (true, _, _) => const Center(child: CircularProgressIndicator()),
           (_, final String message, _) => Center(child: Text(message)),
           (_, _, 18) => _buildBoard(),
@@ -55,7 +54,7 @@ class MemoryScreen extends StatelessWidget {
         columnCount: _columnCount,
         rowCount: _rowCount,
       );
-      final indexedCards = cards.indexed.toList();
+      final indexedCards = viewData.cards.indexed.toList();
       final faceUpCards =
           indexedCards.where((entry) => entry.$2.isFaceUp).toList()..sort(
             (first, second) =>
@@ -70,7 +69,7 @@ class MemoryScreen extends StatelessWidget {
         children: [
           for (final entry in orderedCards)
             _positionCard(board, entry.$1, entry.$2),
-          if (isComplete)
+          if (viewData.isComplete)
             Positioned.fill(
               child: Center(
                 child: FilledButton.icon(

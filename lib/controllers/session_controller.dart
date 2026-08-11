@@ -9,18 +9,16 @@ import '../models/phrase_building_state.dart';
 import '../models/phrase_building_tile.dart';
 import '../models/sentence.dart';
 import '../models/letter_dragging_state.dart';
-import '../models/letter_dragging_tile.dart';
 import '../models/letter_dragging_word.dart';
 import '../models/letter_catching_word.dart';
 import '../models/conveyor_word.dart';
 import '../models/letter_shooting_word.dart';
-import '../models/missing_letter_slot.dart';
-import '../models/missing_letter_tile.dart';
+import '../models/letter_shooting_world.dart';
 import '../models/missing_letters_state.dart';
 import '../models/missing_letters_word.dart';
-import '../models/memory_card_data.dart';
 import '../models/memory_pair.dart';
-import 'countdown_controller.dart';
+import '../models/sentence_quiz_sentence.dart';
+import '../models/view_data.dart';
 import 'letter_dragging_controller.dart';
 import 'letter_catching_controller.dart';
 import 'conveyor_controller.dart';
@@ -95,15 +93,14 @@ class SessionController extends ChangeNotifier {
     ('Sentence composer', openSentenceComposer),
   ];
 
-  bool get phraseBuildingIsLoading =>
-      _phraseBuildingController == null && _phraseBuildingError == null;
-  String? get phraseBuildingError => _phraseBuildingError;
-  List<PhraseBuildingTile> get phraseBuildingSourcePool =>
-      _phraseBuildingController?.sourcePool ?? const [];
-  List<PhraseBuildingTile> get phraseBuildingTargetPool =>
-      _phraseBuildingController?.targetPool ?? const [];
-  PhraseBuildingState get phraseBuildingState =>
-      _phraseBuildingController?.state ?? PhraseBuildingState.guessing;
+  PhraseBuildingViewData get phraseBuildingViewData => PhraseBuildingViewData(
+    isLoading:
+        _phraseBuildingController == null && _phraseBuildingError == null,
+    errorMessage: _phraseBuildingError,
+    sourcePool: _phraseBuildingController?.sourcePool ?? const [],
+    targetPool: _phraseBuildingController?.targetPool ?? const [],
+    state: _phraseBuildingController?.state ?? PhraseBuildingState.guessing,
+  );
 
   void Function(PhraseBuildingTile)? get phraseBuildingMove {
     final controller = _phraseBuildingController;
@@ -120,16 +117,15 @@ class SessionController extends ChangeNotifier {
   Future<void> phraseBuildingPlayAudio() =>
       _phraseBuildingController?.playAudio() ?? Future.value();
 
-  bool get letterDraggingIsLoading =>
-      _letterDraggingController == null && _letterDraggingError == null;
-  String? get letterDraggingError => _letterDraggingError;
-  List<LetterDraggingTile> get letterDraggingTiles =>
-      _letterDraggingController?.tiles ?? const [];
-  LetterDraggingState get letterDraggingState =>
-      _letterDraggingController?.state ?? LetterDraggingState.playing;
-  int get letterDraggingScore => _letterDraggingController?.score ?? 0;
-  CountdownController? get letterDraggingCountdown =>
-      _letterDraggingController?.countdown;
+  LetterDraggingViewData get letterDraggingViewData => LetterDraggingViewData(
+    isLoading:
+        _letterDraggingController == null && _letterDraggingError == null,
+    errorMessage: _letterDraggingError,
+    tiles: _letterDraggingController?.tiles ?? const [],
+    state: _letterDraggingController?.state ?? LetterDraggingState.playing,
+    score: _letterDraggingController?.score ?? 0,
+    countdown: _letterDraggingController?.countdown.status,
+  );
 
   void Function(int, int)? get letterDraggingReorder {
     final controller = _letterDraggingController;
@@ -150,11 +146,25 @@ class SessionController extends ChangeNotifier {
 
   void restartLetterDragging() => _letterDraggingController?.start();
 
-  bool get letterShootingIsLoading =>
-      _letterShootingController == null && _letterShootingError == null;
-  String? get letterShootingError => _letterShootingError;
-  LetterShootingController? get letterShootingController =>
-      _letterShootingController;
+  LetterShootingViewData get letterShootingViewData => LetterShootingViewData(
+    isLoading:
+        _letterShootingController == null && _letterShootingError == null,
+    errorMessage: _letterShootingError,
+    world: _letterShootingController?.world,
+    state: _letterShootingController?.state ?? LetterShootingState.playing,
+  );
+
+  void letterShootingResize(double width, double height) =>
+      _letterShootingController?.resize(width, height);
+  void letterShootingTick(double deltaSeconds) =>
+      _letterShootingController?.tick(deltaSeconds);
+  void letterShootingTap(GamePoint point) =>
+      _letterShootingController?.tap(point);
+  void letterShootingBeginAim(GamePoint point) =>
+      _letterShootingController?.beginAim(point);
+  void letterShootingUpdateAim(GamePoint point) =>
+      _letterShootingController?.updateAim(point);
+  void letterShootingReleaseAim() => _letterShootingController?.releaseAim();
 
   void openLetterShooting() {
     _letterShootingController?.start();
@@ -163,11 +173,20 @@ class SessionController extends ChangeNotifier {
 
   void restartLetterShooting() => _letterShootingController?.start();
 
-  bool get letterCatchingIsLoading =>
-      _letterCatchingController == null && _letterCatchingError == null;
-  String? get letterCatchingError => _letterCatchingError;
-  LetterCatchingController? get letterCatchingController =>
-      _letterCatchingController;
+  LetterCatchingViewData get letterCatchingViewData => LetterCatchingViewData(
+    isLoading:
+        _letterCatchingController == null && _letterCatchingError == null,
+    errorMessage: _letterCatchingError,
+    world: _letterCatchingController?.world,
+    state: _letterCatchingController?.state ?? LetterCatchingState.playing,
+  );
+
+  void letterCatchingResize(double width, double height) =>
+      _letterCatchingController?.resize(width, height);
+  void letterCatchingTick(double deltaSeconds) =>
+      _letterCatchingController?.tick(deltaSeconds);
+  void letterCatchingMovePaddleBy(double deltaX) =>
+      _letterCatchingController?.movePaddleBy(deltaX);
 
   void openLetterCatching() {
     _letterCatchingController?.start();
@@ -176,10 +195,26 @@ class SessionController extends ChangeNotifier {
 
   void restartLetterCatching() => _letterCatchingController?.start();
 
-  bool get conveyorIsLoading =>
-      _conveyorController == null && _conveyorError == null;
-  String? get conveyorError => _conveyorError;
-  ConveyorController? get conveyorController => _conveyorController;
+  ConveyorViewData get conveyorViewData => ConveyorViewData(
+    isLoading: _conveyorController == null && _conveyorError == null,
+    errorMessage: _conveyorError,
+    world: _conveyorController?.world,
+    state: _conveyorController?.state ?? ConveyorState.playing,
+  );
+
+  void conveyorResize(double width, double height) =>
+      _conveyorController?.resize(width, height);
+  void conveyorTick(double deltaSeconds) =>
+      _conveyorController?.tick(deltaSeconds);
+  bool conveyorCanAccept({required int letterId, required int shelfId}) =>
+      _conveyorController?.canAccept(letterId: letterId, shelfId: shelfId) ??
+      false;
+  void conveyorStartDragging(int letterId) =>
+      _conveyorController?.startDragging(letterId);
+  void conveyorCancelDragging(int letterId) =>
+      _conveyorController?.cancelDragging(letterId);
+  void conveyorDrop({required int letterId, required int shelfId}) =>
+      _conveyorController?.drop(letterId: letterId, shelfId: shelfId);
 
   void openConveyor() {
     _conveyorController?.start();
@@ -188,7 +223,17 @@ class SessionController extends ChangeNotifier {
 
   void restartConveyor() => _conveyorController?.start();
 
-  SentenceQuizController get sentenceQuizController => _sentenceQuizController;
+  SentenceQuizViewData get sentenceQuizViewData => SentenceQuizViewData(
+    question: _sentenceQuizController.question,
+    state: _sentenceQuizController.state,
+    score: _sentenceQuizController.score,
+    correctHighlightIndex: _sentenceQuizController.correctHighlightIndex,
+    wrongHighlightIndex: _sentenceQuizController.wrongHighlightIndex,
+    canSubmit: _sentenceQuizController.canSubmit,
+  );
+
+  Future<void> sentenceQuizSubmit(int guessIndex) =>
+      _sentenceQuizController.submit(guessIndex);
 
   void openSentenceQuiz() {
     _sentenceQuizController.start();
@@ -197,8 +242,38 @@ class SessionController extends ChangeNotifier {
 
   void restartSentenceQuiz() => _sentenceQuizController.start();
 
-  SentenceComposerController get sentenceComposerController =>
-      _sentenceComposerController;
+  SentenceComposerViewData get sentenceComposerViewData =>
+      SentenceComposerViewData(
+        outfit: _sentenceComposerController.outfit,
+        selectedPerson: _sentenceComposerController.selectedPerson,
+        selectedColor: _sentenceComposerController.selectedColor,
+        selectedPiece: _sentenceComposerController.selectedPiece,
+        state: _sentenceComposerController.state,
+        score: _sentenceComposerController.score,
+        composedSentence: _sentenceComposerController.composedSentence,
+        canSelect: _sentenceComposerController.canSelect,
+        canSubmit: _sentenceComposerController.canSubmit,
+        personFeedback: {
+          for (final person in SentencePerson.values)
+            person: _sentenceComposerController.personFeedback(person),
+        },
+        colorFeedback: {
+          for (final color in GarmentColor.values)
+            color: _sentenceComposerController.colorFeedback(color),
+        },
+        pieceFeedback: {
+          for (final piece in ClothingPiece.values)
+            piece: _sentenceComposerController.pieceFeedback(piece),
+        },
+      );
+
+  void sentenceComposerSelectPerson(SentencePerson person) =>
+      _sentenceComposerController.selectPerson(person);
+  void sentenceComposerSelectColor(GarmentColor color) =>
+      _sentenceComposerController.selectColor(color);
+  void sentenceComposerSelectPiece(ClothingPiece piece) =>
+      _sentenceComposerController.selectPiece(piece);
+  Future<void> sentenceComposerSubmit() => _sentenceComposerController.submit();
 
   void openSentenceComposer() {
     _sentenceComposerController.start();
@@ -207,16 +282,15 @@ class SessionController extends ChangeNotifier {
 
   void restartSentenceComposer() => _sentenceComposerController.start();
 
-  bool get missingLettersIsLoading =>
-      _missingLettersController == null && _missingLettersError == null;
-  String? get missingLettersError => _missingLettersError;
-  List<MissingLetterSlot> get missingLetterSlots =>
-      _missingLettersController?.slots ?? const [];
-  List<MissingLetterTile> get missingLetterPool =>
-      _missingLettersController?.pool ?? const [];
-  MissingLettersState get missingLettersState =>
-      _missingLettersController?.state ?? MissingLettersState.solving;
-  int get missingLettersScore => _missingLettersController?.score ?? 0;
+  MissingLettersViewData get missingLettersViewData => MissingLettersViewData(
+    isLoading:
+        _missingLettersController == null && _missingLettersError == null,
+    errorMessage: _missingLettersError,
+    slots: _missingLettersController?.slots ?? const [],
+    pool: _missingLettersController?.pool ?? const [],
+    state: _missingLettersController?.state ?? MissingLettersState.solving,
+    score: _missingLettersController?.score ?? 0,
+  );
   VoidCallback? get missingLettersNext =>
       _missingLettersController?.canContinue == true
       ? _missingLettersController!.next
@@ -234,10 +308,12 @@ class SessionController extends ChangeNotifier {
     _open(SessionStatus.missingLetters);
   }
 
-  bool get memoryIsLoading => _memoryController == null && _memoryError == null;
-  String? get memoryError => _memoryError;
-  List<MemoryCardData> get memoryCards => _memoryController?.cards ?? const [];
-  bool get memoryIsComplete => _memoryController?.isComplete ?? false;
+  MemoryViewData get memoryViewData => MemoryViewData(
+    isLoading: _memoryController == null && _memoryError == null,
+    errorMessage: _memoryError,
+    cards: _memoryController?.cards ?? const [],
+    isComplete: _memoryController?.isComplete ?? false,
+  );
   Future<void> memorySelect(int cardId) =>
       _memoryController?.select(cardId) ?? Future.value();
   void memoryStartNewGame() => _memoryController?.startNewGame();
@@ -341,7 +417,8 @@ class SessionController extends ChangeNotifier {
       ];
       if (_disposed) return;
 
-      _letterShootingController = LetterShootingController(words: words);
+      _letterShootingController = LetterShootingController(words: words)
+        ..addListener(_forwardFeatureNotification);
       if (status == SessionStatus.letterShooting) {
         _letterShootingController!.start();
       }
@@ -364,7 +441,8 @@ class SessionController extends ChangeNotifier {
       ];
       if (_disposed) return;
 
-      _letterCatchingController = LetterCatchingController(words: words);
+      _letterCatchingController = LetterCatchingController(words: words)
+        ..addListener(_forwardFeatureNotification);
       if (status == SessionStatus.letterCatching) {
         _letterCatchingController!.start();
       }
@@ -429,7 +507,9 @@ class SessionController extends ChangeNotifier {
     _phraseBuildingController?.dispose();
     _letterDraggingController?.removeListener(_forwardFeatureNotification);
     _letterDraggingController?.dispose();
+    _letterShootingController?.removeListener(_forwardFeatureNotification);
     _letterShootingController?.dispose();
+    _letterCatchingController?.removeListener(_forwardFeatureNotification);
     _letterCatchingController?.dispose();
     _conveyorController?.dispose();
     _missingLettersController?.removeListener(_forwardFeatureNotification);

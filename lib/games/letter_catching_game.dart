@@ -4,13 +4,18 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart' show Colors;
 import 'package:flutter/painting.dart';
 
-import '../controllers/letter_catching_controller.dart';
 import '../models/letter_catching_world.dart';
 
 class LetterCatchingGame extends FlameGame {
-  final LetterCatchingController controller;
+  final LetterCatchingWorld gameWorld;
+  final void Function(double width, double height) onResize;
+  final void Function(double deltaSeconds) onTick;
 
-  LetterCatchingGame(this.controller);
+  LetterCatchingGame({
+    required this.gameWorld,
+    required this.onResize,
+    required this.onTick,
+  });
 
   @override
   Color backgroundColor() => const Color(0xff101318);
@@ -18,22 +23,21 @@ class LetterCatchingGame extends FlameGame {
   @override
   void onGameResize(Vector2 size) {
     super.onGameResize(size);
-    controller.resize(size.x, size.y);
+    onResize(size.x, size.y);
   }
 
   @override
   void update(double dt) {
-    controller.tick(dt);
+    onTick(dt);
     super.update(dt);
   }
 
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    final world = controller.world;
-    _renderTargetWord(canvas, world);
-    _renderFallingLetters(canvas, world);
-    _renderPaddle(canvas, world);
+    _renderTargetWord(canvas, gameWorld);
+    _renderFallingLetters(canvas, gameWorld);
+    _renderPaddle(canvas, gameWorld);
   }
 
   void _renderTargetWord(Canvas canvas, LetterCatchingWorld world) {

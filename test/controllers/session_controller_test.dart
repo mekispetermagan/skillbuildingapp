@@ -78,20 +78,20 @@ void main() {
       'Sentence quiz',
       'Sentence composer',
     ]);
-    expect(controller.phraseBuildingIsLoading, isFalse);
-    expect(controller.phraseBuildingError, isNull);
-    expect(controller.letterDraggingIsLoading, isFalse);
-    expect(controller.letterDraggingError, isNull);
-    expect(controller.missingLettersIsLoading, isFalse);
-    expect(controller.missingLettersError, isNull);
-    expect(controller.memoryIsLoading, isFalse);
-    expect(controller.memoryError, isNull);
-    expect(controller.letterShootingIsLoading, isFalse);
-    expect(controller.letterShootingError, isNull);
-    expect(controller.letterCatchingIsLoading, isFalse);
-    expect(controller.letterCatchingError, isNull);
-    expect(controller.conveyorIsLoading, isFalse);
-    expect(controller.conveyorError, isNull);
+    expect(controller.phraseBuildingViewData.isLoading, isFalse);
+    expect(controller.phraseBuildingViewData.errorMessage, isNull);
+    expect(controller.letterDraggingViewData.isLoading, isFalse);
+    expect(controller.letterDraggingViewData.errorMessage, isNull);
+    expect(controller.missingLettersViewData.isLoading, isFalse);
+    expect(controller.missingLettersViewData.errorMessage, isNull);
+    expect(controller.memoryViewData.isLoading, isFalse);
+    expect(controller.memoryViewData.errorMessage, isNull);
+    expect(controller.letterShootingViewData.isLoading, isFalse);
+    expect(controller.letterShootingViewData.errorMessage, isNull);
+    expect(controller.letterCatchingViewData.isLoading, isFalse);
+    expect(controller.letterCatchingViewData.errorMessage, isNull);
+    expect(controller.conveyorViewData.isLoading, isFalse);
+    expect(controller.conveyorViewData.errorMessage, isNull);
 
     controller.menuItems[2].$2();
     expect(controller.status, SessionStatus.missingLetters);

@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
 
-import '../controllers/sentence_composer_controller.dart';
 import '../models/sentence_quiz_sentence.dart';
+import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/layered_person.dart';
 import '../widgets/rewards.dart';
 import '../widgets/single_select_segments.dart';
 
 class SentenceComposerScreen extends StatelessWidget {
-  final SentenceComposerController controller;
+  final SentenceComposerViewData viewData;
+  final ValueChanged<SentencePerson> onSelectPerson;
+  final ValueChanged<GarmentColor> onSelectColor;
+  final ValueChanged<ClothingPiece> onSelectPiece;
+  final Future<void> Function() onSubmit;
   final VoidCallback onBack;
   final VoidCallback onRestart;
 
   const SentenceComposerScreen({
-    required this.controller,
+    required this.viewData,
+    required this.onSelectPerson,
+    required this.onSelectColor,
+    required this.onSelectPiece,
+    required this.onSubmit,
     required this.onBack,
     required this.onRestart,
     super.key,
@@ -23,49 +31,64 @@ class SentenceComposerScreen extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
     appBar: FeatureAppBar(title: 'Sentence composer', onBack: onBack),
     body: SafeArea(
-      child: ListenableBuilder(
-        listenable: controller,
-        builder: (_, _) => Stack(
-          children: [
-            Positioned.fill(child: _ComposerContent(controller: controller)),
-            if (controller.state == SentenceComposerState.won)
-              Positioned.fill(
-                child: ColoredBox(
-                  color: Colors.black54,
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Congratulations!',
-                          style: Theme.of(context).textTheme.headlineMedium,
-                        ),
-                        const SizedBox(height: 20),
-                        FilledButton(
-                          onPressed: onRestart,
-                          child: const Text('Play again?'),
-                        ),
-                      ],
-                    ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: _ComposerContent(
+              viewData: viewData,
+              onSelectPerson: onSelectPerson,
+              onSelectColor: onSelectColor,
+              onSelectPiece: onSelectPiece,
+              onSubmit: onSubmit,
+            ),
+          ),
+          if (viewData.state == SentenceComposerState.won)
+            Positioned.fill(
+              child: ColoredBox(
+                color: Colors.black54,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Congratulations!',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: 20),
+                      FilledButton(
+                        onPressed: onRestart,
+                        child: const Text('Play again?'),
+                      ),
+                    ],
                   ),
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     ),
   );
 }
 
 class _ComposerContent extends StatelessWidget {
-  final SentenceComposerController controller;
+  final SentenceComposerViewData viewData;
+  final ValueChanged<SentencePerson> onSelectPerson;
+  final ValueChanged<GarmentColor> onSelectColor;
+  final ValueChanged<ClothingPiece> onSelectPiece;
+  final Future<void> Function() onSubmit;
 
-  const _ComposerContent({required this.controller});
+  const _ComposerContent({
+    required this.viewData,
+    required this.onSelectPerson,
+    required this.onSelectColor,
+    required this.onSelectPiece,
+    required this.onSubmit,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final outfit = controller.outfit;
-    final canSelect = controller.canSelect;
+    final outfit = viewData.outfit;
+    final canSelect = viewData.canSelect;
     return CustomScrollView(
       slivers: [
         SliverFillRemaining(
@@ -81,7 +104,7 @@ class _ComposerContent extends StatelessWidget {
                   jeansImagePath: outfit.visibleJeans.imagePath,
                 ),
                 Text(
-                  controller.composedSentence,
+                  viewData.composedSentence,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
@@ -91,11 +114,11 @@ class _ComposerContent extends StatelessWidget {
                       SegmentChoice(
                         value: person,
                         label: person.displayName,
-                        feedback: _feedback(controller.personFeedback(person)),
+                        feedback: _feedback(viewData.personFeedback[person]!),
                       ),
                   ],
-                  selected: controller.selectedPerson,
-                  onSelected: canSelect ? controller.selectPerson : null,
+                  selected: viewData.selectedPerson,
+                  onSelected: canSelect ? onSelectPerson : null,
                 ),
                 SingleSelectSegments<GarmentColor>(
                   choices: [
@@ -103,11 +126,11 @@ class _ComposerContent extends StatelessWidget {
                       SegmentChoice(
                         value: color,
                         label: color.name,
-                        feedback: _feedback(controller.colorFeedback(color)),
+                        feedback: _feedback(viewData.colorFeedback[color]!),
                       ),
                   ],
-                  selected: controller.selectedColor,
-                  onSelected: canSelect ? controller.selectColor : null,
+                  selected: viewData.selectedColor,
+                  onSelected: canSelect ? onSelectColor : null,
                 ),
                 SingleSelectSegments<ClothingPiece>(
                   choices: [
@@ -118,16 +141,16 @@ class _ComposerContent extends StatelessWidget {
                       SegmentChoice(
                         value: piece,
                         label: piece.name,
-                        feedback: _feedback(controller.pieceFeedback(piece)),
+                        feedback: _feedback(viewData.pieceFeedback[piece]!),
                       ),
                   ],
-                  selected: controller.selectedPiece,
-                  onSelected: canSelect ? controller.selectPiece : null,
+                  selected: viewData.selectedPiece,
+                  onSelected: canSelect ? onSelectPiece : null,
                 ),
                 Center(
                   child: FilledButton(
                     key: const ValueKey('sentence-composer-submit'),
-                    onPressed: controller.canSubmit ? controller.submit : null,
+                    onPressed: viewData.canSubmit ? onSubmit : null,
                     child: const Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: 24,
@@ -137,7 +160,7 @@ class _ComposerContent extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 46, child: Rewards(count: controller.score)),
+                SizedBox(height: 46, child: Rewards(count: viewData.score)),
               ],
             ),
           ),

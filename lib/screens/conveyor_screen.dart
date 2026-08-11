@@ -1,24 +1,34 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-import '../controllers/conveyor_controller.dart';
 import '../games/conveyor_game.dart';
 import '../models/conveyor_world.dart';
+import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/lives_display.dart';
 import '../widgets/rewards.dart';
 
 class ConveyorScreen extends StatelessWidget {
-  final bool isLoading;
-  final String? errorMessage;
-  final ConveyorController? controller;
+  final ConveyorViewData viewData;
+  final ValueGetter<ConveyorViewData> readViewData;
+  final void Function(double width, double height) onResize;
+  final ValueChanged<double> onTick;
+  final bool Function({required int letterId, required int shelfId}) canAccept;
+  final ValueChanged<int> onStartDragging;
+  final ValueChanged<int> onCancelDragging;
+  final void Function({required int letterId, required int shelfId}) onDrop;
   final VoidCallback onBack;
   final VoidCallback onRestart;
 
   const ConveyorScreen({
-    required this.isLoading,
-    required this.errorMessage,
-    required this.controller,
+    required this.viewData,
+    required this.readViewData,
+    required this.onResize,
+    required this.onTick,
+    required this.canAccept,
+    required this.onStartDragging,
+    required this.onCancelDragging,
+    required this.onDrop,
     required this.onBack,
     required this.onRestart,
     super.key,
@@ -27,11 +37,22 @@ class ConveyorScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: FeatureAppBar(title: 'Word conveyor', onBack: onBack),
-    body: switch ((isLoading, errorMessage, controller)) {
+    body: switch ((viewData.isLoading, viewData.errorMessage, viewData.world)) {
       (true, _, _) => const Center(child: CircularProgressIndicator()),
       (_, final String message, _) => Center(child: Text(message)),
-      (_, _, final ConveyorController controller) => SafeArea(
-        child: _ConveyorPlayArea(controller: controller, onRestart: onRestart),
+      (_, _, final ConveyorWorld world) => SafeArea(
+        child: _ConveyorPlayArea(
+          initialViewData: viewData,
+          world: world,
+          readViewData: readViewData,
+          onResize: onResize,
+          onTick: onTick,
+          canAccept: canAccept,
+          onStartDragging: onStartDragging,
+          onCancelDragging: onCancelDragging,
+          onDrop: onDrop,
+          onRestart: onRestart,
+        ),
       ),
       _ => const SizedBox.shrink(),
     },
@@ -39,17 +60,55 @@ class ConveyorScreen extends StatelessWidget {
 }
 
 class _ConveyorPlayArea extends StatefulWidget {
-  final ConveyorController controller;
+  final ConveyorViewData initialViewData;
+  final ConveyorWorld world;
+  final ValueGetter<ConveyorViewData> readViewData;
+  final void Function(double width, double height) onResize;
+  final ValueChanged<double> onTick;
+  final bool Function({required int letterId, required int shelfId}) canAccept;
+  final ValueChanged<int> onStartDragging;
+  final ValueChanged<int> onCancelDragging;
+  final void Function({required int letterId, required int shelfId}) onDrop;
   final VoidCallback onRestart;
 
-  const _ConveyorPlayArea({required this.controller, required this.onRestart});
+  const _ConveyorPlayArea({
+    required this.initialViewData,
+    required this.world,
+    required this.readViewData,
+    required this.onResize,
+    required this.onTick,
+    required this.canAccept,
+    required this.onStartDragging,
+    required this.onCancelDragging,
+    required this.onDrop,
+    required this.onRestart,
+  });
 
   @override
   State<_ConveyorPlayArea> createState() => _ConveyorPlayAreaState();
 }
 
 class _ConveyorPlayAreaState extends State<_ConveyorPlayArea> {
-  late final ConveyorGame _game = ConveyorGame(widget.controller);
+  late ConveyorViewData _viewData = widget.initialViewData;
+  final ValueNotifier<int> _frame = ValueNotifier(0);
+  late final ConveyorGame _game = ConveyorGame(
+    gameWorld: widget.world,
+    onResize: widget.onResize,
+    onTick: widget.onTick,
+    onFrame: _refreshFrame,
+  );
+
+  void _refreshFrame() {
+    if (!mounted) return;
+    _viewData = widget.readViewData();
+    _frame.value++;
+  }
+
+  @override
+  void dispose() {
+    _frame.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => Column(
@@ -61,9 +120,14 @@ class _ConveyorPlayAreaState extends State<_ConveyorPlayArea> {
               Positioned.fill(child: GameWidget(game: _game)),
               Positioned.fill(
                 child: ListenableBuilder(
-                  listenable: widget.controller,
-                  builder: (_, _) =>
-                      _MovingPieces(controller: widget.controller),
+                  listenable: _frame,
+                  builder: (_, _) => _MovingPieces(
+                    world: widget.world,
+                    canAccept: widget.canAccept,
+                    onStartDragging: widget.onStartDragging,
+                    onCancelDragging: widget.onCancelDragging,
+                    onDrop: widget.onDrop,
+                  ),
                 ),
               ),
               Positioned(
@@ -71,19 +135,18 @@ class _ConveyorPlayAreaState extends State<_ConveyorPlayArea> {
                 right: 12,
                 child: IgnorePointer(
                   child: ListenableBuilder(
-                    listenable: widget.controller,
+                    listenable: _frame,
                     builder: (_, _) => LivesDisplay(
-                      lives: widget.controller.world.lives,
-                      maximumLives:
-                          widget.controller.world.config.startingLives,
+                      lives: widget.world.lives,
+                      maximumLives: widget.world.config.startingLives,
                     ),
                   ),
                 ),
               ),
               Positioned.fill(
                 child: ListenableBuilder(
-                  listenable: widget.controller,
-                  builder: (_, _) => switch (widget.controller.state) {
+                  listenable: _frame,
+                  builder: (_, _) => switch (_viewData.state) {
                     ConveyorState.playing => const SizedBox.shrink(),
                     ConveyorState.won => _EndOverlay(
                       message: 'Congratulations!',
@@ -103,8 +166,8 @@ class _ConveyorPlayAreaState extends State<_ConveyorPlayArea> {
       SizedBox(
         height: 46,
         child: ListenableBuilder(
-          listenable: widget.controller,
-          builder: (_, _) => Rewards(count: widget.controller.world.score),
+          listenable: _frame,
+          builder: (_, _) => Rewards(count: widget.world.score),
         ),
       ),
     ],
@@ -112,13 +175,22 @@ class _ConveyorPlayAreaState extends State<_ConveyorPlayArea> {
 }
 
 class _MovingPieces extends StatelessWidget {
-  final ConveyorController controller;
+  final ConveyorWorld world;
+  final bool Function({required int letterId, required int shelfId}) canAccept;
+  final ValueChanged<int> onStartDragging;
+  final ValueChanged<int> onCancelDragging;
+  final void Function({required int letterId, required int shelfId}) onDrop;
 
-  const _MovingPieces({required this.controller});
+  const _MovingPieces({
+    required this.world,
+    required this.canAccept,
+    required this.onStartDragging,
+    required this.onCancelDragging,
+    required this.onDrop,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final world = controller.world;
     return Stack(
       clipBehavior: Clip.hardEdge,
       children: [
@@ -130,12 +202,10 @@ class _MovingPieces extends StatelessWidget {
             width: world.leftBeltWidth - 10,
             height: world.config.shelfHeight,
             child: DragTarget<int>(
-              onWillAcceptWithDetails: (details) => controller.canAccept(
-                letterId: details.data,
-                shelfId: shelf.id,
-              ),
+              onWillAcceptWithDetails: (details) =>
+                  canAccept(letterId: details.data, shelfId: shelf.id),
               onAcceptWithDetails: (details) =>
-                  controller.drop(letterId: details.data, shelfId: shelf.id),
+                  onDrop(letterId: details.data, shelfId: shelf.id),
               builder: (_, candidates, _) =>
                   _ShelfCard(shelf: shelf, isHovering: candidates.isNotEmpty),
             ),
@@ -151,12 +221,11 @@ class _MovingPieces extends StatelessWidget {
             height: world.config.letterSize,
             child: Draggable<int>(
               data: letter.id,
-              onDragStarted: () => controller.startDragging(letter.id),
-              onDraggableCanceled: (_, _) =>
-                  controller.cancelDragging(letter.id),
+              onDragStarted: () => onStartDragging(letter.id),
+              onDraggableCanceled: (_, _) => onCancelDragging(letter.id),
               onDragEnd: (details) {
                 if (!details.wasAccepted) {
-                  controller.cancelDragging(letter.id);
+                  onCancelDragging(letter.id);
                 }
               },
               feedback: Material(

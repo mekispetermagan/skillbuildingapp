@@ -1,12 +1,20 @@
 import 'package:flame/game.dart';
 import 'package:flutter/painting.dart';
 
-import '../controllers/conveyor_controller.dart';
+import '../models/conveyor_world.dart';
 
 class ConveyorGame extends FlameGame {
-  final ConveyorController controller;
+  final ConveyorWorld gameWorld;
+  final void Function(double width, double height) onResize;
+  final void Function(double deltaSeconds) onTick;
+  final void Function() onFrame;
 
-  ConveyorGame(this.controller);
+  ConveyorGame({
+    required this.gameWorld,
+    required this.onResize,
+    required this.onTick,
+    required this.onFrame,
+  });
 
   @override
   Color backgroundColor() => const Color(0xff101318);
@@ -14,19 +22,19 @@ class ConveyorGame extends FlameGame {
   @override
   void onGameResize(Vector2 size) {
     super.onGameResize(size);
-    controller.resize(size.x, size.y);
+    onResize(size.x, size.y);
   }
 
   @override
   void update(double dt) {
-    controller.tick(dt);
+    onTick(dt);
+    onFrame();
     super.update(dt);
   }
 
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    final world = controller.world;
     final beltPaint = Paint()..color = const Color(0xff252a31);
     final railPaint = Paint()
       ..color = const Color(0xff59616c)
@@ -34,16 +42,16 @@ class ConveyorGame extends FlameGame {
       ..style = PaintingStyle.stroke;
 
     final left = Rect.fromLTWH(
-      world.leftBeltX,
+      gameWorld.leftBeltX,
       0,
-      world.leftBeltWidth,
-      world.height,
+      gameWorld.leftBeltWidth,
+      gameWorld.height,
     );
     final right = Rect.fromLTWH(
-      world.rightBeltX,
+      gameWorld.rightBeltX,
       0,
-      world.config.rightBeltWidth,
-      world.height,
+      gameWorld.config.rightBeltWidth,
+      gameWorld.height,
     );
     canvas
       ..drawRect(left, beltPaint)
@@ -57,7 +65,7 @@ class ConveyorGame extends FlameGame {
       ..color = const Color(0xff343b44)
       ..strokeWidth = 2;
     const stripeSpacing = 34.0;
-    for (var y = 0.0; y < world.height; y += stripeSpacing) {
+    for (var y = 0.0; y < gameWorld.height; y += stripeSpacing) {
       canvas
         ..drawLine(Offset(left.left, y), Offset(left.right, y), stripePaint)
         ..drawLine(Offset(right.left, y), Offset(right.right, y), stripePaint);

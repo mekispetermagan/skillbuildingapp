@@ -2,13 +2,18 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart' show Colors;
 import 'package:flutter/painting.dart';
 
-import '../controllers/letter_shooting_controller.dart';
 import '../models/letter_shooting_world.dart';
 
 class LetterShootingGame extends FlameGame {
-  final LetterShootingController controller;
+  final LetterShootingWorld gameWorld;
+  final void Function(double width, double height) onResize;
+  final void Function(double deltaSeconds) onTick;
 
-  LetterShootingGame(this.controller);
+  LetterShootingGame({
+    required this.gameWorld,
+    required this.onResize,
+    required this.onTick,
+  });
 
   @override
   Color backgroundColor() => const Color(0xff101318);
@@ -16,23 +21,22 @@ class LetterShootingGame extends FlameGame {
   @override
   void onGameResize(Vector2 size) {
     super.onGameResize(size);
-    controller.resize(size.x, size.y);
+    onResize(size.x, size.y);
   }
 
   @override
   void update(double dt) {
-    controller.tick(dt);
+    onTick(dt);
     super.update(dt);
   }
 
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    final world = controller.world;
-    _renderTargets(canvas, world);
-    _renderProjectiles(canvas, world);
-    _renderCannon(canvas, world);
-    _renderSourceLetters(canvas, world);
+    _renderTargets(canvas, gameWorld);
+    _renderProjectiles(canvas, gameWorld);
+    _renderCannon(canvas, gameWorld);
+    _renderSourceLetters(canvas, gameWorld);
   }
 
   void _renderTargets(Canvas canvas, LetterShootingWorld world) {

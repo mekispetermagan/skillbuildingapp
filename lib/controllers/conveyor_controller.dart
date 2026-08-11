@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../models/conveyor_config.dart';
 import '../models/conveyor_word.dart';
 import '../models/conveyor_world.dart';
+import '../models/view_data.dart';
 
 const conveyorConfig = ConveyorConfig(
   leftBeltWidth: 290,
@@ -21,8 +22,6 @@ const conveyorConfig = ConveyorConfig(
   winningScore: 10,
   maximumUpdateStep: 1 / 120,
 );
-
-enum ConveyorState { playing, won, lost }
 
 class ConveyorController extends ChangeNotifier {
   final ConveyorWorld world;

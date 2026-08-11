@@ -1,23 +1,26 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-import '../controllers/letter_catching_controller.dart';
 import '../games/letter_catching_game.dart';
+import '../models/letter_catching_world.dart';
+import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/lives_display.dart';
 import '../widgets/rewards.dart';
 
 class LetterCatchingScreen extends StatelessWidget {
-  final bool isLoading;
-  final String? errorMessage;
-  final LetterCatchingController? controller;
+  final LetterCatchingViewData viewData;
+  final void Function(double width, double height) onResize;
+  final ValueChanged<double> onTick;
+  final ValueChanged<double> onMovePaddleBy;
   final VoidCallback onBack;
   final VoidCallback onRestart;
 
   const LetterCatchingScreen({
-    required this.isLoading,
-    required this.errorMessage,
-    required this.controller,
+    required this.viewData,
+    required this.onResize,
+    required this.onTick,
+    required this.onMovePaddleBy,
     required this.onBack,
     required this.onRestart,
     super.key,
@@ -26,12 +29,16 @@ class LetterCatchingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: FeatureAppBar(title: 'Letter catching', onBack: onBack),
-    body: switch ((isLoading, errorMessage, controller)) {
+    body: switch ((viewData.isLoading, viewData.errorMessage, viewData.world)) {
       (true, _, _) => const Center(child: CircularProgressIndicator()),
       (_, final String message, _) => Center(child: Text(message)),
-      (_, _, final LetterCatchingController controller) => SafeArea(
+      (_, _, final LetterCatchingWorld world) => SafeArea(
         child: _LetterCatchingPlayArea(
-          controller: controller,
+          world: world,
+          state: viewData.state,
+          onResize: onResize,
+          onTick: onTick,
+          onMovePaddleBy: onMovePaddleBy,
           onRestart: onRestart,
         ),
       ),
@@ -41,11 +48,19 @@ class LetterCatchingScreen extends StatelessWidget {
 }
 
 class _LetterCatchingPlayArea extends StatefulWidget {
-  final LetterCatchingController controller;
+  final LetterCatchingWorld world;
+  final LetterCatchingState state;
+  final void Function(double width, double height) onResize;
+  final ValueChanged<double> onTick;
+  final ValueChanged<double> onMovePaddleBy;
   final VoidCallback onRestart;
 
   const _LetterCatchingPlayArea({
-    required this.controller,
+    required this.world,
+    required this.state,
+    required this.onResize,
+    required this.onTick,
+    required this.onMovePaddleBy,
     required this.onRestart,
   });
 
@@ -55,7 +70,11 @@ class _LetterCatchingPlayArea extends StatefulWidget {
 }
 
 class _LetterCatchingPlayAreaState extends State<_LetterCatchingPlayArea> {
-  late final LetterCatchingGame _game = LetterCatchingGame(widget.controller);
+  late final LetterCatchingGame _game = LetterCatchingGame(
+    gameWorld: widget.world,
+    onResize: widget.onResize,
+    onTick: widget.onTick,
+  );
 
   @override
   Widget build(BuildContext context) => Column(
@@ -67,7 +86,7 @@ class _LetterCatchingPlayAreaState extends State<_LetterCatchingPlayArea> {
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onHorizontalDragUpdate: (details) =>
-                    widget.controller.movePaddleBy(details.delta.dx),
+                    widget.onMovePaddleBy(details.delta.dx),
                 child: GameWidget(game: _game),
               ),
             ),
@@ -75,41 +94,29 @@ class _LetterCatchingPlayAreaState extends State<_LetterCatchingPlayArea> {
               top: 10,
               right: 12,
               child: IgnorePointer(
-                child: ListenableBuilder(
-                  listenable: widget.controller,
-                  builder: (_, _) => LivesDisplay(
-                    lives: widget.controller.world.lives,
-                    maximumLives: widget.controller.world.config.startingLives,
-                  ),
+                child: LivesDisplay(
+                  lives: widget.world.lives,
+                  maximumLives: widget.world.config.startingLives,
                 ),
               ),
             ),
             Positioned.fill(
-              child: ListenableBuilder(
-                listenable: widget.controller,
-                builder: (_, _) => switch (widget.controller.state) {
-                  LetterCatchingState.playing => const SizedBox.shrink(),
-                  LetterCatchingState.won => _EndOverlay(
-                    message: 'Congratulations!',
-                    onRestart: widget.onRestart,
-                  ),
-                  LetterCatchingState.lost => _EndOverlay(
-                    message: 'Sorry!',
-                    onRestart: widget.onRestart,
-                  ),
-                },
-              ),
+              child: switch (widget.state) {
+                LetterCatchingState.playing => const SizedBox.shrink(),
+                LetterCatchingState.won => _EndOverlay(
+                  message: 'Congratulations!',
+                  onRestart: widget.onRestart,
+                ),
+                LetterCatchingState.lost => _EndOverlay(
+                  message: 'Sorry!',
+                  onRestart: widget.onRestart,
+                ),
+              },
             ),
           ],
         ),
       ),
-      SizedBox(
-        height: 46,
-        child: ListenableBuilder(
-          listenable: widget.controller,
-          builder: (_, _) => Rewards(count: widget.controller.world.score),
-        ),
-      ),
+      SizedBox(height: 46, child: Rewards(count: widget.world.score)),
     ],
   );
 }

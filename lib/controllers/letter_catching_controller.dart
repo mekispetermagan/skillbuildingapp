@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../models/letter_catching_config.dart';
 import '../models/letter_catching_word.dart';
 import '../models/letter_catching_world.dart';
+import '../models/view_data.dart';
 
 const letterCatchingConfig = LetterCatchingConfig(
   fallingSpeed: 150,
@@ -18,8 +19,6 @@ const letterCatchingConfig = LetterCatchingConfig(
   winningScore: 10,
   maximumUpdateStep: 1 / 120,
 );
-
-enum LetterCatchingState { playing, won, lost }
 
 class LetterCatchingController extends ChangeNotifier {
   final LetterCatchingWorld world;
