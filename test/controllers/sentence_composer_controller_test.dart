@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:literacy_game/controllers/sentence_composer_controller.dart';
-import 'package:literacy_game/models/sentence_quiz_sentence.dart';
-import 'package:literacy_game/models/view_data.dart';
+import 'package:literacy_game/models/outfit_sentence.dart';
+import 'package:literacy_game/models/sentence_composer_state.dart';
 
 SentenceComposerController _controller() => SentenceComposerController(
   random: Random(12),
@@ -77,17 +77,23 @@ void main() {
     final submission = controller.submit();
 
     expect(controller.state, SentenceComposerState.feedback);
-    expect(controller.personFeedback(wrongPerson), AnswerFeedback.wrong);
+    expect(
+      controller.personFeedback(wrongPerson),
+      ComposerChoiceAssessment.wrong,
+    );
     expect(
       controller.personFeedback(controller.outfit.person),
-      AnswerFeedback.correct,
+      ComposerChoiceAssessment.correct,
     );
-    expect(controller.colorFeedback(wrongColor), AnswerFeedback.wrong);
+    expect(
+      controller.colorFeedback(wrongColor),
+      ComposerChoiceAssessment.wrong,
+    );
     expect(
       controller.colorFeedback(controller.outfit.shirtColor),
-      AnswerFeedback.correct,
+      ComposerChoiceAssessment.correct,
     );
-    expect(controller.pieceFeedback(piece), AnswerFeedback.correct);
+    expect(controller.pieceFeedback(piece), ComposerChoiceAssessment.correct);
     expect(controller.score, 0);
 
     await submission;
@@ -116,4 +122,20 @@ void main() {
       expect(controller.selectedPiece, isNull);
     },
   );
+
+  test('restart invalidates feedback from the previous session', () async {
+    final controller = SentenceComposerController(
+      random: Random(12),
+      feedbackDuration: const Duration(milliseconds: 10),
+    );
+    _selectCorrect(controller, ClothingPiece.shirt);
+    final submission = controller.submit();
+
+    controller.start();
+    await submission;
+
+    expect(controller.score, 0);
+    expect(controller.state, SentenceComposerState.composing);
+    expect(controller.selectedPerson, isNull);
+  });
 }

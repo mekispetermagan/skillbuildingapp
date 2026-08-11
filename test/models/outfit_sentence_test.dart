@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/models/sentence_quiz_sentence.dart';
+import 'package:literacy_game/models/outfit_sentence.dart';
 
 void main() {
   test('uses natural shirt grammar and derives its asset path', () {
-    const sentence = SentenceQuizSentence(
+    const sentence = OutfitSentence(
       person: SentencePerson.sarah,
       color: GarmentColor.green,
       piece: ClothingPiece.shirt,
@@ -17,7 +17,7 @@ void main() {
   });
 
   test('uses plural jeans grammar and derives its asset path', () {
-    const sentence = SentenceQuizSentence(
+    const sentence = OutfitSentence(
       person: SentencePerson.timothy,
       color: GarmentColor.blue,
       piece: ClothingPiece.jeans,

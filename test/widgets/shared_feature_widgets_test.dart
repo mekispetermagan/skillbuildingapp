@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/models/view_data.dart';
+import 'package:literacy_game/models/answer_feedback.dart';
 import 'package:literacy_game/widgets/feature_load_state.dart';
 import 'package:literacy_game/widgets/game_end_overlay.dart';
 import 'package:literacy_game/widgets/quiz_option_button.dart';
-import 'package:literacy_game/widgets/reward_row.dart';
+import 'package:literacy_game/widgets/reward_gem_row.dart';
 
 void main() {
   Widget app(Widget child) => MaterialApp(home: Scaffold(body: child));
@@ -51,7 +51,7 @@ void main() {
     );
 
     expect(find.text('Congratulations!'), findsOneWidget);
-    await tester.tap(find.text('Play again?'));
+    await tester.tap(find.text('Play again'));
     expect(restarted, isTrue);
   });
 
@@ -75,8 +75,18 @@ void main() {
   });
 
   testWidgets('reward row keeps its height with no rewards', (tester) async {
-    await tester.pumpWidget(app(const RewardRow(count: 0)));
+    await tester.pumpWidget(app(const RewardGemRow(count: 0)));
 
-    expect(tester.getSize(find.byType(RewardRow)).height, 46);
+    expect(tester.getSize(find.byType(RewardGemRow)).height, 46);
+  });
+
+  testWidgets('ten reward gems scale to a narrow game width', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(240, 300));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    await tester.pumpWidget(app(const RewardGemRow(count: 10)));
+
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byType(RewardGemRow)).width, 240);
   });
 }

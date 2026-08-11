@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:literacy_game/controllers/sentence_quiz_controller.dart';
-import 'package:literacy_game/models/view_data.dart';
+import 'package:literacy_game/models/sentence_quiz_state.dart';
 
 SentenceQuizController _controller() =>
     SentenceQuizController(random: Random(8), feedbackDuration: Duration.zero);
@@ -81,5 +81,20 @@ void main() {
 
     await submission;
     expect(controller.score, 1);
+  });
+
+  test('restart invalidates feedback from the previous session', () async {
+    final controller = SentenceQuizController(
+      random: Random(5),
+      feedbackDuration: const Duration(milliseconds: 10),
+    );
+    final submission = controller.submit(controller.question.correctIndex);
+
+    controller.start();
+    await submission;
+
+    expect(controller.score, 0);
+    expect(controller.state, SentenceQuizState.guessing);
+    expect(controller.correctHighlightIndex, isNull);
   });
 }

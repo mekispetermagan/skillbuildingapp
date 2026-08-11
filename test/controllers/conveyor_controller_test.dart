@@ -3,9 +3,9 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:literacy_game/controllers/conveyor_controller.dart';
 import 'package:literacy_game/models/conveyor_config.dart';
-import 'package:literacy_game/models/conveyor_word.dart';
+import 'package:literacy_game/models/image_word.dart';
 import 'package:literacy_game/models/conveyor_world.dart';
-import 'package:literacy_game/models/view_data.dart';
+import 'package:literacy_game/models/conveyor_state.dart';
 
 const _config = ConveyorConfig(
   leftBeltWidth: 290,
@@ -24,8 +24,8 @@ const _config = ConveyorConfig(
 );
 
 const _words = [
-  ConveyorWord(id: 1, word: 'SHEEP', imagePath: 'sheep.png'),
-  ConveyorWord(id: 2, word: 'GOAT', imagePath: 'goat.png'),
+  ImageWord(id: 1, word: 'SHEEP', imagePath: 'sheep.png'),
+  ImageWord(id: 2, word: 'GOAT', imagePath: 'goat.png'),
 ];
 
 ConveyorController _controller({ConveyorConfig config = _config}) {

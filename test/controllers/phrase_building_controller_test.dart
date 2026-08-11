@@ -26,8 +26,8 @@ void main() {
       final controller = PhraseBuildingController(
         audioPlayer,
         sentences: const [
-          Sentence(id: 1, string: 'red bird', audioPath: 'first.mp3'),
-          Sentence(id: 2, string: 'blue fish', audioPath: 'second.mp3'),
+          Sentence(id: 1, text: 'red bird', audioPath: 'first.mp3'),
+          Sentence(id: 2, text: 'blue fish', audioPath: 'second.mp3'),
         ],
         random: Random(1),
         feedbackDuration: Duration.zero,
@@ -55,7 +55,7 @@ void main() {
     final controller = PhraseBuildingController(
       _FakeAudioPlayer(),
       sentences: const [
-        Sentence(id: 1, string: 'red bird', audioPath: 'first.mp3'),
+        Sentence(id: 1, text: 'red bird', audioPath: 'first.mp3'),
       ],
       random: Random(1),
       feedbackDuration: Duration.zero,
@@ -68,5 +68,27 @@ void main() {
 
     expect(controller.state, PhraseBuildingState.guessing);
     expect(controller.targetPool.single.word, 'bird');
+  });
+
+  test('restart invalidates feedback from the previous session', () async {
+    final controller = PhraseBuildingController(
+      _FakeAudioPlayer(),
+      sentences: const [
+        Sentence(id: 1, text: 'red bird', audioPath: 'first.mp3'),
+      ],
+      random: Random(1),
+      feedbackDuration: const Duration(milliseconds: 10),
+    );
+    controller.move(
+      controller.sourcePool.singleWhere((tile) => tile.word == 'bird'),
+    );
+    final submission = controller.submit();
+
+    controller.start();
+    await submission;
+
+    expect(controller.state, PhraseBuildingState.guessing);
+    expect(controller.targetPool, isEmpty);
+    expect(controller.sourcePool, hasLength(2));
   });
 }

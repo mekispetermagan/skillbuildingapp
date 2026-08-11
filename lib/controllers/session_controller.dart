@@ -5,29 +5,33 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../audio/asset_audio_player.dart';
-import '../models/phrase_building_state.dart';
-import '../models/phrase_building_tile.dart';
-import '../models/sentence.dart';
+import '../models/answer_feedback.dart';
+import '../models/conveyor_state.dart';
+import '../models/image_word.dart';
+import '../models/letter_catching_state.dart';
+import '../models/letter_catching_word.dart';
 import '../models/letter_dragging_state.dart';
 import '../models/letter_dragging_word.dart';
-import '../models/letter_catching_word.dart';
-import '../models/conveyor_word.dart';
+import '../models/letter_shooting_state.dart';
 import '../models/letter_shooting_word.dart';
 import '../models/letter_shooting_world.dart';
 import '../models/missing_letters_state.dart';
 import '../models/missing_letters_word.dart';
-import '../models/memory_pair.dart';
-import '../models/sentence_quiz_sentence.dart';
+import '../models/outfit_sentence.dart';
+import '../models/phrase_building_state.dart';
+import '../models/phrase_building_tile.dart';
+import '../models/sentence.dart';
+import '../models/sentence_composer_state.dart';
 import '../models/view_data.dart';
-import 'letter_dragging_controller.dart';
-import 'letter_catching_controller.dart';
 import 'conveyor_controller.dart';
+import 'letter_catching_controller.dart';
+import 'letter_dragging_controller.dart';
 import 'letter_shooting_controller.dart';
 import 'memory_controller.dart';
 import 'missing_letters_controller.dart';
 import 'phrase_building_controller.dart';
-import 'sentence_quiz_controller.dart';
 import 'sentence_composer_controller.dart';
+import 'sentence_quiz_controller.dart';
 
 enum SessionStatus {
   menu,
@@ -82,11 +86,11 @@ class SessionController extends ChangeNotifier {
   }
 
   late final List<(String, VoidCallback)> menuItems = [
-    ('Phrase building', () => _open(SessionStatus.phraseBuilding)),
+    ('Phrase building', openPhraseBuilding),
     ('Letter dragging', openLetterDragging),
     ('Missing letters', openMissingLetters),
     ('Letter shooting', openLetterShooting),
-    ('Memory cards', () => _open(SessionStatus.memory)),
+    ('Memory cards', openMemory),
     ('Letter catching', openLetterCatching),
     ('Word conveyor', openConveyor),
     ('Sentence quiz', openSentenceQuiz),
@@ -116,6 +120,11 @@ class SessionController extends ChangeNotifier {
 
   Future<void> phraseBuildingPlayAudio() =>
       _phraseBuildingController?.playAudio() ?? Future.value();
+
+  void openPhraseBuilding() {
+    _phraseBuildingController?.start();
+    _open(SessionStatus.phraseBuilding);
+  }
 
   LetterDraggingViewData get letterDraggingViewData => LetterDraggingViewData(
     isLoading:
@@ -204,8 +213,8 @@ class SessionController extends ChangeNotifier {
 
   void conveyorResize(double width, double height) =>
       _conveyorController?.resize(width, height);
-  void conveyorTick(double deltaSeconds) =>
-      _conveyorController?.tick(deltaSeconds);
+  ConveyorState conveyorTick(double deltaSeconds) =>
+      _conveyorController?.tick(deltaSeconds) ?? ConveyorState.playing;
   bool conveyorCanAccept({required int letterId, required int shelfId}) =>
       _conveyorController?.canAccept(letterId: letterId, shelfId: shelfId) ??
       false;
@@ -255,15 +264,21 @@ class SessionController extends ChangeNotifier {
         canSubmit: _sentenceComposerController.canSubmit,
         personFeedback: {
           for (final person in SentencePerson.values)
-            person: _sentenceComposerController.personFeedback(person),
+            person: _answerFeedback(
+              _sentenceComposerController.personFeedback(person),
+            ),
         },
         colorFeedback: {
           for (final color in GarmentColor.values)
-            color: _sentenceComposerController.colorFeedback(color),
+            color: _answerFeedback(
+              _sentenceComposerController.colorFeedback(color),
+            ),
         },
         pieceFeedback: {
           for (final piece in ClothingPiece.values)
-            piece: _sentenceComposerController.pieceFeedback(piece),
+            piece: _answerFeedback(
+              _sentenceComposerController.pieceFeedback(piece),
+            ),
         },
       );
 
@@ -313,17 +328,34 @@ class SessionController extends ChangeNotifier {
     errorMessage: _memoryError,
     cards: _memoryController?.cards ?? const [],
     isComplete: _memoryController?.isComplete ?? false,
+    config: _memoryController?.config ?? memoryConfig,
   );
   Future<void> memorySelect(int cardId) =>
       _memoryController?.select(cardId) ?? Future.value();
   void memoryStartNewGame() => _memoryController?.startNewGame();
 
+  void openMemory() {
+    _memoryController?.startNewGame();
+    _open(SessionStatus.memory);
+  }
+
+  AnswerFeedback _answerFeedback(ComposerChoiceAssessment assessment) =>
+      switch (assessment) {
+        ComposerChoiceAssessment.neutral => AnswerFeedback.neutral,
+        ComposerChoiceAssessment.correct => AnswerFeedback.correct,
+        ComposerChoiceAssessment.wrong => AnswerFeedback.wrong,
+      };
+
   void openMenu() {
     unawaited(_audioPlayer.stop());
+    _phraseBuildingController?.stop();
     _letterDraggingController?.stop();
     _letterShootingController?.stop();
     _letterCatchingController?.stop();
     _conveyorController?.stop();
+    _memoryController?.stop();
+    _sentenceQuizController.stop();
+    _sentenceComposerController.stop();
     _open(SessionStatus.menu);
   }
 
@@ -358,7 +390,7 @@ class SessionController extends ChangeNotifier {
   Future<void> _initializeLetterDragging() async {
     try {
       final encoded = await _assetBundle.loadString(
-        'assets/data/letter_dragging_words.json',
+        'assets/data/animal_words.json',
       );
       final data = jsonDecode(encoded) as List<dynamic>;
       final words = [
@@ -384,7 +416,7 @@ class SessionController extends ChangeNotifier {
   Future<void> _initializeMissingLetters() async {
     try {
       final encoded = await _assetBundle.loadString(
-        'assets/data/letter_dragging_words.json',
+        'assets/data/animal_words.json',
       );
       final data = jsonDecode(encoded) as List<dynamic>;
       final words = [
@@ -456,12 +488,12 @@ class SessionController extends ChangeNotifier {
   Future<void> _initializeMemory() async {
     try {
       final encoded = await _assetBundle.loadString(
-        'assets/data/memory_pairs.json',
+        'assets/data/animal_image_words.json',
       );
       final data = jsonDecode(encoded) as List<dynamic>;
       final pairs = [
         for (final item in data)
-          MemoryPair.fromJson(item as Map<String, dynamic>),
+          ImageWord.fromJson(item as Map<String, dynamic>),
       ];
       if (_disposed) return;
 
@@ -477,12 +509,12 @@ class SessionController extends ChangeNotifier {
   Future<void> _initializeConveyor() async {
     try {
       final encoded = await _assetBundle.loadString(
-        'assets/data/memory_pairs.json',
+        'assets/data/animal_image_words.json',
       );
       final data = jsonDecode(encoded) as List<dynamic>;
       final words = [
         for (final item in data)
-          ConveyorWord.fromJson(item as Map<String, dynamic>),
+          ImageWord.fromJson(item as Map<String, dynamic>),
       ];
       if (_disposed) return;
 

@@ -97,7 +97,6 @@ class AppRootState extends State<AppRoot> {
         ),
         SessionStatus.conveyor => ConveyorScreen(
           viewData: _sessionController.conveyorViewData,
-          readViewData: () => _sessionController.conveyorViewData,
           onResize: _sessionController.conveyorResize,
           onTick: _sessionController.conveyorTick,
           canAccept: _sessionController.conveyorCanAccept,

@@ -1,11 +1,11 @@
 import 'dart:math';
 
 import 'conveyor_config.dart';
-import 'conveyor_word.dart';
+import 'image_word.dart';
 
 class ConveyorShelf {
   final int id;
-  final ConveyorWord word;
+  final ImageWord word;
   final List<int> missingIndices;
   final Set<int> recoveredIndices = {};
   double y;
@@ -19,9 +19,21 @@ class ConveyorShelf {
 
   bool get isComplete => recoveredIndices.length == missingIndices.length;
 
+  String get displayWord {
+    final text = word.uppercaseWord;
+    final buffer = StringBuffer();
+    for (var index = 0; index < text.length; index++) {
+      final hidden =
+          missingIndices.contains(index) && !recoveredIndices.contains(index);
+      buffer.write(hidden ? '❓' : text[index]);
+    }
+    return buffer.toString();
+  }
+
   int firstAvailableMatch(String letter) {
     for (final index in missingIndices) {
-      if (!recoveredIndices.contains(index) && word.word[index] == letter) {
+      if (!recoveredIndices.contains(index) &&
+          word.uppercaseWord[index] == letter) {
         return index;
       }
     }
@@ -43,7 +55,7 @@ enum ConveyorDropResult { matched, completed, wrong, ignored }
 class ConveyorWorld {
   static const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
-  final List<ConveyorWord> words;
+  final List<ImageWord> words;
   final ConveyorConfig config;
   final Random random;
   final List<ConveyorShelf> shelves = [];
@@ -55,11 +67,11 @@ class ConveyorWorld {
   late int lives;
 
   int _nextId = 0;
-  List<ConveyorWord> _deck = [];
+  List<ImageWord> _deck = [];
   int _deckIndex = 0;
 
   ConveyorWorld({
-    required List<ConveyorWord> words,
+    required List<ImageWord> words,
     required this.config,
     Random? random,
   }) : words = List.unmodifiable(words),
@@ -177,8 +189,8 @@ class ConveyorWorld {
   ConveyorShelf _newShelf(double y) {
     final word = _nextWord();
     final indices = <int>[
-      for (var index = 0; index < word.word.length; index++)
-        if (word.word[index] != ' ') index,
+      for (var index = 0; index < word.uppercaseWord.length; index++)
+        if (word.uppercaseWord[index] != ' ') index,
     ]..shuffle(random);
     return ConveyorShelf(
       id: _nextId++,
@@ -197,7 +209,7 @@ class ConveyorWorld {
     shelves[index] = replacement;
   }
 
-  ConveyorWord _nextWord() {
+  ImageWord _nextWord() {
     if (_deckIndex == _deck.length) {
       _deck = [...words]..shuffle(random);
       _deckIndex = 0;
@@ -209,7 +221,8 @@ class ConveyorWorld {
     final required = <String>[
       for (final shelf in shelves)
         for (final index in shelf.missingIndices)
-          if (!shelf.recoveredIndices.contains(index)) shelf.word.word[index],
+          if (!shelf.recoveredIndices.contains(index))
+            shelf.word.uppercaseWord[index],
     ];
     if (required.isNotEmpty && random.nextDouble() < 0.7) {
       return required[random.nextInt(required.length)];

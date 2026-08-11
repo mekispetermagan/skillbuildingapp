@@ -19,10 +19,10 @@ class _SentenceAssetBundle extends CachingAssetBundle {
 
   @override
   Future<String> loadString(String key, {bool cache = true}) async {
-    if (key == 'assets/data/letter_dragging_words.json') {
+    if (key == 'assets/data/animal_words.json') {
       return '[{"id": 1, "word": "zebra"}]';
     }
-    if (key == 'assets/data/memory_pairs.json') {
+    if (key == 'assets/data/animal_image_words.json') {
       return '''
         [
           {"id": 1, "word": "cat", "image_path": "one.png"},
@@ -95,6 +95,36 @@ void main() {
 
     controller.menuItems[2].$2();
     expect(controller.status, SessionStatus.missingLetters);
+
+    controller.dispose();
+  });
+
+  test('opening activities from the menu starts fresh sessions', () async {
+    final controller = SessionController(
+      assetBundle: _SentenceAssetBundle(),
+      audioPlayer: _FakeAudioPlayer(),
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    final phraseTile = controller.phraseBuildingViewData.sourcePool.first;
+    controller.phraseBuildingMove!(phraseTile);
+    expect(controller.phraseBuildingViewData.targetPool, isNotEmpty);
+    controller.openMenu();
+    controller.menuItems[0].$2();
+    expect(controller.phraseBuildingViewData.targetPool, isEmpty);
+
+    final firstCard = controller.memoryViewData.cards.first;
+    await controller.memorySelect(firstCard.cardId);
+    expect(
+      controller.memoryViewData.cards.where((card) => card.isFaceUp),
+      isNotEmpty,
+    );
+    controller.openMenu();
+    controller.menuItems[4].$2();
+    expect(
+      controller.memoryViewData.cards.where((card) => card.isFaceUp),
+      isEmpty,
+    );
 
     controller.dispose();
   });

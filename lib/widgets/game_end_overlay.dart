@@ -8,7 +8,7 @@ class GameEndOverlay extends StatelessWidget {
   const GameEndOverlay({
     required this.onRestart,
     this.message,
-    this.restartLabel = 'Play again?',
+    this.restartLabel = 'Play again',
     super.key,
   });
 

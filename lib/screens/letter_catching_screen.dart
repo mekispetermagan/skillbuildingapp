@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 
 import '../games/letter_catching_game.dart';
 import '../models/letter_catching_world.dart';
+import '../models/letter_catching_state.dart';
 import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/feature_load_state.dart';
 import '../widgets/game_end_overlay.dart';
 import '../widgets/lives_display.dart';
-import '../widgets/reward_row.dart';
+import '../widgets/reward_gem_row.dart';
 
 class LetterCatchingScreen extends StatelessWidget {
   final LetterCatchingViewData viewData;
@@ -120,7 +121,7 @@ class _LetterCatchingPlayAreaState extends State<_LetterCatchingPlayArea> {
           ],
         ),
       ),
-      RewardRow(count: widget.world.score),
+      RewardGemRow(count: widget.world.score),
     ],
   );
 }

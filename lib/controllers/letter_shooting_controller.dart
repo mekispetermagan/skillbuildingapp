@@ -3,9 +3,9 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 
 import '../models/letter_shooting_config.dart';
+import '../models/letter_shooting_state.dart';
 import '../models/letter_shooting_word.dart';
 import '../models/letter_shooting_world.dart';
-import '../models/view_data.dart';
 
 const letterShootingConfig = LetterShootingConfig(
   projectileSpeed: 600,

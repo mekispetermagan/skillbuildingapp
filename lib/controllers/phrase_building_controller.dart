@@ -19,6 +19,7 @@ class PhraseBuildingController extends ChangeNotifier {
   int _sentenceIndex = 0;
   PhraseBuildingState _state = PhraseBuildingState.guessing;
   bool _disposed = false;
+  int _sessionGeneration = 0;
 
   PhraseBuildingController(
     this._audioPlayer, {
@@ -39,6 +40,15 @@ class PhraseBuildingController extends ChangeNotifier {
   bool get canMove => _state == PhraseBuildingState.guessing;
   bool get canSubmit => canMove && _targetPool.isNotEmpty;
 
+  void start() {
+    _sessionGeneration++;
+    _sentenceIndex = 0;
+    _state = PhraseBuildingState.guessing;
+    _generateExercise();
+  }
+
+  void stop() => _sessionGeneration++;
+
   void move(PhraseBuildingTile tile) {
     if (!canMove) return;
 
@@ -56,7 +66,8 @@ class PhraseBuildingController extends ChangeNotifier {
   Future<void> submit() async {
     if (!canSubmit) return;
 
-    final expected = toWords(_sentences[_sentenceIndex].string);
+    final generation = _sessionGeneration;
+    final expected = toWords(_sentences[_sentenceIndex].text);
     final submitted = _targetPool.map((tile) => tile.word).toList();
     final isCorrect = listEquals(expected, submitted);
     _state = isCorrect
@@ -65,7 +76,7 @@ class PhraseBuildingController extends ChangeNotifier {
     notifyListeners();
 
     await Future<void>.delayed(feedbackDuration);
-    if (_disposed) return;
+    if (_disposed || generation != _sessionGeneration) return;
 
     _state = PhraseBuildingState.guessing;
     if (isCorrect) {
@@ -86,7 +97,7 @@ class PhraseBuildingController extends ChangeNotifier {
   }
 
   void _generateExercise() {
-    final words = toWords(_sentences[_sentenceIndex].string);
+    final words = toWords(_sentences[_sentenceIndex].text);
     final tiles = [
       for (final (index, word) in words.indexed)
         PhraseBuildingTile(id: index, word: word),

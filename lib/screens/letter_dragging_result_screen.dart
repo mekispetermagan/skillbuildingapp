@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/feature_app_bar.dart';
-import '../widgets/rewards.dart';
+import '../widgets/reward_gems.dart';
 
 class LetterDraggingResultScreen extends StatelessWidget {
   final int score;
@@ -27,11 +27,11 @@ class LetterDraggingResultScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Great work!\nYou collected $score hearts.',
+                'Great work!\nYou collected $score gems.',
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 30),
               ),
-              Rewards(count: score),
+              RewardGems(count: score),
               FilledButton(
                 onPressed: onRestart,
                 child: const Text('Play again'),

@@ -33,5 +33,20 @@ class LetterShootingConfig {
     required this.cannonBottomClearance,
     required this.maximumUpdateStep,
     required this.winningScore,
-  });
+  }) : assert(projectileSpeed >= 0),
+       assert(targetSpeed >= 0),
+       assert(spawnIntervalSeconds > 0),
+       assert(projectileSize > 0),
+       assert(sourceLetterSize > 0),
+       assert(sourceLetterGap >= 0),
+       assert(sourceLetterColumns > 0),
+       assert(targetWidth > 0),
+       assert(targetHeight > 0),
+       assert(targetLaneGap >= 0),
+       assert(targetTopPadding >= 0),
+       assert(cannonWidth > 0),
+       assert(cannonHeight > 0),
+       assert(cannonBottomClearance >= 0),
+       assert(maximumUpdateStep > 0),
+       assert(winningScore > 0);
 }

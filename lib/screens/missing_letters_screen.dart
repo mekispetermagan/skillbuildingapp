@@ -5,7 +5,7 @@ import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/feature_load_state.dart';
 import '../widgets/missing_letter_card.dart';
-import '../widgets/reward_row.dart';
+import '../widgets/reward_gem_row.dart';
 
 class MissingLettersScreen extends StatelessWidget {
   final MissingLettersViewData viewData;
@@ -80,7 +80,7 @@ class MissingLettersScreen extends StatelessWidget {
                   ),
               ],
             ),
-            RewardRow(count: viewData.score),
+            RewardGemRow(count: viewData.score),
             Align(
               alignment: Alignment.centerRight,
               child: FilledButton(

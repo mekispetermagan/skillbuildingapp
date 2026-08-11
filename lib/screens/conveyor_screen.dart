@@ -2,19 +2,19 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
 import '../games/conveyor_game.dart';
+import '../models/conveyor_state.dart';
 import '../models/conveyor_world.dart';
 import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/feature_load_state.dart';
 import '../widgets/game_end_overlay.dart';
 import '../widgets/lives_display.dart';
-import '../widgets/reward_row.dart';
+import '../widgets/reward_gem_row.dart';
 
 class ConveyorScreen extends StatelessWidget {
   final ConveyorViewData viewData;
-  final ValueGetter<ConveyorViewData> readViewData;
   final void Function(double width, double height) onResize;
-  final ValueChanged<double> onTick;
+  final ConveyorState Function(double) onTick;
   final bool Function({required int letterId, required int shelfId}) canAccept;
   final ValueChanged<int> onStartDragging;
   final ValueChanged<int> onCancelDragging;
@@ -24,7 +24,6 @@ class ConveyorScreen extends StatelessWidget {
 
   const ConveyorScreen({
     required this.viewData,
-    required this.readViewData,
     required this.onResize,
     required this.onTick,
     required this.canAccept,
@@ -45,9 +44,8 @@ class ConveyorScreen extends StatelessWidget {
       child: switch (viewData.world) {
         final ConveyorWorld world => SafeArea(
           child: _ConveyorPlayArea(
-            initialViewData: viewData,
+            initialState: viewData.state,
             world: world,
-            readViewData: readViewData,
             onResize: onResize,
             onTick: onTick,
             canAccept: canAccept,
@@ -64,11 +62,10 @@ class ConveyorScreen extends StatelessWidget {
 }
 
 class _ConveyorPlayArea extends StatefulWidget {
-  final ConveyorViewData initialViewData;
+  final ConveyorState initialState;
   final ConveyorWorld world;
-  final ValueGetter<ConveyorViewData> readViewData;
   final void Function(double width, double height) onResize;
-  final ValueChanged<double> onTick;
+  final ConveyorState Function(double) onTick;
   final bool Function({required int letterId, required int shelfId}) canAccept;
   final ValueChanged<int> onStartDragging;
   final ValueChanged<int> onCancelDragging;
@@ -76,9 +73,8 @@ class _ConveyorPlayArea extends StatefulWidget {
   final VoidCallback onRestart;
 
   const _ConveyorPlayArea({
-    required this.initialViewData,
+    required this.initialState,
     required this.world,
-    required this.readViewData,
     required this.onResize,
     required this.onTick,
     required this.canAccept,
@@ -93,7 +89,7 @@ class _ConveyorPlayArea extends StatefulWidget {
 }
 
 class _ConveyorPlayAreaState extends State<_ConveyorPlayArea> {
-  late ConveyorViewData _viewData = widget.initialViewData;
+  late ConveyorState _state = widget.initialState;
   final ValueNotifier<int> _frame = ValueNotifier(0);
   late final ConveyorGame _game = ConveyorGame(
     gameWorld: widget.world,
@@ -102,9 +98,9 @@ class _ConveyorPlayAreaState extends State<_ConveyorPlayArea> {
     onFrame: _refreshFrame,
   );
 
-  void _refreshFrame() {
+  void _refreshFrame(ConveyorState state) {
     if (!mounted) return;
-    _viewData = widget.readViewData();
+    _state = state;
     _frame.value++;
   }
 
@@ -150,7 +146,7 @@ class _ConveyorPlayAreaState extends State<_ConveyorPlayArea> {
               Positioned.fill(
                 child: ListenableBuilder(
                   listenable: _frame,
-                  builder: (_, _) => switch (_viewData.state) {
+                  builder: (_, _) => switch (_state) {
                     ConveyorState.playing => const SizedBox.shrink(),
                     ConveyorState.won => GameEndOverlay(
                       message: 'Congratulations!',
@@ -169,7 +165,7 @@ class _ConveyorPlayAreaState extends State<_ConveyorPlayArea> {
       ),
       ListenableBuilder(
         listenable: _frame,
-        builder: (_, _) => RewardRow(count: widget.world.score),
+        builder: (_, _) => RewardGemRow(count: widget.world.score),
       ),
     ],
   );
@@ -276,7 +272,7 @@ class _ShelfCard extends StatelessWidget {
             child: FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(
-                _displayWord(),
+                shelf.displayWord,
                 maxLines: 1,
                 style: TextStyle(
                   fontSize: 25,
@@ -292,17 +288,6 @@ class _ShelfCard extends StatelessWidget {
       ),
     ),
   );
-
-  String _displayWord() {
-    final buffer = StringBuffer();
-    for (var index = 0; index < shelf.word.word.length; index++) {
-      final hidden =
-          shelf.missingIndices.contains(index) &&
-          !shelf.recoveredIndices.contains(index);
-      buffer.write(hidden ? '❓' : shelf.word.word[index]);
-    }
-    return buffer.toString();
-  }
 }
 
 class _LetterCard extends StatelessWidget {

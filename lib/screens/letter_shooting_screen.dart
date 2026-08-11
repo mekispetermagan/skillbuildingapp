@@ -3,11 +3,12 @@ import 'package:flame/game.dart';
 
 import '../games/letter_shooting_game.dart';
 import '../models/letter_shooting_world.dart';
+import '../models/letter_shooting_state.dart';
 import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/feature_load_state.dart';
 import '../widgets/game_end_overlay.dart';
-import '../widgets/reward_row.dart';
+import '../widgets/reward_gem_row.dart';
 
 class LetterShootingScreen extends StatelessWidget {
   final LetterShootingViewData viewData;
@@ -136,7 +137,7 @@ class _LetterShootingPlayAreaState extends State<_LetterShootingPlayArea> {
             ],
           ),
         ),
-        RewardRow(count: widget.world.score),
+        RewardGemRow(count: widget.world.score),
       ],
     );
   }

@@ -3,9 +3,9 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 
 import '../models/letter_catching_config.dart';
+import '../models/letter_catching_state.dart';
 import '../models/letter_catching_word.dart';
 import '../models/letter_catching_world.dart';
-import '../models/view_data.dart';
 
 const letterCatchingConfig = LetterCatchingConfig(
   fallingSpeed: 150,

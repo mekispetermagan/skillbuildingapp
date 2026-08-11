@@ -4,8 +4,8 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 
 import '../models/layered_person_outfit.dart';
-import '../models/sentence_quiz_sentence.dart';
-import '../models/view_data.dart';
+import '../models/outfit_sentence.dart';
+import '../models/sentence_composer_state.dart';
 
 const sentenceComposerWinningScore = 10;
 const sentenceComposerFeedbackDuration = Duration(seconds: 1);
@@ -21,6 +21,7 @@ class SentenceComposerController extends ChangeNotifier {
   SentenceComposerState state = SentenceComposerState.composing;
   int score = 0;
   bool _disposed = false;
+  int _sessionGeneration = 0;
 
   SentenceComposerController({
     Random? random,
@@ -48,11 +49,14 @@ class SentenceComposerController extends ChangeNotifier {
   }
 
   void start() {
+    _sessionGeneration++;
     score = 0;
     state = SentenceComposerState.composing;
     _nextExercise();
     notifyListeners();
   }
+
+  void stop() => _sessionGeneration++;
 
   void selectPerson(SentencePerson person) {
     if (!canSelect) return;
@@ -74,12 +78,13 @@ class SentenceComposerController extends ChangeNotifier {
 
   Future<void> submit() async {
     if (!canSubmit) return;
+    final generation = _sessionGeneration;
     state = SentenceComposerState.feedback;
     if (_isCorrect) score++;
     notifyListeners();
 
     await Future<void>.delayed(feedbackDuration);
-    if (_disposed) return;
+    if (_disposed || generation != _sessionGeneration) return;
     if (score >= sentenceComposerWinningScore) {
       state = SentenceComposerState.won;
     } else {
@@ -89,31 +94,31 @@ class SentenceComposerController extends ChangeNotifier {
     notifyListeners();
   }
 
-  AnswerFeedback personFeedback(SentencePerson person) {
+  ComposerChoiceAssessment personFeedback(SentencePerson person) {
     if (state != SentenceComposerState.feedback) {
-      return AnswerFeedback.neutral;
+      return ComposerChoiceAssessment.neutral;
     }
-    if (person == outfit.person) return AnswerFeedback.correct;
-    if (person == selectedPerson) return AnswerFeedback.wrong;
-    return AnswerFeedback.neutral;
+    if (person == outfit.person) return ComposerChoiceAssessment.correct;
+    if (person == selectedPerson) return ComposerChoiceAssessment.wrong;
+    return ComposerChoiceAssessment.neutral;
   }
 
-  AnswerFeedback colorFeedback(GarmentColor color) {
+  ComposerChoiceAssessment colorFeedback(GarmentColor color) {
     final piece = selectedPiece;
     if (state != SentenceComposerState.feedback || piece == null) {
-      return AnswerFeedback.neutral;
+      return ComposerChoiceAssessment.neutral;
     }
     if (color == outfit.colorFor(piece)) {
-      return AnswerFeedback.correct;
+      return ComposerChoiceAssessment.correct;
     }
-    if (color == selectedColor) return AnswerFeedback.wrong;
-    return AnswerFeedback.neutral;
+    if (color == selectedColor) return ComposerChoiceAssessment.wrong;
+    return ComposerChoiceAssessment.neutral;
   }
 
-  AnswerFeedback pieceFeedback(ClothingPiece piece) =>
+  ComposerChoiceAssessment pieceFeedback(ClothingPiece piece) =>
       state == SentenceComposerState.feedback && piece == selectedPiece
-      ? AnswerFeedback.correct
-      : AnswerFeedback.neutral;
+      ? ComposerChoiceAssessment.correct
+      : ComposerChoiceAssessment.neutral;
 
   bool get _isCorrect {
     final piece = selectedPiece;

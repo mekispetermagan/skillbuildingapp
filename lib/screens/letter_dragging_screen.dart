@@ -6,7 +6,7 @@ import '../widgets/feature_app_bar.dart';
 import '../widgets/feature_load_state.dart';
 import '../widgets/letter_dragging_card.dart';
 import '../widgets/letter_dragging_countdown.dart';
-import '../widgets/reward_row.dart';
+import '../widgets/reward_gem_row.dart';
 
 class LetterDraggingScreen extends StatelessWidget {
   final LetterDraggingViewData viewData;
@@ -79,7 +79,7 @@ class LetterDraggingScreen extends StatelessWidget {
             const SizedBox(height: 20),
             LetterDraggingCountdown(status: countdown),
             const SizedBox(height: 20),
-            RewardRow(count: viewData.score),
+            RewardGemRow(count: viewData.score),
           ],
         ),
       ),

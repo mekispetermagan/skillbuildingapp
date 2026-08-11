@@ -10,9 +10,6 @@ import '../widgets/memory_card.dart';
 class MemoryScreen extends StatelessWidget {
   static const _gap = 12.0;
   static const _minimumPadding = 24.0;
-  static const _columnCount = 3;
-  static const _rowCount = 6;
-
   final MemoryViewData viewData;
   final VoidCallback onBack;
   final Future<void> Function(int cardId) onSelect;
@@ -34,7 +31,7 @@ class MemoryScreen extends StatelessWidget {
         child: FeatureLoadState(
           isLoading: viewData.isLoading,
           errorMessage: viewData.errorMessage,
-          child: viewData.cards.length == 18
+          child: viewData.cards.length == viewData.config.cardCount
               ? _buildBoard()
               : const Center(child: Text('Not enough word and image pairs.')),
         ),
@@ -49,8 +46,8 @@ class MemoryScreen extends StatelessWidget {
         availableHeight: constraints.maxHeight,
         minimumPadding: _minimumPadding,
         gap: _gap,
-        columnCount: _columnCount,
-        rowCount: _rowCount,
+        columnCount: viewData.config.columnCount,
+        rowCount: viewData.config.rowCount,
       );
       final indexedCards = viewData.cards.indexed.toList();
       final faceUpCards =
@@ -103,13 +100,13 @@ class MemoryScreen extends StatelessWidget {
   }
 
   Offset _expandedOffsetFor(int index) {
-    final column = index % _columnCount;
-    final row = index ~/ _columnCount;
+    final column = index % viewData.config.columnCount;
+    final row = index ~/ viewData.config.columnCount;
     final dx = column == 0
         ? 0.5
-        : column == _columnCount - 1
+        : column == viewData.config.columnCount - 1
         ? -0.5
         : 0.0;
-    return Offset(dx, row < _rowCount / 2 ? 0.5 : -0.5);
+    return Offset(dx, row < viewData.config.rowCount / 2 ? 0.5 : -0.5);
   }
 }

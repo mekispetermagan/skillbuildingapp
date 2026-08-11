@@ -28,6 +28,7 @@ class LetterDraggingController extends ChangeNotifier {
   int _deckIndex = 0;
   int _score = 0;
   bool _disposed = false;
+  int _sessionGeneration = 0;
   LetterDraggingState _state = LetterDraggingState.playing;
 
   LetterDraggingController(
@@ -57,6 +58,7 @@ class LetterDraggingController extends ChangeNotifier {
   bool get canPass => _state == LetterDraggingState.playing;
 
   void start() {
+    _sessionGeneration++;
     _score = 0;
     _state = LetterDraggingState.playing;
     _deck = _words.shuffled(_random);
@@ -95,6 +97,7 @@ class LetterDraggingController extends ChangeNotifier {
   }
 
   void stop() {
+    _sessionGeneration++;
     countdown.stop();
   }
 
@@ -105,12 +108,14 @@ class LetterDraggingController extends ChangeNotifier {
   }
 
   Future<void> _completeWord() async {
+    final generation = _sessionGeneration;
     _state = LetterDraggingState.successFeedback;
     notifyListeners();
     unawaited(_play(_correctPath));
 
     await Future<void>.delayed(successFeedbackDuration);
     if (_disposed ||
+        generation != _sessionGeneration ||
         _state != LetterDraggingState.successFeedback ||
         countdown.status.isFinished) {
       return;

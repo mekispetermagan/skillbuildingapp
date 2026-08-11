@@ -11,7 +11,7 @@ void main() {
     expect(find.text('Letter dragging'), findsOneWidget);
 
     await tester.tap(find.text('Letter dragging'));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(find.text('Put the letters in the right order'), findsOneWidget);
     expect(find.text('Pass'), findsOneWidget);

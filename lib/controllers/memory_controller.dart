@@ -3,25 +3,29 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import '../models/image_word.dart';
 import '../models/memory_card_data.dart';
-import '../models/memory_pair.dart';
+import '../models/memory_config.dart';
+
+const memoryConfig = MemoryConfig(pairCount: 9, columnCount: 3);
 
 class MemoryController extends ChangeNotifier {
-  static const int pairCount = 9;
-
-  final List<MemoryPair> _pairs;
+  final List<ImageWord> _pairs;
   final Random _random;
   final Duration revealDuration;
+  final MemoryConfig config;
 
   List<MemoryCardData> _cards = const [];
   int? _firstCardId;
   int _revealCounter = 0;
   bool _isEvaluating = false;
   bool _disposed = false;
+  int _gameGeneration = 0;
 
   MemoryController({
-    required List<MemoryPair> pairs,
+    required List<ImageWord> pairs,
     Random? random,
+    this.config = memoryConfig,
     this.revealDuration = const Duration(milliseconds: 900),
   }) : _pairs = List.unmodifiable(pairs),
        _random = random ?? Random() {
@@ -29,13 +33,16 @@ class MemoryController extends ChangeNotifier {
   }
 
   List<MemoryCardData> get cards => List.unmodifiable(_cards);
-  bool get canPlay => _cards.length == pairCount * 2;
+  bool get canPlay => _cards.length == config.cardCount;
   bool get isComplete => canPlay && _cards.every((card) => card.isMatched);
 
+  void stop() => _gameGeneration++;
+
   void startNewGame({bool notify = true}) {
+    _gameGeneration++;
     final available = [..._pairs]..shuffle(_random);
-    final selected = available.take(pairCount).toList();
-    final cards = selected.length < pairCount
+    final selected = available.take(config.pairCount).toList();
+    final cards = selected.length < config.pairCount
         ? <MemoryCardData>[]
         : [
             for (final (index, pair) in selected.indexed) ...[
@@ -63,6 +70,7 @@ class MemoryController extends ChangeNotifier {
 
   Future<void> select(int cardId) async {
     if (_isEvaluating || !canPlay) return;
+    final generation = _gameGeneration;
     final selectedIndex = _cards.indexWhere((card) => card.cardId == cardId);
     if (selectedIndex == -1 || _cards[selectedIndex].isFaceUp) return;
 
@@ -78,7 +86,7 @@ class MemoryController extends ChangeNotifier {
     _isEvaluating = true;
     notifyListeners();
     await Future<void>.delayed(revealDuration);
-    if (_disposed) return;
+    if (_disposed || generation != _gameGeneration) return;
 
     final first = _cardById(firstCardId);
     final second = _cardById(cardId);

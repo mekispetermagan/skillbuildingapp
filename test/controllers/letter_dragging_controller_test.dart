@@ -24,6 +24,7 @@ LetterDraggingController _controller({
     LetterDraggingWord(id: 1, word: 'ZEBRA'),
   ],
   _FakeAudioPlayer? audioPlayer,
+  Duration successFeedbackDuration = Duration.zero,
 }) {
   return LetterDraggingController(
     audioPlayer ?? _FakeAudioPlayer(),
@@ -34,7 +35,7 @@ LetterDraggingController _controller({
       dangerZone: const Duration(seconds: 15),
       tickInterval: const Duration(days: 1),
     ),
-    successFeedbackDuration: Duration.zero,
+    successFeedbackDuration: successFeedbackDuration,
   );
 }
 
@@ -57,7 +58,7 @@ void _solve(LetterDraggingController controller) {
 }
 
 void main() {
-  test('starts with a shuffled word and awards a heart when solved', () async {
+  test('starts with a shuffled word and awards a gem when solved', () async {
     final audioPlayer = _FakeAudioPlayer();
     final controller = _controller(audioPlayer: audioPlayer)..start();
 
@@ -125,6 +126,20 @@ void main() {
       audioPlayer.playedPaths,
       contains('assets/audio/letter_dragging/fanfare.mp3'),
     );
+    controller.dispose();
+  });
+
+  test('restart invalidates completion from the previous session', () async {
+    final controller = _controller(
+      successFeedbackDuration: const Duration(milliseconds: 10),
+    )..start();
+    _solve(controller);
+
+    controller.start();
+    await Future<void>.delayed(const Duration(milliseconds: 15));
+
+    expect(controller.score, 0);
+    expect(controller.state, LetterDraggingState.playing);
     controller.dispose();
   });
 }

@@ -10,7 +10,18 @@ void main() {
     });
 
     expect(sentence.id, 7);
-    expect(sentence.string, 'A short sentence.');
+    expect(sentence.text, 'A short sentence.');
     expect(sentence.audioPath, 'assets/audio/sentences/007.mp3');
+  });
+
+  test('rejects malformed sentence assets consistently', () {
+    expect(
+      () => Sentence.fromJson(const {
+        'id': 1,
+        'string': '',
+        'audio_path': 'sentence.mp3',
+      }),
+      throwsFormatException,
+    );
   });
 }

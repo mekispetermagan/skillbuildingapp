@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../models/sentence_quiz_sentence.dart';
+import '../models/outfit_sentence.dart';
+import '../models/sentence_composer_state.dart';
 import '../models/view_data.dart';
 import '../widgets/exercise_layout.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/game_end_overlay.dart';
 import '../widgets/layered_person.dart';
-import '../widgets/reward_row.dart';
+import '../widgets/reward_gem_row.dart';
 import '../widgets/single_select_segments.dart';
 
 class SentenceComposerScreen extends StatelessWidget {
@@ -136,7 +137,7 @@ class _ComposerContent extends StatelessWidget {
             ),
           ),
         ),
-        RewardRow(count: viewData.score),
+        RewardGemRow(count: viewData.score),
       ],
     );
   }

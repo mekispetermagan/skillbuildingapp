@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../models/answer_feedback.dart';
 import '../models/view_data.dart';
+import '../models/sentence_quiz_state.dart';
 import '../widgets/exercise_layout.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/game_end_overlay.dart';
 import '../widgets/layered_person.dart';
 import '../widgets/quiz_option_button.dart';
-import '../widgets/reward_row.dart';
+import '../widgets/reward_gem_row.dart';
 
 class SentenceQuizScreen extends StatelessWidget {
   final SentenceQuizViewData viewData;
@@ -68,7 +70,7 @@ class _QuizContent extends StatelessWidget {
               : AnswerFeedback.neutral,
           onPressed: viewData.canSubmit ? () => onSubmit(index) : null,
         ),
-      RewardRow(count: viewData.score),
+      RewardGemRow(count: viewData.score),
     ],
   );
 }

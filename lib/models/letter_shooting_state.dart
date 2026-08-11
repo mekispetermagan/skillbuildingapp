@@ -1,0 +1,1 @@
+enum LetterShootingState { playing, ended }

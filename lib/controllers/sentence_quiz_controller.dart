@@ -5,8 +5,8 @@ import 'package:flutter/foundation.dart';
 
 import '../models/layered_person_outfit.dart';
 import '../models/sentence_quiz_question.dart';
-import '../models/sentence_quiz_sentence.dart';
-import '../models/view_data.dart';
+import '../models/outfit_sentence.dart';
+import '../models/sentence_quiz_state.dart';
 
 const sentenceQuizWinningScore = 10;
 const sentenceQuizFeedbackDuration = Duration(seconds: 1);
@@ -21,6 +21,7 @@ class SentenceQuizController extends ChangeNotifier {
   int? correctHighlightIndex;
   int? wrongHighlightIndex;
   bool _disposed = false;
+  int _sessionGeneration = 0;
 
   SentenceQuizController({
     Random? random,
@@ -32,6 +33,7 @@ class SentenceQuizController extends ChangeNotifier {
   bool get canSubmit => state == SentenceQuizState.guessing;
 
   void start() {
+    _sessionGeneration++;
     score = 0;
     state = SentenceQuizState.guessing;
     correctHighlightIndex = null;
@@ -40,10 +42,13 @@ class SentenceQuizController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void stop() => _sessionGeneration++;
+
   Future<void> submit(int guessIndex) async {
     if (!canSubmit) return;
     RangeError.checkValidIndex(guessIndex, question.options, 'guessIndex');
 
+    final generation = _sessionGeneration;
     state = SentenceQuizState.feedback;
     correctHighlightIndex = question.correctIndex;
     if (guessIndex == question.correctIndex) {
@@ -54,7 +59,7 @@ class SentenceQuizController extends ChangeNotifier {
     notifyListeners();
 
     await Future<void>.delayed(feedbackDuration);
-    if (_disposed) return;
+    if (_disposed || generation != _sessionGeneration) return;
     correctHighlightIndex = null;
     wrongHighlightIndex = null;
     if (score >= sentenceQuizWinningScore) {
@@ -71,13 +76,13 @@ class SentenceQuizController extends ChangeNotifier {
     final person = outfit.person;
     final shirtColor = outfit.shirtColor;
     final jeansColor = outfit.jeansColor;
-    final visible = <SentenceQuizSentence>{
-      SentenceQuizSentence(
+    final visible = <OutfitSentence>{
+      OutfitSentence(
         person: person,
         color: shirtColor,
         piece: ClothingPiece.shirt,
       ),
-      SentenceQuizSentence(
+      OutfitSentence(
         person: person,
         color: jeansColor,
         piece: ClothingPiece.jeans,
@@ -85,11 +90,11 @@ class SentenceQuizController extends ChangeNotifier {
     };
     final visibleOptions = visible.toList();
     final solution = visibleOptions[_random.nextInt(visibleOptions.length)];
-    final distractors = <SentenceQuizSentence>[
+    final distractors = <OutfitSentence>[
       for (final candidatePerson in SentencePerson.values)
         for (final candidateColor in GarmentColor.values)
           for (final candidatePiece in ClothingPiece.values)
-            SentenceQuizSentence(
+            OutfitSentence(
               person: candidatePerson,
               color: candidateColor,
               piece: candidatePiece,

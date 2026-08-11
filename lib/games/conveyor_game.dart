@@ -1,13 +1,14 @@
 import 'package:flame/game.dart';
 import 'package:flutter/painting.dart';
 
+import '../models/conveyor_state.dart';
 import '../models/conveyor_world.dart';
 
 class ConveyorGame extends FlameGame {
   final ConveyorWorld gameWorld;
   final void Function(double width, double height) onResize;
-  final void Function(double deltaSeconds) onTick;
-  final void Function() onFrame;
+  final ConveyorState Function(double deltaSeconds) onTick;
+  final void Function(ConveyorState state) onFrame;
 
   ConveyorGame({
     required this.gameWorld,
@@ -27,8 +28,7 @@ class ConveyorGame extends FlameGame {
 
   @override
   void update(double dt) {
-    onTick(dt);
-    onFrame();
+    onFrame(onTick(dt));
     super.update(dt);
   }
 

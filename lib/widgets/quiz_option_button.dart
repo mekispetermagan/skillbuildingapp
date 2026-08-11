@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/view_data.dart';
+import '../models/answer_feedback.dart';
 import 'answer_feedback.dart';
 
 class QuizOptionButton extends StatelessWidget {

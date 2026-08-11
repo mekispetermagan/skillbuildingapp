@@ -12,12 +12,12 @@ enum GarmentColor { blue, green, red, yellow }
 
 enum ClothingPiece { shirt, jeans }
 
-class SentenceQuizSentence {
+class OutfitSentence {
   final SentencePerson person;
   final GarmentColor color;
   final ClothingPiece piece;
 
-  const SentenceQuizSentence({
+  const OutfitSentence({
     required this.person,
     required this.color,
     required this.piece,
@@ -36,7 +36,7 @@ class SentenceQuizSentence {
 
   @override
   bool operator ==(Object other) =>
-      other is SentenceQuizSentence &&
+      other is OutfitSentence &&
       other.person == person &&
       other.color == color &&
       other.piece == piece;

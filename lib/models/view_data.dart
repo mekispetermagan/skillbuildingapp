@@ -1,30 +1,25 @@
+import 'answer_feedback.dart';
 import 'countdown_status.dart';
+import 'conveyor_state.dart';
 import 'conveyor_world.dart';
 import 'layered_person_outfit.dart';
 import 'letter_catching_world.dart';
+import 'letter_catching_state.dart';
 import 'letter_dragging_state.dart';
 import 'letter_dragging_tile.dart';
 import 'letter_shooting_world.dart';
+import 'letter_shooting_state.dart';
 import 'memory_card_data.dart';
+import 'memory_config.dart';
 import 'missing_letter_slot.dart';
 import 'missing_letter_tile.dart';
 import 'missing_letters_state.dart';
+import 'outfit_sentence.dart';
 import 'phrase_building_state.dart';
 import 'phrase_building_tile.dart';
 import 'sentence_quiz_question.dart';
-import 'sentence_quiz_sentence.dart';
-
-enum LetterShootingState { playing, ended }
-
-enum LetterCatchingState { playing, won, lost }
-
-enum ConveyorState { playing, won, lost }
-
-enum SentenceQuizState { guessing, feedback, won }
-
-enum SentenceComposerState { composing, feedback, won }
-
-enum AnswerFeedback { neutral, correct, wrong }
+import 'sentence_composer_state.dart';
+import 'sentence_quiz_state.dart';
 
 class PhraseBuildingViewData {
   final bool isLoading;
@@ -83,12 +78,14 @@ class MemoryViewData {
   final String? errorMessage;
   final List<MemoryCardData> cards;
   final bool isComplete;
+  final MemoryConfig config;
 
   const MemoryViewData({
     required this.isLoading,
     required this.errorMessage,
     required this.cards,
     required this.isComplete,
+    required this.config,
   });
 }
 

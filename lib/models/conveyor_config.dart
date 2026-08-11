@@ -27,5 +27,17 @@ class ConveyorConfig {
     required this.startingLives,
     required this.winningScore,
     required this.maximumUpdateStep,
-  });
+  }) : assert(leftBeltWidth > 0),
+       assert(rightBeltWidth > 0),
+       assert(beltGap >= 0),
+       assert(outerPadding >= 0),
+       assert(shelfHeight > 0),
+       assert(shelfGap >= 0),
+       assert(letterSize > 0),
+       assert(letterGap >= 0),
+       assert(leftBeltSpeed >= 0),
+       assert(rightBeltSpeed >= 0),
+       assert(startingLives > 0),
+       assert(winningScore > 0),
+       assert(maximumUpdateStep > 0);
 }

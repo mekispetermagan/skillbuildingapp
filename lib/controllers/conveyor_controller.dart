@@ -3,9 +3,9 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 
 import '../models/conveyor_config.dart';
-import '../models/conveyor_word.dart';
+import '../models/conveyor_state.dart';
 import '../models/conveyor_world.dart';
-import '../models/view_data.dart';
+import '../models/image_word.dart';
 
 const conveyorConfig = ConveyorConfig(
   leftBeltWidth: 290,
@@ -29,7 +29,7 @@ class ConveyorController extends ChangeNotifier {
   ConveyorState state = ConveyorState.playing;
 
   ConveyorController({
-    required List<ConveyorWord> words,
+    required List<ImageWord> words,
     ConveyorConfig config = conveyorConfig,
     Random? random,
   }) : world = ConveyorWorld(words: words, config: config, random: random);
@@ -38,15 +38,14 @@ class ConveyorController extends ChangeNotifier {
     world.reset();
     state = ConveyorState.playing;
     _isRunning = true;
-    notifyListeners();
   }
 
   void stop() => _isRunning = false;
 
   void resize(double width, double height) => world.resize(width, height);
 
-  void tick(double deltaSeconds) {
-    if (!_isRunning) return;
+  ConveyorState tick(double deltaSeconds) {
+    if (!_isRunning) return state;
     world.update(deltaSeconds);
     if (world.score >= world.config.winningScore) {
       state = ConveyorState.won;
@@ -55,7 +54,7 @@ class ConveyorController extends ChangeNotifier {
       state = ConveyorState.lost;
       _isRunning = false;
     }
-    notifyListeners();
+    return state;
   }
 
   bool canAccept({required int letterId, required int shelfId}) =>
@@ -79,6 +78,5 @@ class ConveyorController extends ChangeNotifier {
       state = ConveyorState.lost;
       _isRunning = false;
     }
-    notifyListeners();
   }
 }

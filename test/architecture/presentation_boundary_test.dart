@@ -29,4 +29,24 @@ void main() {
           'presentation receives ViewData and callbacks.',
     );
   });
+
+  test('feature controllers do not depend on ViewData', () {
+    final violations = Directory('lib/controllers')
+        .listSync()
+        .whereType<File>()
+        .where(
+          (file) =>
+              !file.path.endsWith('session_controller.dart') &&
+              file.path.endsWith('.dart') &&
+              file.readAsStringSync().contains("models/view_data.dart"),
+        )
+        .map((file) => file.path)
+        .toList();
+
+    expect(
+      violations,
+      isEmpty,
+      reason: 'Only SessionController may construct presentation ViewData.',
+    );
+  });
 }

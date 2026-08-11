@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'sentence_quiz_sentence.dart';
+import 'outfit_sentence.dart';
 
 class LayeredPersonOutfit {
   final SentencePerson person;
@@ -19,13 +19,13 @@ class LayeredPersonOutfit {
     jeansColor: GarmentColor.values[random.nextInt(GarmentColor.values.length)],
   );
 
-  SentenceQuizSentence get visibleShirt => SentenceQuizSentence(
+  OutfitSentence get visibleShirt => OutfitSentence(
     person: person,
     color: shirtColor,
     piece: ClothingPiece.shirt,
   );
 
-  SentenceQuizSentence get visibleJeans => SentenceQuizSentence(
+  OutfitSentence get visibleJeans => OutfitSentence(
     person: person,
     color: jeansColor,
     piece: ClothingPiece.jeans,
