@@ -44,6 +44,9 @@ class _SentenceAssetBundle extends CachingAssetBundle {
         ]
       ''';
     }
+    if (key == 'assets/data/letter_catching_words.json') {
+      return '[{"id": 1, "word": "lion"}]';
+    }
     return '''
       [
         {
@@ -57,7 +60,7 @@ class _SentenceAssetBundle extends CachingAssetBundle {
 }
 
 void main() {
-  test('exposes five activities and three placeholder destinations', () async {
+  test('exposes six activities and two placeholder destinations', () async {
     final controller = SessionController(
       assetBundle: _SentenceAssetBundle(),
       audioPlayer: _FakeAudioPlayer(),
@@ -70,7 +73,7 @@ void main() {
       'Missing letters',
       'Letter shooting',
       'Memory cards',
-      'Feature 6',
+      'Letter catching',
       'Feature 7',
       'Feature 8',
     ]);
@@ -84,6 +87,8 @@ void main() {
     expect(controller.memoryError, isNull);
     expect(controller.letterShootingIsLoading, isFalse);
     expect(controller.letterShootingError, isNull);
+    expect(controller.letterCatchingIsLoading, isFalse);
+    expect(controller.letterCatchingError, isNull);
 
     controller.menuItems[2].$2();
     expect(controller.status, SessionStatus.missingLetters);

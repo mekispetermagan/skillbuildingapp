@@ -99,8 +99,12 @@ class AppRootState extends State<AppRoot> {
           onSelect: _sessionController.memorySelect,
           onNewGame: _sessionController.memoryStartNewGame,
         ),
-        SessionStatus.feature6 => Feature6Screen(
+        SessionStatus.letterCatching => LetterCatchingScreen(
+          isLoading: _sessionController.letterCatchingIsLoading,
+          errorMessage: _sessionController.letterCatchingError,
+          controller: _sessionController.letterCatchingController,
           onBack: _sessionController.openMenu,
+          onRestart: _sessionController.restartLetterCatching,
         ),
         SessionStatus.feature7 => Feature7Screen(
           onBack: _sessionController.openMenu,

@@ -1,0 +1,17 @@
+[
+  {"id": 1, "word": "lion"},
+  {"id": 2, "word": "zebra"},
+  {"id": 3, "word": "tiger"},
+  {"id": 4, "word": "snake"},
+  {"id": 5, "word": "crane"},
+  {"id": 6, "word": "stork"},
+  {"id": 7, "word": "monkey"},
+  {"id": 8, "word": "baboon"},
+  {"id": 9, "word": "buffalo"},
+  {"id": 10, "word": "gorilla"},
+  {"id": 11, "word": "giraffe"},
+  {"id": 12, "word": "chicken"},
+  {"id": 13, "word": "goat"},
+  {"id": 14, "word": "sheep"},
+  {"id": 15, "word": "duck"}
+]
