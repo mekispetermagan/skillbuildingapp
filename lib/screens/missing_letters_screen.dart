@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import '../models/missing_letters_state.dart';
 import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
-import '../widgets/rewards.dart';
+import '../widgets/feature_load_state.dart';
 import '../widgets/missing_letter_card.dart';
+import '../widgets/reward_row.dart';
 
 class MissingLettersScreen extends StatelessWidget {
   final MissingLettersViewData viewData;
@@ -26,11 +27,11 @@ class MissingLettersScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: FeatureAppBar(title: 'Missing letters', onBack: onBack),
-      body: switch ((viewData.isLoading, viewData.errorMessage)) {
-        (true, _) => const Center(child: CircularProgressIndicator()),
-        (_, final String message) => Center(child: Text(message)),
-        _ => _buildExercise(context),
-      },
+      body: FeatureLoadState(
+        isLoading: viewData.isLoading,
+        errorMessage: viewData.errorMessage,
+        child: _buildExercise(context),
+      ),
     );
   }
 
@@ -79,10 +80,7 @@ class MissingLettersScreen extends StatelessWidget {
                   ),
               ],
             ),
-            ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 34),
-              child: Rewards(count: viewData.score),
-            ),
+            RewardRow(count: viewData.score),
             Align(
               alignment: Alignment.centerRight,
               child: FilledButton(

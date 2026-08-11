@@ -89,31 +89,31 @@ class SentenceComposerController extends ChangeNotifier {
     notifyListeners();
   }
 
-  ComposerChoiceFeedback personFeedback(SentencePerson person) {
+  AnswerFeedback personFeedback(SentencePerson person) {
     if (state != SentenceComposerState.feedback) {
-      return ComposerChoiceFeedback.neutral;
+      return AnswerFeedback.neutral;
     }
-    if (person == outfit.person) return ComposerChoiceFeedback.correct;
-    if (person == selectedPerson) return ComposerChoiceFeedback.wrong;
-    return ComposerChoiceFeedback.neutral;
+    if (person == outfit.person) return AnswerFeedback.correct;
+    if (person == selectedPerson) return AnswerFeedback.wrong;
+    return AnswerFeedback.neutral;
   }
 
-  ComposerChoiceFeedback colorFeedback(GarmentColor color) {
+  AnswerFeedback colorFeedback(GarmentColor color) {
     final piece = selectedPiece;
     if (state != SentenceComposerState.feedback || piece == null) {
-      return ComposerChoiceFeedback.neutral;
+      return AnswerFeedback.neutral;
     }
     if (color == outfit.colorFor(piece)) {
-      return ComposerChoiceFeedback.correct;
+      return AnswerFeedback.correct;
     }
-    if (color == selectedColor) return ComposerChoiceFeedback.wrong;
-    return ComposerChoiceFeedback.neutral;
+    if (color == selectedColor) return AnswerFeedback.wrong;
+    return AnswerFeedback.neutral;
   }
 
-  ComposerChoiceFeedback pieceFeedback(ClothingPiece piece) =>
+  AnswerFeedback pieceFeedback(ClothingPiece piece) =>
       state == SentenceComposerState.feedback && piece == selectedPiece
-      ? ComposerChoiceFeedback.correct
-      : ComposerChoiceFeedback.neutral;
+      ? AnswerFeedback.correct
+      : AnswerFeedback.neutral;
 
   bool get _isCorrect {
     final piece = selectedPiece;

@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import '../models/countdown_status.dart';
 import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
+import '../widgets/feature_load_state.dart';
 import '../widgets/letter_dragging_card.dart';
 import '../widgets/letter_dragging_countdown.dart';
-import '../widgets/rewards.dart';
+import '../widgets/reward_row.dart';
 
 class LetterDraggingScreen extends StatelessWidget {
   final LetterDraggingViewData viewData;
@@ -25,16 +26,14 @@ class LetterDraggingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: FeatureAppBar(title: 'Letter dragging', onBack: onBack),
-      body: switch ((
-        viewData.isLoading,
-        viewData.errorMessage,
-        viewData.countdown,
-      )) {
-        (true, _, _) => const Center(child: CircularProgressIndicator()),
-        (_, final String message, _) => Center(child: Text(message)),
-        (_, _, final CountdownStatus countdown) => _buildExercise(countdown),
-        _ => const SizedBox.shrink(),
-      },
+      body: FeatureLoadState(
+        isLoading: viewData.isLoading,
+        errorMessage: viewData.errorMessage,
+        child: switch (viewData.countdown) {
+          final CountdownStatus countdown => _buildExercise(countdown),
+          null => const SizedBox.shrink(),
+        },
+      ),
     );
   }
 
@@ -80,10 +79,7 @@ class LetterDraggingScreen extends StatelessWidget {
             const SizedBox(height: 20),
             LetterDraggingCountdown(status: countdown),
             const SizedBox(height: 20),
-            ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 34),
-              child: Rewards(count: viewData.score),
-            ),
+            RewardRow(count: viewData.score),
           ],
         ),
       ),

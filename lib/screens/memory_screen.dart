@@ -4,6 +4,7 @@ import '../models/memory_board_layout.dart';
 import '../models/memory_card_data.dart';
 import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
+import '../widgets/feature_load_state.dart';
 import '../widgets/memory_card.dart';
 
 class MemoryScreen extends StatelessWidget {
@@ -30,16 +31,13 @@ class MemoryScreen extends StatelessWidget {
     return Scaffold(
       appBar: FeatureAppBar(title: 'Memory cards', onBack: onBack),
       body: SafeArea(
-        child: switch ((
-          viewData.isLoading,
-          viewData.errorMessage,
-          viewData.cards.length,
-        )) {
-          (true, _, _) => const Center(child: CircularProgressIndicator()),
-          (_, final String message, _) => Center(child: Text(message)),
-          (_, _, 18) => _buildBoard(),
-          _ => const Center(child: Text('Not enough word and image pairs.')),
-        },
+        child: FeatureLoadState(
+          isLoading: viewData.isLoading,
+          errorMessage: viewData.errorMessage,
+          child: viewData.cards.length == 18
+              ? _buildBoard()
+              : const Center(child: Text('Not enough word and image pairs.')),
+        ),
       ),
     );
   }

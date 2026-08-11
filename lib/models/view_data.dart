@@ -24,7 +24,7 @@ enum SentenceQuizState { guessing, feedback, won }
 
 enum SentenceComposerState { composing, feedback, won }
 
-enum ComposerChoiceFeedback { neutral, correct, wrong }
+enum AnswerFeedback { neutral, correct, wrong }
 
 class PhraseBuildingViewData {
   final bool isLoading;
@@ -162,9 +162,9 @@ class SentenceComposerViewData {
   final String composedSentence;
   final bool canSelect;
   final bool canSubmit;
-  final Map<SentencePerson, ComposerChoiceFeedback> personFeedback;
-  final Map<GarmentColor, ComposerChoiceFeedback> colorFeedback;
-  final Map<ClothingPiece, ComposerChoiceFeedback> pieceFeedback;
+  final Map<SentencePerson, AnswerFeedback> personFeedback;
+  final Map<GarmentColor, AnswerFeedback> colorFeedback;
+  final Map<ClothingPiece, AnswerFeedback> pieceFeedback;
 
   const SentenceComposerViewData({
     required this.outfit,

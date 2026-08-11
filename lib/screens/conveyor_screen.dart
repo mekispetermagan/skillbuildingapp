@@ -5,8 +5,10 @@ import '../games/conveyor_game.dart';
 import '../models/conveyor_world.dart';
 import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
+import '../widgets/feature_load_state.dart';
+import '../widgets/game_end_overlay.dart';
 import '../widgets/lives_display.dart';
-import '../widgets/rewards.dart';
+import '../widgets/reward_row.dart';
 
 class ConveyorScreen extends StatelessWidget {
   final ConveyorViewData viewData;
@@ -37,25 +39,27 @@ class ConveyorScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: FeatureAppBar(title: 'Word conveyor', onBack: onBack),
-    body: switch ((viewData.isLoading, viewData.errorMessage, viewData.world)) {
-      (true, _, _) => const Center(child: CircularProgressIndicator()),
-      (_, final String message, _) => Center(child: Text(message)),
-      (_, _, final ConveyorWorld world) => SafeArea(
-        child: _ConveyorPlayArea(
-          initialViewData: viewData,
-          world: world,
-          readViewData: readViewData,
-          onResize: onResize,
-          onTick: onTick,
-          canAccept: canAccept,
-          onStartDragging: onStartDragging,
-          onCancelDragging: onCancelDragging,
-          onDrop: onDrop,
-          onRestart: onRestart,
+    body: FeatureLoadState(
+      isLoading: viewData.isLoading,
+      errorMessage: viewData.errorMessage,
+      child: switch (viewData.world) {
+        final ConveyorWorld world => SafeArea(
+          child: _ConveyorPlayArea(
+            initialViewData: viewData,
+            world: world,
+            readViewData: readViewData,
+            onResize: onResize,
+            onTick: onTick,
+            canAccept: canAccept,
+            onStartDragging: onStartDragging,
+            onCancelDragging: onCancelDragging,
+            onDrop: onDrop,
+            onRestart: onRestart,
+          ),
         ),
-      ),
-      _ => const SizedBox.shrink(),
-    },
+        null => const SizedBox.shrink(),
+      },
+    ),
   );
 }
 
@@ -148,11 +152,11 @@ class _ConveyorPlayAreaState extends State<_ConveyorPlayArea> {
                   listenable: _frame,
                   builder: (_, _) => switch (_viewData.state) {
                     ConveyorState.playing => const SizedBox.shrink(),
-                    ConveyorState.won => _EndOverlay(
+                    ConveyorState.won => GameEndOverlay(
                       message: 'Congratulations!',
                       onRestart: widget.onRestart,
                     ),
-                    ConveyorState.lost => _EndOverlay(
+                    ConveyorState.lost => GameEndOverlay(
                       message: 'Sorry!',
                       onRestart: widget.onRestart,
                     ),
@@ -163,12 +167,9 @@ class _ConveyorPlayAreaState extends State<_ConveyorPlayArea> {
           ),
         ),
       ),
-      SizedBox(
-        height: 46,
-        child: ListenableBuilder(
-          listenable: _frame,
-          builder: (_, _) => Rewards(count: widget.world.score),
-        ),
+      ListenableBuilder(
+        listenable: _frame,
+        builder: (_, _) => RewardRow(count: widget.world.score),
       ),
     ],
   );
@@ -323,28 +324,6 @@ class _LetterCard extends StatelessWidget {
       child: Text(
         letter,
         style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-      ),
-    ),
-  );
-}
-
-class _EndOverlay extends StatelessWidget {
-  final String message;
-  final VoidCallback onRestart;
-
-  const _EndOverlay({required this.message, required this.onRestart});
-
-  @override
-  Widget build(BuildContext context) => ColoredBox(
-    color: Colors.black54,
-    child: Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(message, style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 20),
-          FilledButton(onPressed: onRestart, child: const Text('Play again?')),
-        ],
       ),
     ),
   );

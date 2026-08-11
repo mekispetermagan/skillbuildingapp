@@ -77,20 +77,17 @@ void main() {
     final submission = controller.submit();
 
     expect(controller.state, SentenceComposerState.feedback);
-    expect(
-      controller.personFeedback(wrongPerson),
-      ComposerChoiceFeedback.wrong,
-    );
+    expect(controller.personFeedback(wrongPerson), AnswerFeedback.wrong);
     expect(
       controller.personFeedback(controller.outfit.person),
-      ComposerChoiceFeedback.correct,
+      AnswerFeedback.correct,
     );
-    expect(controller.colorFeedback(wrongColor), ComposerChoiceFeedback.wrong);
+    expect(controller.colorFeedback(wrongColor), AnswerFeedback.wrong);
     expect(
       controller.colorFeedback(controller.outfit.shirtColor),
-      ComposerChoiceFeedback.correct,
+      AnswerFeedback.correct,
     );
-    expect(controller.pieceFeedback(piece), ComposerChoiceFeedback.correct);
+    expect(controller.pieceFeedback(piece), AnswerFeedback.correct);
     expect(controller.score, 0);
 
     await submission;

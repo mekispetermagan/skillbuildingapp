@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/phrase_building_tile.dart';
 import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
+import '../widgets/feature_load_state.dart';
 import '../widgets/phrase_building_card.dart';
 
 class PhraseBuildingScreen extends StatelessWidget {
@@ -25,11 +26,11 @@ class PhraseBuildingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: FeatureAppBar(title: 'Phrase building', onBack: onBack),
-      body: switch ((viewData.isLoading, viewData.errorMessage)) {
-        (true, _) => const Center(child: CircularProgressIndicator()),
-        (_, final String message) => Center(child: Text(message)),
-        _ => _buildExercise(),
-      },
+      body: FeatureLoadState(
+        isLoading: viewData.isLoading,
+        errorMessage: viewData.errorMessage,
+        child: _buildExercise(),
+      ),
     );
   }
 

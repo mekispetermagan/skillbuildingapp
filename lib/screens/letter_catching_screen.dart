@@ -5,8 +5,10 @@ import '../games/letter_catching_game.dart';
 import '../models/letter_catching_world.dart';
 import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
+import '../widgets/feature_load_state.dart';
+import '../widgets/game_end_overlay.dart';
 import '../widgets/lives_display.dart';
-import '../widgets/rewards.dart';
+import '../widgets/reward_row.dart';
 
 class LetterCatchingScreen extends StatelessWidget {
   final LetterCatchingViewData viewData;
@@ -29,21 +31,23 @@ class LetterCatchingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: FeatureAppBar(title: 'Letter catching', onBack: onBack),
-    body: switch ((viewData.isLoading, viewData.errorMessage, viewData.world)) {
-      (true, _, _) => const Center(child: CircularProgressIndicator()),
-      (_, final String message, _) => Center(child: Text(message)),
-      (_, _, final LetterCatchingWorld world) => SafeArea(
-        child: _LetterCatchingPlayArea(
-          world: world,
-          state: viewData.state,
-          onResize: onResize,
-          onTick: onTick,
-          onMovePaddleBy: onMovePaddleBy,
-          onRestart: onRestart,
+    body: FeatureLoadState(
+      isLoading: viewData.isLoading,
+      errorMessage: viewData.errorMessage,
+      child: switch (viewData.world) {
+        final LetterCatchingWorld world => SafeArea(
+          child: _LetterCatchingPlayArea(
+            world: world,
+            state: viewData.state,
+            onResize: onResize,
+            onTick: onTick,
+            onMovePaddleBy: onMovePaddleBy,
+            onRestart: onRestart,
+          ),
         ),
-      ),
-      _ => const SizedBox.shrink(),
-    },
+        null => const SizedBox.shrink(),
+      },
+    ),
   );
 }
 
@@ -103,11 +107,11 @@ class _LetterCatchingPlayAreaState extends State<_LetterCatchingPlayArea> {
             Positioned.fill(
               child: switch (widget.state) {
                 LetterCatchingState.playing => const SizedBox.shrink(),
-                LetterCatchingState.won => _EndOverlay(
+                LetterCatchingState.won => GameEndOverlay(
                   message: 'Congratulations!',
                   onRestart: widget.onRestart,
                 ),
-                LetterCatchingState.lost => _EndOverlay(
+                LetterCatchingState.lost => GameEndOverlay(
                   message: 'Sorry!',
                   onRestart: widget.onRestart,
                 ),
@@ -116,29 +120,7 @@ class _LetterCatchingPlayAreaState extends State<_LetterCatchingPlayArea> {
           ],
         ),
       ),
-      SizedBox(height: 46, child: Rewards(count: widget.world.score)),
+      RewardRow(count: widget.world.score),
     ],
-  );
-}
-
-class _EndOverlay extends StatelessWidget {
-  final String message;
-  final VoidCallback onRestart;
-
-  const _EndOverlay({required this.message, required this.onRestart});
-
-  @override
-  Widget build(BuildContext context) => ColoredBox(
-    color: Colors.black54,
-    child: Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(message, style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 20),
-          FilledButton(onPressed: onRestart, child: const Text('Play again?')),
-        ],
-      ),
-    ),
   );
 }

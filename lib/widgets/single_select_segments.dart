@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 
-enum SegmentFeedback { neutral, correct, wrong }
+import '../models/view_data.dart';
+import 'answer_feedback.dart';
 
 class SegmentChoice<T> {
   final T value;
   final String label;
-  final SegmentFeedback feedback;
+  final AnswerFeedback feedback;
 
   const SegmentChoice({
     required this.value,
     required this.label,
-    this.feedback = SegmentFeedback.neutral,
+    this.feedback = AnswerFeedback.neutral,
   });
 }
 
@@ -49,35 +50,25 @@ class SingleSelectSegments<T> extends StatelessWidget {
 
 class _SegmentLabel extends StatelessWidget {
   final String label;
-  final SegmentFeedback feedback;
+  final AnswerFeedback feedback;
 
   const _SegmentLabel({required this.label, required this.feedback});
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final (background, foreground) = switch (feedback) {
-      SegmentFeedback.correct => (
-        ColorScheme.fromSeed(
-          seedColor: Colors.green,
-          brightness: scheme.brightness,
-        ).primaryContainer,
-        ColorScheme.fromSeed(
-          seedColor: Colors.green,
-          brightness: scheme.brightness,
-        ).onPrimaryContainer,
-      ),
-      SegmentFeedback.wrong => (scheme.errorContainer, scheme.onErrorContainer),
-      SegmentFeedback.neutral => (Colors.transparent, null),
-    };
+    final colors = answerFeedbackColors(
+      context,
+      feedback,
+      transparentNeutral: true,
+    );
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: background,
+        color: colors.background,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-        child: Text(label, style: TextStyle(color: foreground)),
+        child: Text(label, style: TextStyle(color: colors.foreground)),
       ),
     );
   }
