@@ -84,7 +84,11 @@ class AppRootState extends State<AppRoot> {
           onDrop: _sessionController.missingLettersDrop,
         ),
         SessionStatus.letterShooting => LetterShootingScreen(
+          isLoading: _sessionController.letterShootingIsLoading,
+          errorMessage: _sessionController.letterShootingError,
+          controller: _sessionController.letterShootingController,
           onBack: _sessionController.openMenu,
+          onRestart: _sessionController.restartLetterShooting,
         ),
         SessionStatus.memory => MemoryScreen(
           isLoading: _sessionController.memoryIsLoading,

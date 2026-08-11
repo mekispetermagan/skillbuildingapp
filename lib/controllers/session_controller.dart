@@ -11,6 +11,7 @@ import '../models/sentence.dart';
 import '../models/letter_dragging_state.dart';
 import '../models/letter_dragging_tile.dart';
 import '../models/letter_dragging_word.dart';
+import '../models/letter_shooting_word.dart';
 import '../models/missing_letter_slot.dart';
 import '../models/missing_letter_tile.dart';
 import '../models/missing_letters_state.dart';
@@ -19,6 +20,7 @@ import '../models/memory_card_data.dart';
 import '../models/memory_pair.dart';
 import 'countdown_controller.dart';
 import 'letter_dragging_controller.dart';
+import 'letter_shooting_controller.dart';
 import 'memory_controller.dart';
 import 'missing_letters_controller.dart';
 import 'phrase_building_controller.dart';
@@ -43,6 +45,8 @@ class SessionController extends ChangeNotifier {
   String? _phraseBuildingError;
   LetterDraggingController? _letterDraggingController;
   String? _letterDraggingError;
+  LetterShootingController? _letterShootingController;
+  String? _letterShootingError;
   MissingLettersController? _missingLettersController;
   String? _missingLettersError;
   MemoryController? _memoryController;
@@ -55,6 +59,7 @@ class SessionController extends ChangeNotifier {
       _audioPlayer = audioPlayer ?? SoloudAssetAudioPlayer() {
     unawaited(_initializePhraseBuilding());
     unawaited(_initializeLetterDragging());
+    unawaited(_initializeLetterShooting());
     unawaited(_initializeMissingLetters());
     unawaited(_initializeMemory());
   }
@@ -63,7 +68,7 @@ class SessionController extends ChangeNotifier {
     ('Phrase building', () => _open(SessionStatus.phraseBuilding)),
     ('Letter dragging', openLetterDragging),
     ('Missing letters', openMissingLetters),
-    ('Letter shooting', () => _open(SessionStatus.letterShooting)),
+    ('Letter shooting', openLetterShooting),
     ('Memory cards', () => _open(SessionStatus.memory)),
     ('Feature 6', () => _open(SessionStatus.feature6)),
     ('Feature 7', () => _open(SessionStatus.feature7)),
@@ -125,6 +130,19 @@ class SessionController extends ChangeNotifier {
 
   void restartLetterDragging() => _letterDraggingController?.start();
 
+  bool get letterShootingIsLoading =>
+      _letterShootingController == null && _letterShootingError == null;
+  String? get letterShootingError => _letterShootingError;
+  LetterShootingController? get letterShootingController =>
+      _letterShootingController;
+
+  void openLetterShooting() {
+    _letterShootingController?.start();
+    _open(SessionStatus.letterShooting);
+  }
+
+  void restartLetterShooting() => _letterShootingController?.start();
+
   bool get missingLettersIsLoading =>
       _missingLettersController == null && _missingLettersError == null;
   String? get missingLettersError => _missingLettersError;
@@ -163,6 +181,7 @@ class SessionController extends ChangeNotifier {
   void openMenu() {
     unawaited(_audioPlayer.stop());
     _letterDraggingController?.stop();
+    _letterShootingController?.stop();
     _open(SessionStatus.menu);
   }
 
@@ -244,6 +263,29 @@ class SessionController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> _initializeLetterShooting() async {
+    try {
+      final encoded = await _assetBundle.loadString(
+        'assets/data/letter_shooting_words.json',
+      );
+      final data = jsonDecode(encoded) as List<dynamic>;
+      final words = [
+        for (final item in data)
+          LetterShootingWord.fromJson(item as Map<String, dynamic>),
+      ];
+      if (_disposed) return;
+
+      _letterShootingController = LetterShootingController(words: words);
+      if (status == SessionStatus.letterShooting) {
+        _letterShootingController!.start();
+      }
+    } catch (_) {
+      if (_disposed) return;
+      _letterShootingError = 'Could not load the letter-shooting activity.';
+    }
+    notifyListeners();
+  }
+
   Future<void> _initializeMemory() async {
     try {
       final encoded = await _assetBundle.loadString(
@@ -275,6 +317,7 @@ class SessionController extends ChangeNotifier {
     _phraseBuildingController?.dispose();
     _letterDraggingController?.removeListener(_forwardFeatureNotification);
     _letterDraggingController?.dispose();
+    _letterShootingController?.dispose();
     _missingLettersController?.removeListener(_forwardFeatureNotification);
     _missingLettersController?.dispose();
     _memoryController?.removeListener(_forwardFeatureNotification);

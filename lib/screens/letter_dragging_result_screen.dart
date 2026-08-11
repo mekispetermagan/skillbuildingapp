@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/feature_app_bar.dart';
-import '../widgets/letter_dragging_rewards.dart';
+import '../widgets/rewards.dart';
 
 class LetterDraggingResultScreen extends StatelessWidget {
   final int score;
@@ -31,7 +31,7 @@ class LetterDraggingResultScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 30),
               ),
-              LetterDraggingRewards(count: score),
+              Rewards(count: score),
               FilledButton(
                 onPressed: onRestart,
                 child: const Text('Play again'),

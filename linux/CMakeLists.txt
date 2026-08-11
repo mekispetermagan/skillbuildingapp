@@ -72,7 +72,11 @@ set_target_properties(${BINARY_NAME}
 
 # Generated plugin build rules, which manage building the plugins and adding
 # them to the application.
+# Some plugins emit verbose informational CMake messages on stderr. Keep their
+# warnings and errors, but suppress routine configuration chatter.
+set(CMAKE_MESSAGE_LOG_LEVEL WARNING)
 include(flutter/generated_plugins.cmake)
+unset(CMAKE_MESSAGE_LOG_LEVEL)
 
 
 # === Installation ===

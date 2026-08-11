@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'rotating_hue.dart';
 
-class LetterDraggingRewards extends StatelessWidget {
+class Rewards extends StatelessWidget {
   final int count;
 
-  const LetterDraggingRewards({required this.count, super.key});
+  const Rewards({required this.count, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class LetterDraggingRewards extends StatelessWidget {
             RotatingHueImage(
               angleOffset: index * 60,
               image: Image.asset(
-                'assets/images/letter_dragging_heart.png',
+                'assets/images/reward.png',
                 width: 36,
                 height: 34,
               ),

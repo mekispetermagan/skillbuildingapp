@@ -4,7 +4,7 @@ import '../models/missing_letter_slot.dart';
 import '../models/missing_letter_tile.dart';
 import '../models/missing_letters_state.dart';
 import '../widgets/feature_app_bar.dart';
-import '../widgets/letter_dragging_rewards.dart';
+import '../widgets/rewards.dart';
 import '../widgets/missing_letter_card.dart';
 
 class MissingLettersScreen extends StatelessWidget {
@@ -92,7 +92,7 @@ class MissingLettersScreen extends StatelessWidget {
             ),
             ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 34),
-              child: LetterDraggingRewards(count: score),
+              child: Rewards(count: score),
             ),
             Align(
               alignment: Alignment.centerRight,

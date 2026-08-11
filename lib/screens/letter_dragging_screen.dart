@@ -6,7 +6,7 @@ import '../models/letter_dragging_tile.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/letter_dragging_card.dart';
 import '../widgets/letter_dragging_countdown.dart';
-import '../widgets/letter_dragging_rewards.dart';
+import '../widgets/rewards.dart';
 
 class LetterDraggingScreen extends StatelessWidget {
   final bool isLoading;
@@ -91,7 +91,7 @@ class LetterDraggingScreen extends StatelessWidget {
             const SizedBox(height: 20),
             ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 34),
-              child: LetterDraggingRewards(count: score),
+              child: Rewards(count: score),
             ),
           ],
         ),

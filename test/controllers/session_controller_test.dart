@@ -37,6 +37,13 @@ class _SentenceAssetBundle extends CachingAssetBundle {
         ]
       ''';
     }
+    if (key == 'assets/data/letter_shooting_words.json') {
+      return '''
+        [
+          {"id": 1, "word": "DAD"}
+        ]
+      ''';
+    }
     return '''
       [
         {
@@ -75,6 +82,8 @@ void main() {
     expect(controller.missingLettersError, isNull);
     expect(controller.memoryIsLoading, isFalse);
     expect(controller.memoryError, isNull);
+    expect(controller.letterShootingIsLoading, isFalse);
+    expect(controller.letterShootingError, isNull);
 
     controller.menuItems[2].$2();
     expect(controller.status, SessionStatus.missingLetters);
