@@ -20,6 +20,8 @@ import 'phrase_building_tile.dart';
 import 'sentence_quiz_question.dart';
 import 'sentence_composer_state.dart';
 import 'sentence_quiz_state.dart';
+import 'spelling_quiz_question.dart';
+import 'spelling_quiz_state.dart';
 
 class PhraseBuildingViewData {
   final bool isLoading;
@@ -176,5 +178,27 @@ class SentenceComposerViewData {
     required this.personFeedback,
     required this.colorFeedback,
     required this.pieceFeedback,
+  });
+}
+
+class SpellingQuizViewData {
+  final bool isLoading;
+  final String? errorMessage;
+  final SpellingQuizQuestion? question;
+  final SpellingQuizState state;
+  final int score;
+  final int? correctHighlightIndex;
+  final int? wrongHighlightIndex;
+  final bool canSubmit;
+
+  const SpellingQuizViewData({
+    required this.isLoading,
+    required this.errorMessage,
+    required this.question,
+    required this.state,
+    required this.score,
+    required this.correctHighlightIndex,
+    required this.wrongHighlightIndex,
+    required this.canSubmit,
   });
 }

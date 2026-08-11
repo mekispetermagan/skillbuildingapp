@@ -123,6 +123,12 @@ class AppRootState extends State<AppRoot> {
           onBack: _sessionController.openMenu,
           onRestart: _sessionController.restartSentenceComposer,
         ),
+        SessionStatus.spellingQuiz => SpellingQuizScreen(
+          viewData: _sessionController.spellingQuizViewData,
+          onSubmit: _sessionController.spellingQuizSubmit,
+          onBack: _sessionController.openMenu,
+          onRestart: _sessionController.restartSpellingQuiz,
+        ),
       },
     );
   }

@@ -22,6 +22,7 @@ import '../models/phrase_building_state.dart';
 import '../models/phrase_building_tile.dart';
 import '../models/sentence.dart';
 import '../models/sentence_composer_state.dart';
+import '../models/spelling_quiz_state.dart';
 import '../models/view_data.dart';
 import 'conveyor_controller.dart';
 import 'letter_catching_controller.dart';
@@ -32,6 +33,7 @@ import 'missing_letters_controller.dart';
 import 'phrase_building_controller.dart';
 import 'sentence_composer_controller.dart';
 import 'sentence_quiz_controller.dart';
+import 'spelling_quiz_controller.dart';
 
 enum SessionStatus {
   menu,
@@ -44,6 +46,7 @@ enum SessionStatus {
   conveyor,
   sentenceQuiz,
   sentenceComposer,
+  spellingQuiz,
 }
 
 class SessionController extends ChangeNotifier {
@@ -64,6 +67,8 @@ class SessionController extends ChangeNotifier {
   String? _missingLettersError;
   MemoryController? _memoryController;
   String? _memoryError;
+  SpellingQuizController? _spellingQuizController;
+  String? _spellingQuizError;
   bool _disposed = false;
   late final SentenceQuizController _sentenceQuizController;
   late final SentenceComposerController _sentenceComposerController;
@@ -83,6 +88,7 @@ class SessionController extends ChangeNotifier {
     unawaited(_initializeConveyor());
     unawaited(_initializeMissingLetters());
     unawaited(_initializeMemory());
+    unawaited(_initializeSpellingQuiz());
   }
 
   late final List<(String, VoidCallback)> menuItems = [
@@ -95,6 +101,7 @@ class SessionController extends ChangeNotifier {
     ('Word conveyor', openConveyor),
     ('Sentence quiz', openSentenceQuiz),
     ('Sentence composer', openSentenceComposer),
+    ('Spelling quiz', openSpellingQuiz),
   ];
 
   PhraseBuildingViewData get phraseBuildingViewData => PhraseBuildingViewData(
@@ -297,6 +304,27 @@ class SessionController extends ChangeNotifier {
 
   void restartSentenceComposer() => _sentenceComposerController.start();
 
+  SpellingQuizViewData get spellingQuizViewData => SpellingQuizViewData(
+    isLoading: _spellingQuizController == null && _spellingQuizError == null,
+    errorMessage: _spellingQuizError,
+    question: _spellingQuizController?.question,
+    state: _spellingQuizController?.state ?? SpellingQuizState.guessing,
+    score: _spellingQuizController?.score ?? 0,
+    correctHighlightIndex: _spellingQuizController?.correctHighlightIndex,
+    wrongHighlightIndex: _spellingQuizController?.wrongHighlightIndex,
+    canSubmit: _spellingQuizController?.canSubmit ?? false,
+  );
+
+  Future<void> spellingQuizSubmit(int guessIndex) =>
+      _spellingQuizController?.submit(guessIndex) ?? Future.value();
+
+  void openSpellingQuiz() {
+    _spellingQuizController?.start();
+    _open(SessionStatus.spellingQuiz);
+  }
+
+  void restartSpellingQuiz() => _spellingQuizController?.start();
+
   MissingLettersViewData get missingLettersViewData => MissingLettersViewData(
     isLoading:
         _missingLettersController == null && _missingLettersError == null,
@@ -356,6 +384,7 @@ class SessionController extends ChangeNotifier {
     _memoryController?.stop();
     _sentenceQuizController.stop();
     _sentenceComposerController.stop();
+    _spellingQuizController?.stop();
     _open(SessionStatus.menu);
   }
 
@@ -529,6 +558,30 @@ class SessionController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> _initializeSpellingQuiz() async {
+    try {
+      final encoded = await _assetBundle.loadString(
+        'assets/data/animal_image_words.json',
+      );
+      final data = jsonDecode(encoded) as List<dynamic>;
+      final animals = [
+        for (final item in data)
+          ImageWord.fromJson(item as Map<String, dynamic>),
+      ];
+      if (_disposed) return;
+
+      _spellingQuizController = SpellingQuizController(animals: animals)
+        ..addListener(_forwardFeatureNotification);
+      if (status == SessionStatus.spellingQuiz) {
+        _spellingQuizController!.start();
+      }
+    } catch (_) {
+      if (_disposed) return;
+      _spellingQuizError = 'Could not load the spelling-quiz activity.';
+    }
+    notifyListeners();
+  }
+
   void _forwardFeatureNotification() => notifyListeners();
 
   @override
@@ -552,6 +605,8 @@ class SessionController extends ChangeNotifier {
     _sentenceQuizController.dispose();
     _sentenceComposerController.removeListener(_forwardFeatureNotification);
     _sentenceComposerController.dispose();
+    _spellingQuizController?.removeListener(_forwardFeatureNotification);
+    _spellingQuizController?.dispose();
     super.dispose();
   }
 }

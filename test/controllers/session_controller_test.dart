@@ -60,7 +60,7 @@ class _SentenceAssetBundle extends CachingAssetBundle {
 }
 
 void main() {
-  test('exposes all nine activities', () async {
+  test('exposes all ten activities', () async {
     final controller = SessionController(
       assetBundle: _SentenceAssetBundle(),
       audioPlayer: _FakeAudioPlayer(),
@@ -77,6 +77,7 @@ void main() {
       'Word conveyor',
       'Sentence quiz',
       'Sentence composer',
+      'Spelling quiz',
     ]);
     expect(controller.phraseBuildingViewData.isLoading, isFalse);
     expect(controller.phraseBuildingViewData.errorMessage, isNull);
@@ -92,6 +93,8 @@ void main() {
     expect(controller.letterCatchingViewData.errorMessage, isNull);
     expect(controller.conveyorViewData.isLoading, isFalse);
     expect(controller.conveyorViewData.errorMessage, isNull);
+    expect(controller.spellingQuizViewData.isLoading, isFalse);
+    expect(controller.spellingQuizViewData.errorMessage, isNull);
 
     controller.menuItems[2].$2();
     expect(controller.status, SessionStatus.missingLetters);
