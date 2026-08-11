@@ -2,8 +2,6 @@ export 'letter_shooting_screen.dart';
 export 'memory_screen.dart';
 export 'letter_catching_screen.dart';
 export 'conveyor_screen.dart';
-export 'feature7_screen.dart';
-export 'feature8_screen.dart';
 export 'sentence_quiz_screen.dart';
 export 'sentence_composer_screen.dart';
 export 'menu_screen.dart';
