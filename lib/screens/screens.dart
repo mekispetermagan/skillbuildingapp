@@ -4,6 +4,7 @@ export 'letter_catching_screen.dart';
 export 'conveyor_screen.dart';
 export 'feature7_screen.dart';
 export 'feature8_screen.dart';
+export 'sentence_quiz_screen.dart';
 export 'menu_screen.dart';
 export 'letter_dragging_result_screen.dart';
 export 'letter_dragging_screen.dart';

@@ -60,7 +60,7 @@ class _SentenceAssetBundle extends CachingAssetBundle {
 }
 
 void main() {
-  test('exposes seven activities and one placeholder destination', () async {
+  test('exposes all eight activities', () async {
     final controller = SessionController(
       assetBundle: _SentenceAssetBundle(),
       audioPlayer: _FakeAudioPlayer(),
@@ -75,7 +75,7 @@ void main() {
       'Memory cards',
       'Letter catching',
       'Word conveyor',
-      'Feature 8',
+      'Sentence quiz',
     ]);
     expect(controller.phraseBuildingIsLoading, isFalse);
     expect(controller.phraseBuildingError, isNull);

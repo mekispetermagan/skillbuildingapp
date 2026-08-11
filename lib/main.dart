@@ -113,8 +113,10 @@ class AppRootState extends State<AppRoot> {
           onBack: _sessionController.openMenu,
           onRestart: _sessionController.restartConveyor,
         ),
-        SessionStatus.feature8 => Feature8Screen(
+        SessionStatus.sentenceQuiz => SentenceQuizScreen(
+          controller: _sessionController.sentenceQuizController,
           onBack: _sessionController.openMenu,
+          onRestart: _sessionController.restartSentenceQuiz,
         ),
       },
     );

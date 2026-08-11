@@ -13,6 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_soloud: ^4.0.13
+  flutter_svg: ^2.2.3
 
 dev_dependencies:
   flutter_test:
@@ -27,3 +28,4 @@ flutter:
     - assets/audio/sentences/
     - assets/images/
     - assets/images/ugandan_animals/
+    - assets/images/sentence_building/

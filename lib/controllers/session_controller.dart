@@ -28,6 +28,7 @@ import 'letter_shooting_controller.dart';
 import 'memory_controller.dart';
 import 'missing_letters_controller.dart';
 import 'phrase_building_controller.dart';
+import 'sentence_quiz_controller.dart';
 
 enum SessionStatus {
   menu,
@@ -38,7 +39,7 @@ enum SessionStatus {
   memory,
   letterCatching,
   conveyor,
-  feature8,
+  sentenceQuiz,
 }
 
 class SessionController extends ChangeNotifier {
@@ -60,11 +61,14 @@ class SessionController extends ChangeNotifier {
   MemoryController? _memoryController;
   String? _memoryError;
   bool _disposed = false;
+  late final SentenceQuizController _sentenceQuizController;
   SessionStatus status = SessionStatus.menu;
 
   SessionController({AssetBundle? assetBundle, AssetAudioPlayer? audioPlayer})
     : _assetBundle = assetBundle ?? rootBundle,
       _audioPlayer = audioPlayer ?? SoloudAssetAudioPlayer() {
+    _sentenceQuizController = SentenceQuizController()
+      ..addListener(_forwardFeatureNotification);
     unawaited(_initializePhraseBuilding());
     unawaited(_initializeLetterDragging());
     unawaited(_initializeLetterShooting());
@@ -82,7 +86,7 @@ class SessionController extends ChangeNotifier {
     ('Memory cards', () => _open(SessionStatus.memory)),
     ('Letter catching', openLetterCatching),
     ('Word conveyor', openConveyor),
-    ('Feature 8', () => _open(SessionStatus.feature8)),
+    ('Sentence quiz', openSentenceQuiz),
   ];
 
   bool get phraseBuildingIsLoading =>
@@ -177,6 +181,15 @@ class SessionController extends ChangeNotifier {
   }
 
   void restartConveyor() => _conveyorController?.start();
+
+  SentenceQuizController get sentenceQuizController => _sentenceQuizController;
+
+  void openSentenceQuiz() {
+    _sentenceQuizController.start();
+    _open(SessionStatus.sentenceQuiz);
+  }
+
+  void restartSentenceQuiz() => _sentenceQuizController.start();
 
   bool get missingLettersIsLoading =>
       _missingLettersController == null && _missingLettersError == null;
@@ -407,6 +420,8 @@ class SessionController extends ChangeNotifier {
     _missingLettersController?.dispose();
     _memoryController?.removeListener(_forwardFeatureNotification);
     _memoryController?.dispose();
+    _sentenceQuizController.removeListener(_forwardFeatureNotification);
+    _sentenceQuizController.dispose();
     super.dispose();
   }
 }
