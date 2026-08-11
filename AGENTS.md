@@ -6,6 +6,7 @@
 - `MS` means "Does the above make sense?" It implies `DA`, `NC`, and `NA`.
 - `FI` means "Do you need further information before starting?" It implies `DA`, `NC`, and `NA`.
 - `GA` means "Go ahead." It approves implementation of the recently discussed changes and ends `NA` for that scope.
+- `ACP` means "add, commit, and push." It approves staging the relevant changes, committing them, and pushing the commit to the configured remote.
 
 ## Architecture
 

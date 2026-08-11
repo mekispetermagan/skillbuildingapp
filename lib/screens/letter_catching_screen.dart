@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../controllers/letter_catching_controller.dart';
 import '../games/letter_catching_game.dart';
 import '../widgets/feature_app_bar.dart';
+import '../widgets/lives_display.dart';
 import '../widgets/rewards.dart';
 
 class LetterCatchingScreen extends StatelessWidget {
@@ -76,8 +77,10 @@ class _LetterCatchingPlayAreaState extends State<_LetterCatchingPlayArea> {
               child: IgnorePointer(
                 child: ListenableBuilder(
                   listenable: widget.controller,
-                  builder: (_, _) =>
-                      Text(_livesText(), style: const TextStyle(fontSize: 20)),
+                  builder: (_, _) => LivesDisplay(
+                    lives: widget.controller.world.lives,
+                    maximumLives: widget.controller.world.config.startingLives,
+                  ),
                 ),
               ),
             ),
@@ -109,15 +112,6 @@ class _LetterCatchingPlayAreaState extends State<_LetterCatchingPlayArea> {
       ),
     ],
   );
-
-  String _livesText() {
-    final lives = widget.controller.world.lives;
-    final total = widget.controller.world.config.startingLives;
-    return [
-      ...List.filled(lives, '❤️'),
-      ...List.filled(total - lives, '💔'),
-    ].join();
-  }
 }
 
 class _EndOverlay extends StatelessWidget {

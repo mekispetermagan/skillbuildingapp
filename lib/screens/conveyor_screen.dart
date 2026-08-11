@@ -5,6 +5,7 @@ import '../controllers/conveyor_controller.dart';
 import '../games/conveyor_game.dart';
 import '../models/conveyor_world.dart';
 import '../widgets/feature_app_bar.dart';
+import '../widgets/lives_display.dart';
 import '../widgets/rewards.dart';
 
 class ConveyorScreen extends StatelessWidget {
@@ -71,9 +72,10 @@ class _ConveyorPlayAreaState extends State<_ConveyorPlayArea> {
                 child: IgnorePointer(
                   child: ListenableBuilder(
                     listenable: widget.controller,
-                    builder: (_, _) => Text(
-                      _livesText(),
-                      style: const TextStyle(fontSize: 20),
+                    builder: (_, _) => LivesDisplay(
+                      lives: widget.controller.world.lives,
+                      maximumLives:
+                          widget.controller.world.config.startingLives,
                     ),
                   ),
                 ),
@@ -107,14 +109,6 @@ class _ConveyorPlayAreaState extends State<_ConveyorPlayArea> {
       ),
     ],
   );
-
-  String _livesText() {
-    final world = widget.controller.world;
-    return [
-      ...List.filled(world.lives, '❤️'),
-      ...List.filled(world.config.startingLives - world.lives, '💔'),
-    ].join();
-  }
 }
 
 class _MovingPieces extends StatelessWidget {
