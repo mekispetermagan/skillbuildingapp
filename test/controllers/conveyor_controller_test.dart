@@ -65,6 +65,33 @@ void main() {
     }
   });
 
+  test('generates only required letters in a fixed order', () {
+    final controller = _controller();
+    final required = [
+      for (final shelf in controller.world.shelves)
+        for (final index in shelf.missingIndices)
+          shelf.word.uppercaseWord[index],
+    ];
+
+    expect(controller.world.letters.map((letter) => letter.letter), [
+      for (var index = 0; index < controller.world.letters.length; index++)
+        required[index % required.length],
+    ]);
+  });
+
+  test('keeps recycling safely when every visible shelf is complete', () {
+    final controller = _controller();
+    final lastShelf = controller.world.shelves.last;
+    for (final shelf in controller.world.shelves.where(
+      (shelf) => shelf != lastShelf,
+    )) {
+      shelf.recoveredIndices.addAll(shelf.missingIndices);
+    }
+
+    expect(_dropMatching(controller, lastShelf), ConveyorDropResult.matched);
+    expect(() => _dropMatching(controller, lastShelf), returnsNormally);
+  });
+
   test('rewards a completed word rather than each recovered gap', () {
     final controller = _controller();
     final shelf = controller.world.shelves.first;

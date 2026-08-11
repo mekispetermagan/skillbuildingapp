@@ -53,8 +53,6 @@ class ConveyorLetter {
 enum ConveyorDropResult { matched, completed, wrong, ignored }
 
 class ConveyorWorld {
-  static const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
   final List<ImageWord> words;
   final ConveyorConfig config;
   final Random random;
@@ -67,6 +65,7 @@ class ConveyorWorld {
   late int lives;
 
   int _nextId = 0;
+  int _nextLetterIndex = 0;
   List<ImageWord> _deck = [];
   int _deckIndex = 0;
 
@@ -105,6 +104,7 @@ class ConveyorWorld {
     score = 0;
     lives = config.startingLives;
     _nextId = 0;
+    _nextLetterIndex = 0;
     _deck = [...words]..shuffle(random);
     _deckIndex = 0;
     if (width > 0 && height > 0) _populate();
@@ -133,14 +133,16 @@ class ConveyorWorld {
     }
 
     final matchIndex = shelf.firstAvailableMatch(letter.letter);
-    letter.isDragging = false;
-    _recycleLetter(letter);
     if (matchIndex == -1) {
+      letter.isDragging = false;
+      _recycleLetter(letter);
       lives = max(0, lives - 1);
       return ConveyorDropResult.wrong;
     }
 
     shelf.recoveredIndices.add(matchIndex);
+    letter.isDragging = false;
+    _recycleLetter(letter);
     if (shelf.isComplete) {
       score++;
       return ConveyorDropResult.completed;
@@ -217,17 +219,20 @@ class ConveyorWorld {
     return _deck[_deckIndex++];
   }
 
-  String _nextLetter() {
+  String _nextLetter({String? fallback}) {
     final required = <String>[
       for (final shelf in shelves)
         for (final index in shelf.missingIndices)
           if (!shelf.recoveredIndices.contains(index))
             shelf.word.uppercaseWord[index],
     ];
-    if (required.isNotEmpty && random.nextDouble() < 0.7) {
-      return required[random.nextInt(required.length)];
+    if (required.isEmpty) {
+      return fallback ??
+          (throw StateError('A conveyor needs at least one initial gap.'));
     }
-    return alphabet[random.nextInt(alphabet.length)];
+    final letter = required[_nextLetterIndex % required.length];
+    _nextLetterIndex++;
+    return letter;
   }
 
   void _recycleLetter(ConveyorLetter letter) {
@@ -237,7 +242,7 @@ class ConveyorWorld {
               .where((item) => item.id != letter.id)
               .fold<double>(0, (lowest, item) => max(lowest, item.y));
     letter
-      ..letter = _nextLetter()
+      ..letter = _nextLetter(fallback: letter.letter)
       ..y = max(height, lowestY + config.letterSize + config.letterGap)
       ..isDragging = false;
   }
