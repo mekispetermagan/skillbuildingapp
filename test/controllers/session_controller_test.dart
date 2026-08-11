@@ -25,15 +25,15 @@ class _SentenceAssetBundle extends CachingAssetBundle {
     if (key == 'assets/data/memory_pairs.json') {
       return '''
         [
-          {"id": 1, "word": "word1", "image_path": "one.png"},
-          {"id": 2, "word": "word2", "image_path": "two.png"},
-          {"id": 3, "word": "word3", "image_path": "three.png"},
-          {"id": 4, "word": "word4", "image_path": "four.png"},
-          {"id": 5, "word": "word5", "image_path": "five.png"},
-          {"id": 6, "word": "word6", "image_path": "six.png"},
-          {"id": 7, "word": "word7", "image_path": "seven.png"},
-          {"id": 8, "word": "word8", "image_path": "eight.png"},
-          {"id": 9, "word": "word9", "image_path": "nine.png"}
+          {"id": 1, "word": "cat", "image_path": "one.png"},
+          {"id": 2, "word": "cow", "image_path": "two.png"},
+          {"id": 3, "word": "dog", "image_path": "three.png"},
+          {"id": 4, "word": "duck", "image_path": "four.png"},
+          {"id": 5, "word": "goat", "image_path": "five.png"},
+          {"id": 6, "word": "lion", "image_path": "six.png"},
+          {"id": 7, "word": "pig", "image_path": "seven.png"},
+          {"id": 8, "word": "sheep", "image_path": "eight.png"},
+          {"id": 9, "word": "zebra", "image_path": "nine.png"}
         ]
       ''';
     }
@@ -60,7 +60,7 @@ class _SentenceAssetBundle extends CachingAssetBundle {
 }
 
 void main() {
-  test('exposes six activities and two placeholder destinations', () async {
+  test('exposes seven activities and one placeholder destination', () async {
     final controller = SessionController(
       assetBundle: _SentenceAssetBundle(),
       audioPlayer: _FakeAudioPlayer(),
@@ -74,7 +74,7 @@ void main() {
       'Letter shooting',
       'Memory cards',
       'Letter catching',
-      'Feature 7',
+      'Word conveyor',
       'Feature 8',
     ]);
     expect(controller.phraseBuildingIsLoading, isFalse);
@@ -89,6 +89,8 @@ void main() {
     expect(controller.letterShootingError, isNull);
     expect(controller.letterCatchingIsLoading, isFalse);
     expect(controller.letterCatchingError, isNull);
+    expect(controller.conveyorIsLoading, isFalse);
+    expect(controller.conveyorError, isNull);
 
     controller.menuItems[2].$2();
     expect(controller.status, SessionStatus.missingLetters);

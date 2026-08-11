@@ -106,8 +106,12 @@ class AppRootState extends State<AppRoot> {
           onBack: _sessionController.openMenu,
           onRestart: _sessionController.restartLetterCatching,
         ),
-        SessionStatus.feature7 => Feature7Screen(
+        SessionStatus.conveyor => ConveyorScreen(
+          isLoading: _sessionController.conveyorIsLoading,
+          errorMessage: _sessionController.conveyorError,
+          controller: _sessionController.conveyorController,
           onBack: _sessionController.openMenu,
+          onRestart: _sessionController.restartConveyor,
         ),
         SessionStatus.feature8 => Feature8Screen(
           onBack: _sessionController.openMenu,

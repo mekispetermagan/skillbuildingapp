@@ -12,6 +12,7 @@ import '../models/letter_dragging_state.dart';
 import '../models/letter_dragging_tile.dart';
 import '../models/letter_dragging_word.dart';
 import '../models/letter_catching_word.dart';
+import '../models/conveyor_word.dart';
 import '../models/letter_shooting_word.dart';
 import '../models/missing_letter_slot.dart';
 import '../models/missing_letter_tile.dart';
@@ -22,6 +23,7 @@ import '../models/memory_pair.dart';
 import 'countdown_controller.dart';
 import 'letter_dragging_controller.dart';
 import 'letter_catching_controller.dart';
+import 'conveyor_controller.dart';
 import 'letter_shooting_controller.dart';
 import 'memory_controller.dart';
 import 'missing_letters_controller.dart';
@@ -35,7 +37,7 @@ enum SessionStatus {
   letterShooting,
   memory,
   letterCatching,
-  feature7,
+  conveyor,
   feature8,
 }
 
@@ -51,6 +53,8 @@ class SessionController extends ChangeNotifier {
   String? _letterShootingError;
   LetterCatchingController? _letterCatchingController;
   String? _letterCatchingError;
+  ConveyorController? _conveyorController;
+  String? _conveyorError;
   MissingLettersController? _missingLettersController;
   String? _missingLettersError;
   MemoryController? _memoryController;
@@ -65,6 +69,7 @@ class SessionController extends ChangeNotifier {
     unawaited(_initializeLetterDragging());
     unawaited(_initializeLetterShooting());
     unawaited(_initializeLetterCatching());
+    unawaited(_initializeConveyor());
     unawaited(_initializeMissingLetters());
     unawaited(_initializeMemory());
   }
@@ -76,7 +81,7 @@ class SessionController extends ChangeNotifier {
     ('Letter shooting', openLetterShooting),
     ('Memory cards', () => _open(SessionStatus.memory)),
     ('Letter catching', openLetterCatching),
-    ('Feature 7', () => _open(SessionStatus.feature7)),
+    ('Word conveyor', openConveyor),
     ('Feature 8', () => _open(SessionStatus.feature8)),
   ];
 
@@ -161,6 +166,18 @@ class SessionController extends ChangeNotifier {
 
   void restartLetterCatching() => _letterCatchingController?.start();
 
+  bool get conveyorIsLoading =>
+      _conveyorController == null && _conveyorError == null;
+  String? get conveyorError => _conveyorError;
+  ConveyorController? get conveyorController => _conveyorController;
+
+  void openConveyor() {
+    _conveyorController?.start();
+    _open(SessionStatus.conveyor);
+  }
+
+  void restartConveyor() => _conveyorController?.start();
+
   bool get missingLettersIsLoading =>
       _missingLettersController == null && _missingLettersError == null;
   String? get missingLettersError => _missingLettersError;
@@ -201,6 +218,7 @@ class SessionController extends ChangeNotifier {
     _letterDraggingController?.stop();
     _letterShootingController?.stop();
     _letterCatchingController?.stop();
+    _conveyorController?.stop();
     _open(SessionStatus.menu);
   }
 
@@ -349,6 +367,29 @@ class SessionController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> _initializeConveyor() async {
+    try {
+      final encoded = await _assetBundle.loadString(
+        'assets/data/memory_pairs.json',
+      );
+      final data = jsonDecode(encoded) as List<dynamic>;
+      final words = [
+        for (final item in data)
+          ConveyorWord.fromJson(item as Map<String, dynamic>),
+      ];
+      if (_disposed) return;
+
+      _conveyorController = ConveyorController(words: words);
+      if (status == SessionStatus.conveyor) {
+        _conveyorController!.start();
+      }
+    } catch (_) {
+      if (_disposed) return;
+      _conveyorError = 'Could not load the word-conveyor activity.';
+    }
+    notifyListeners();
+  }
+
   void _forwardFeatureNotification() => notifyListeners();
 
   @override
@@ -361,6 +402,7 @@ class SessionController extends ChangeNotifier {
     _letterDraggingController?.dispose();
     _letterShootingController?.dispose();
     _letterCatchingController?.dispose();
+    _conveyorController?.dispose();
     _missingLettersController?.removeListener(_forwardFeatureNotification);
     _missingLettersController?.dispose();
     _memoryController?.removeListener(_forwardFeatureNotification);
