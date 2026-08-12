@@ -2,6 +2,7 @@ export 'letter_shooting_screen.dart';
 export 'memory_screen.dart';
 export 'letter_catching_screen.dart';
 export 'conveyor_screen.dart';
+export 'crossword_screen.dart';
 export 'sentence_quiz_screen.dart';
 export 'sentence_composer_screen.dart';
 export 'spelling_quiz_screen.dart';

@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import '../audio/asset_audio_player.dart';
 import '../models/answer_feedback.dart';
 import '../models/conveyor_state.dart';
+import '../models/crossword_entry.dart';
+import '../models/crossword_state.dart';
 import '../models/image_word.dart';
 import '../models/letter_catching_state.dart';
 import '../models/letter_catching_word.dart';
@@ -25,6 +27,7 @@ import '../models/sentence_composer_state.dart';
 import '../models/spelling_quiz_state.dart';
 import '../models/view_data.dart';
 import 'conveyor_controller.dart';
+import 'crossword_controller.dart';
 import 'letter_catching_controller.dart';
 import 'letter_dragging_controller.dart';
 import 'letter_shooting_controller.dart';
@@ -47,6 +50,7 @@ enum SessionStatus {
   sentenceQuiz,
   sentenceComposer,
   spellingQuiz,
+  crossword,
 }
 
 class SessionController extends ChangeNotifier {
@@ -69,6 +73,8 @@ class SessionController extends ChangeNotifier {
   String? _memoryError;
   SpellingQuizController? _spellingQuizController;
   String? _spellingQuizError;
+  CrosswordController? _crosswordController;
+  String? _crosswordError;
   bool _disposed = false;
   late final SentenceQuizController _sentenceQuizController;
   late final SentenceComposerController _sentenceComposerController;
@@ -89,6 +95,7 @@ class SessionController extends ChangeNotifier {
     unawaited(_initializeMissingLetters());
     unawaited(_initializeMemory());
     unawaited(_initializeSpellingQuiz());
+    unawaited(_initializeCrossword());
   }
 
   late final List<(String, VoidCallback)> menuItems = [
@@ -102,6 +109,7 @@ class SessionController extends ChangeNotifier {
     ('Sentence quiz', openSentenceQuiz),
     ('Sentence composer', openSentenceComposer),
     ('Spelling quiz', openSpellingQuiz),
+    ('Crossword', openCrossword),
   ];
 
   PhraseBuildingViewData get phraseBuildingViewData => PhraseBuildingViewData(
@@ -325,6 +333,33 @@ class SessionController extends ChangeNotifier {
 
   void restartSpellingQuiz() => _spellingQuizController?.start();
 
+  CrosswordViewData get crosswordViewData => CrosswordViewData(
+    isLoading: _crosswordController == null && _crosswordError == null,
+    errorMessage: _crosswordError,
+    puzzle: _crosswordController?.puzzle,
+    config: _crosswordController?.config ?? crosswordConfig,
+    state: _crosswordController?.state ?? CrosswordState.playing,
+    score: _crosswordController?.score ?? 0,
+    selectedLetter: _crosswordController?.selectedLetter,
+  );
+
+  void crosswordSelectLetter(String letter) =>
+      _crosswordController?.selectLetter(letter);
+  bool crosswordCanPlace({required int cellId, required String letter}) =>
+      _crosswordController?.canPlace(cellId: cellId, letter: letter) ?? false;
+  Future<void> crosswordPlaceSelected(int cellId) =>
+      _crosswordController?.placeSelected(cellId) ?? Future.value();
+  Future<void> crosswordPlace({required int cellId, required String letter}) =>
+      _crosswordController?.place(cellId: cellId, letter: letter) ??
+      Future.value();
+
+  void openCrossword() {
+    _crosswordController?.start();
+    _open(SessionStatus.crossword);
+  }
+
+  void restartCrossword() => _crosswordController?.start();
+
   MissingLettersViewData get missingLettersViewData => MissingLettersViewData(
     isLoading:
         _missingLettersController == null && _missingLettersError == null,
@@ -385,6 +420,7 @@ class SessionController extends ChangeNotifier {
     _sentenceQuizController.stop();
     _sentenceComposerController.stop();
     _spellingQuizController?.stop();
+    _crosswordController?.stop();
     _open(SessionStatus.menu);
   }
 
@@ -582,6 +618,30 @@ class SessionController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> _initializeCrossword() async {
+    try {
+      final encoded = await _assetBundle.loadString(
+        'assets/data/crossword_words.json',
+      );
+      final data = jsonDecode(encoded) as List<dynamic>;
+      final entries = [
+        for (final item in data)
+          CrosswordEntry.fromJson(item as Map<String, dynamic>),
+      ];
+      if (_disposed) return;
+
+      _crosswordController = CrosswordController(entries: entries)
+        ..addListener(_forwardFeatureNotification);
+      if (status == SessionStatus.crossword) {
+        _crosswordController!.start();
+      }
+    } catch (_) {
+      if (_disposed) return;
+      _crosswordError = 'Could not load the crossword activity.';
+    }
+    notifyListeners();
+  }
+
   void _forwardFeatureNotification() => notifyListeners();
 
   @override
@@ -607,6 +667,8 @@ class SessionController extends ChangeNotifier {
     _sentenceComposerController.dispose();
     _spellingQuizController?.removeListener(_forwardFeatureNotification);
     _spellingQuizController?.dispose();
+    _crosswordController?.removeListener(_forwardFeatureNotification);
+    _crosswordController?.dispose();
     super.dispose();
   }
 }

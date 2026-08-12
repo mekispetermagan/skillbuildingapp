@@ -2,6 +2,9 @@ import 'answer_feedback.dart';
 import 'countdown_status.dart';
 import 'conveyor_state.dart';
 import 'conveyor_world.dart';
+import 'crossword_config.dart';
+import 'crossword_puzzle.dart';
+import 'crossword_state.dart';
 import 'layered_person_outfit.dart';
 import 'letter_catching_world.dart';
 import 'letter_catching_state.dart';
@@ -200,5 +203,25 @@ class SpellingQuizViewData {
     required this.correctHighlightIndex,
     required this.wrongHighlightIndex,
     required this.canSubmit,
+  });
+}
+
+class CrosswordViewData {
+  final bool isLoading;
+  final String? errorMessage;
+  final CrosswordPuzzle? puzzle;
+  final CrosswordConfig config;
+  final CrosswordState state;
+  final int score;
+  final String? selectedLetter;
+
+  const CrosswordViewData({
+    required this.isLoading,
+    required this.errorMessage,
+    required this.puzzle,
+    required this.config,
+    required this.state,
+    required this.score,
+    required this.selectedLetter,
   });
 }

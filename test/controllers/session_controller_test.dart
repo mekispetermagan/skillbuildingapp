@@ -47,6 +47,18 @@ class _SentenceAssetBundle extends CachingAssetBundle {
     if (key == 'assets/data/letter_catching_words.json') {
       return '[{"id": 1, "word": "lion"}]';
     }
+    if (key == 'assets/data/crossword_words.json') {
+      return '''
+        [
+          {"word": "cat", "clue": "A pet that says meow."},
+          {"word": "car", "clue": "A small road vehicle."},
+          {"word": "bar", "clue": "A long solid piece."},
+          {"word": "bat", "clue": "An animal that flies at night."},
+          {"word": "rat", "clue": "An animal like a large mouse."},
+          {"word": "tar", "clue": "A dark road material."}
+        ]
+      ''';
+    }
     return '''
       [
         {
@@ -60,7 +72,7 @@ class _SentenceAssetBundle extends CachingAssetBundle {
 }
 
 void main() {
-  test('exposes all ten activities', () async {
+  test('exposes all eleven activities', () async {
     final controller = SessionController(
       assetBundle: _SentenceAssetBundle(),
       audioPlayer: _FakeAudioPlayer(),
@@ -78,6 +90,7 @@ void main() {
       'Sentence quiz',
       'Sentence composer',
       'Spelling quiz',
+      'Crossword',
     ]);
     expect(controller.phraseBuildingViewData.isLoading, isFalse);
     expect(controller.phraseBuildingViewData.errorMessage, isNull);
@@ -95,6 +108,8 @@ void main() {
     expect(controller.conveyorViewData.errorMessage, isNull);
     expect(controller.spellingQuizViewData.isLoading, isFalse);
     expect(controller.spellingQuizViewData.errorMessage, isNull);
+    expect(controller.crosswordViewData.isLoading, isFalse);
+    expect(controller.crosswordViewData.errorMessage, isNull);
 
     controller.menuItems[2].$2();
     expect(controller.status, SessionStatus.missingLetters);

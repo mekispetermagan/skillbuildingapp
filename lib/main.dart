@@ -129,6 +129,15 @@ class AppRootState extends State<AppRoot> {
           onBack: _sessionController.openMenu,
           onRestart: _sessionController.restartSpellingQuiz,
         ),
+        SessionStatus.crossword => CrosswordScreen(
+          viewData: _sessionController.crosswordViewData,
+          onBack: _sessionController.openMenu,
+          onRestart: _sessionController.restartCrossword,
+          onSelectLetter: _sessionController.crosswordSelectLetter,
+          canPlace: _sessionController.crosswordCanPlace,
+          onPlaceSelected: _sessionController.crosswordPlaceSelected,
+          onPlace: _sessionController.crosswordPlace,
+        ),
       },
     );
   }
