@@ -1,0 +1,30 @@
+[
+  {"id": 1, "letter": "a", "color": "red", "difficulty": "beginner"},
+  {"id": 2, "letter": "f", "color": "blue", "difficulty": "beginner"},
+  {"id": 3, "letter": "i", "color": "deepPurple", "difficulty": "beginner"},
+  {"id": 4, "letter": "m", "color": "orange", "difficulty": "beginner"},
+  {"id": 5, "letter": "n", "color": "pink", "difficulty": "beginner"},
+  {"id": 6, "letter": "o", "color": "brown", "difficulty": "beginner"},
+  {"id": 7, "letter": "p", "color": "teal", "difficulty": "beginner"},
+  {"id": 8, "letter": "s", "color": "amber", "difficulty": "beginner"},
+  {"id": 9, "letter": "t", "color": "green", "difficulty": "beginner"},
+
+  {"id": 10, "letter": "b", "color": "amber", "difficulty": "intermediate"},
+  {"id": 11, "letter": "d", "color": "red", "difficulty": "intermediate"},
+  {"id": 12, "letter": "e", "color": "green", "difficulty": "intermediate"},
+  {"id": 13, "letter": "h", "color": "teal", "difficulty": "intermediate"},
+  {"id": 14, "letter": "k", "color": "pink", "difficulty": "intermediate"},
+  {"id": 15, "letter": "l", "color": "deepPurple", "difficulty": "intermediate"},
+  {"id": 16, "letter": "r", "color": "blue", "difficulty": "intermediate"},
+  {"id": 17, "letter": "u", "color": "orange", "difficulty": "intermediate"},
+  {"id": 18, "letter": "w", "color": "brown", "difficulty": "intermediate"},
+
+  {"id": 19, "letter": "c", "color": "red", "difficulty": "advanced"},
+  {"id": 20, "letter": "g", "color": "orange", "difficulty": "advanced"},
+  {"id": 21, "letter": "j", "color": "amber", "difficulty": "advanced"},
+  {"id": 22, "letter": "q", "color": "deepPurple", "difficulty": "advanced"},
+  {"id": 23, "letter": "v", "color": "green", "difficulty": "advanced"},
+  {"id": 24, "letter": "x", "color": "blue", "difficulty": "advanced"},
+  {"id": 25, "letter": "y", "color": "teal", "difficulty": "advanced"},
+  {"id": 26, "letter": "z", "color": "pink", "difficulty": "advanced"}
+]

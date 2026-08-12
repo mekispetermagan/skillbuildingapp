@@ -61,6 +61,21 @@ class _SentenceAssetBundle extends CachingAssetBundle {
         ]
       ''';
     }
+    if (key == 'assets/data/alphabet_progression.json') {
+      return '''
+        [
+          {"id": 1, "letter": "a", "color": "red", "difficulty": "beginner"},
+          {"id": 2, "letter": "m", "color": "orange", "difficulty": "beginner"},
+          {"id": 3, "letter": "s", "color": "amber", "difficulty": "beginner"},
+          {"id": 4, "letter": "t", "color": "green", "difficulty": "beginner"},
+          {"id": 5, "letter": "p", "color": "teal", "difficulty": "beginner"},
+          {"id": 6, "letter": "f", "color": "blue", "difficulty": "beginner"},
+          {"id": 7, "letter": "i", "color": "deepPurple", "difficulty": "beginner"},
+          {"id": 8, "letter": "n", "color": "pink", "difficulty": "beginner"},
+          {"id": 9, "letter": "o", "color": "brown", "difficulty": "beginner"}
+        ]
+      ''';
+    }
     return '''
       [
         {
@@ -74,7 +89,7 @@ class _SentenceAssetBundle extends CachingAssetBundle {
 }
 
 void main() {
-  test('exposes all eleven activities', () async {
+  test('exposes all twelve activities', () async {
     final controller = SessionController(
       assetBundle: _SentenceAssetBundle(),
       audioPlayer: _FakeAudioPlayer(),
@@ -93,6 +108,7 @@ void main() {
       'Sentence composer',
       'Spelling quiz',
       'Crossword',
+      'Letter practice',
     ]);
     expect(controller.phraseBuildingViewData.isLoading, isFalse);
     expect(controller.phraseBuildingViewData.errorMessage, isNull);
@@ -112,6 +128,8 @@ void main() {
     expect(controller.spellingQuizViewData.errorMessage, isNull);
     expect(controller.crosswordViewData.isLoading, isFalse);
     expect(controller.crosswordViewData.errorMessage, isNull);
+    expect(controller.letterPracticeViewData.isLoading, isFalse);
+    expect(controller.letterPracticeViewData.errorMessage, isNull);
 
     controller.menuItems[2].$2();
     expect(controller.status, SessionStatus.missingLetters);
@@ -192,6 +210,24 @@ void main() {
       'assets/audio/sentences/001.mp3',
       'assets/audio/sentences/001.mp3',
     ]);
+    controller.dispose();
+  });
+
+  test('opening letter practice autoplays its animal word', () async {
+    final audioPlayer = _FakeAudioPlayer();
+    final controller = SessionController(
+      assetBundle: _SentenceAssetBundle(),
+      audioPlayer: audioPlayer,
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    controller.openLetterPractice();
+    await Future<void>.delayed(Duration.zero);
+    expect(audioPlayer.playedPaths, hasLength(1));
+    expect(
+      audioPlayer.playedPaths.single,
+      controller.letterPracticeViewData.currentWord!.audioPath,
+    );
     controller.dispose();
   });
 }

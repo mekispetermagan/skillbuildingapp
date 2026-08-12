@@ -1,4 +1,5 @@
 export 'letter_shooting_screen.dart';
+export 'letter_practice_screen.dart';
 export 'memory_screen.dart';
 export 'letter_catching_screen.dart';
 export 'conveyor_screen.dart';

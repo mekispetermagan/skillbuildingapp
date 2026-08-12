@@ -1,15 +1,20 @@
 import 'answer_feedback.dart';
+import 'alphabet_letter.dart';
 import 'countdown_status.dart';
 import 'conveyor_state.dart';
 import 'conveyor_world.dart';
 import 'crossword_config.dart';
 import 'crossword_puzzle.dart';
 import 'crossword_state.dart';
+import 'image_word.dart';
 import 'layered_person_outfit.dart';
 import 'letter_catching_world.dart';
 import 'letter_catching_state.dart';
 import 'letter_dragging_state.dart';
 import 'letter_dragging_tile.dart';
+import 'letter_practice_config.dart';
+import 'letter_practice_slot.dart';
+import 'letter_practice_state.dart';
 import 'letter_shooting_world.dart';
 import 'letter_shooting_state.dart';
 import 'memory_card_data.dart';
@@ -223,5 +228,37 @@ class CrosswordViewData {
     required this.state,
     required this.score,
     required this.selectedLetter,
+  });
+}
+
+class LetterPracticeViewData {
+  final bool isLoading;
+  final String? errorMessage;
+  final ImageWord? currentWord;
+  final List<LetterPracticeSlot> slots;
+  final List<AlphabetLetter> sourceLetters;
+  final Set<AlphabetDifficulty> difficulties;
+  final bool useColors;
+  final String? selectedLetter;
+  final int sourceColumnCount;
+  final int score;
+  final LetterPracticeState state;
+  final LetterPracticeConfig config;
+  final bool canPlay;
+
+  const LetterPracticeViewData({
+    required this.isLoading,
+    required this.errorMessage,
+    required this.currentWord,
+    required this.slots,
+    required this.sourceLetters,
+    required this.difficulties,
+    required this.useColors,
+    required this.selectedLetter,
+    required this.sourceColumnCount,
+    required this.score,
+    required this.state,
+    required this.config,
+    required this.canPlay,
   });
 }

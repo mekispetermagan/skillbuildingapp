@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 
 import '../audio/asset_audio_player.dart';
 import '../models/answer_feedback.dart';
+import '../models/alphabet_letter.dart';
 import '../models/conveyor_state.dart';
 import '../models/crossword_entry.dart';
 import '../models/crossword_state.dart';
@@ -17,6 +18,7 @@ import '../models/letter_dragging_word.dart';
 import '../models/letter_shooting_state.dart';
 import '../models/letter_shooting_word.dart';
 import '../models/letter_shooting_world.dart';
+import '../models/letter_practice_state.dart';
 import '../models/missing_letters_state.dart';
 import '../models/missing_letters_word.dart';
 import '../models/outfit_sentence.dart';
@@ -31,6 +33,7 @@ import 'crossword_controller.dart';
 import 'letter_catching_controller.dart';
 import 'letter_dragging_controller.dart';
 import 'letter_shooting_controller.dart';
+import 'letter_practice_controller.dart';
 import 'memory_controller.dart';
 import 'missing_letters_controller.dart';
 import 'phrase_building_controller.dart';
@@ -51,6 +54,7 @@ enum SessionStatus {
   sentenceComposer,
   spellingQuiz,
   crossword,
+  letterPractice,
 }
 
 class SessionController extends ChangeNotifier {
@@ -75,6 +79,8 @@ class SessionController extends ChangeNotifier {
   String? _spellingQuizError;
   CrosswordController? _crosswordController;
   String? _crosswordError;
+  LetterPracticeController? _letterPracticeController;
+  String? _letterPracticeError;
   bool _disposed = false;
   late final SentenceQuizController _sentenceQuizController;
   late final SentenceComposerController _sentenceComposerController;
@@ -96,6 +102,7 @@ class SessionController extends ChangeNotifier {
     unawaited(_initializeMemory());
     unawaited(_initializeSpellingQuiz());
     unawaited(_initializeCrossword());
+    unawaited(_initializeLetterPractice());
   }
 
   late final List<(String, VoidCallback)> menuItems = [
@@ -110,6 +117,7 @@ class SessionController extends ChangeNotifier {
     ('Sentence composer', openSentenceComposer),
     ('Spelling quiz', openSpellingQuiz),
     ('Crossword', openCrossword),
+    ('Letter practice', openLetterPractice),
   ];
 
   PhraseBuildingViewData get phraseBuildingViewData => PhraseBuildingViewData(
@@ -367,6 +375,56 @@ class SessionController extends ChangeNotifier {
 
   void restartCrossword() => _crosswordController?.start();
 
+  LetterPracticeViewData get letterPracticeViewData => LetterPracticeViewData(
+    isLoading:
+        _letterPracticeController == null && _letterPracticeError == null,
+    errorMessage: _letterPracticeError,
+    currentWord: _letterPracticeController?.currentWord,
+    slots: _letterPracticeController?.slots ?? const [],
+    sourceLetters: _letterPracticeController?.sourceLetters ?? const [],
+    difficulties:
+        _letterPracticeController?.difficulties ??
+        const {AlphabetDifficulty.beginner},
+    useColors: _letterPracticeController?.useColors ?? true,
+    selectedLetter: _letterPracticeController?.selectedLetter,
+    sourceColumnCount: _letterPracticeController?.sourceColumnCount ?? 5,
+    score: _letterPracticeController?.score ?? 0,
+    state: _letterPracticeController?.state ?? LetterPracticeState.playing,
+    config: _letterPracticeController?.config ?? letterPracticeConfig,
+    canPlay: _letterPracticeController?.canPlay ?? false,
+  );
+
+  void letterPracticeSetDifficulties(Set<AlphabetDifficulty> values) =>
+      _letterPracticeController?.setDifficulties(values);
+  void letterPracticeSetUseColors(bool value) =>
+      _letterPracticeController?.setUseColors(value);
+  void letterPracticeSelectLetter(String letter) =>
+      _letterPracticeController?.selectLetter(letter);
+  bool letterPracticeCanPlace({required int slotId, required String letter}) =>
+      _letterPracticeController?.canPlace(slotId: slotId, letter: letter) ??
+      false;
+  Future<void> letterPracticePlaceSelected(int slotId) =>
+      _letterPracticeController?.placeSelected(slotId) ?? Future.value();
+  Future<void> letterPracticePlace({
+    required int slotId,
+    required String letter,
+  }) =>
+      _letterPracticeController?.place(slotId: slotId, letter: letter) ??
+      Future.value();
+  Future<void> letterPracticePlayAudio() =>
+      _letterPracticeController?.playAudio() ?? Future.value();
+
+  void openLetterPractice() {
+    _letterPracticeController?.start();
+    _open(SessionStatus.letterPractice);
+    unawaited(_letterPracticeController?.playAudio());
+  }
+
+  void restartLetterPractice() {
+    _letterPracticeController?.start();
+    unawaited(_letterPracticeController?.playAudio());
+  }
+
   MissingLettersViewData get missingLettersViewData => MissingLettersViewData(
     isLoading:
         _missingLettersController == null && _missingLettersError == null,
@@ -428,6 +486,7 @@ class SessionController extends ChangeNotifier {
     _sentenceComposerController.stop();
     _spellingQuizController?.stop();
     _crosswordController?.stop();
+    _letterPracticeController?.stop();
     _open(SessionStatus.menu);
   }
 
@@ -656,6 +715,40 @@ class SessionController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> _initializeLetterPractice() async {
+    try {
+      final encodedResults = await Future.wait([
+        _assetBundle.loadString('assets/data/animal_image_words.json'),
+        _assetBundle.loadString('assets/data/alphabet_progression.json'),
+      ]);
+      final wordData = jsonDecode(encodedResults[0]) as List<dynamic>;
+      final alphabetData = jsonDecode(encodedResults[1]) as List<dynamic>;
+      final words = [
+        for (final item in wordData)
+          ImageWord.fromJson(item as Map<String, dynamic>),
+      ];
+      final alphabet = [
+        for (final item in alphabetData)
+          AlphabetLetter.fromJson(item as Map<String, dynamic>),
+      ];
+      if (_disposed) return;
+
+      _letterPracticeController = LetterPracticeController(
+        _audioPlayer,
+        words: words,
+        alphabet: alphabet,
+      )..addListener(_forwardFeatureNotification);
+      if (status == SessionStatus.letterPractice) {
+        _letterPracticeController!.start();
+        unawaited(_letterPracticeController!.playAudio());
+      }
+    } catch (_) {
+      if (_disposed) return;
+      _letterPracticeError = 'Could not load the letter-practice activity.';
+    }
+    notifyListeners();
+  }
+
   void _forwardFeatureNotification() => notifyListeners();
 
   @override
@@ -683,6 +776,8 @@ class SessionController extends ChangeNotifier {
     _spellingQuizController?.dispose();
     _crosswordController?.removeListener(_forwardFeatureNotification);
     _crosswordController?.dispose();
+    _letterPracticeController?.removeListener(_forwardFeatureNotification);
+    _letterPracticeController?.dispose();
     super.dispose();
   }
 }

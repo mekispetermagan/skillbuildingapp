@@ -139,6 +139,18 @@ class AppRootState extends State<AppRoot> {
           onPlaceSelected: _sessionController.crosswordPlaceSelected,
           onPlace: _sessionController.crosswordPlace,
         ),
+        SessionStatus.letterPractice => LetterPracticeScreen(
+          viewData: _sessionController.letterPracticeViewData,
+          onBack: _sessionController.openMenu,
+          onRestart: _sessionController.restartLetterPractice,
+          onSetDifficulties: _sessionController.letterPracticeSetDifficulties,
+          onSetUseColors: _sessionController.letterPracticeSetUseColors,
+          onSelectLetter: _sessionController.letterPracticeSelectLetter,
+          canPlace: _sessionController.letterPracticeCanPlace,
+          onPlaceSelected: _sessionController.letterPracticePlaceSelected,
+          onPlace: _sessionController.letterPracticePlace,
+          onPlayAudio: _sessionController.letterPracticePlayAudio,
+        ),
       },
     );
   }
