@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import '../audio/asset_audio_player.dart';
 import '../models/image_word.dart';
 import '../models/spelling_quiz_question.dart';
 import '../models/spelling_quiz_state.dart';
@@ -15,6 +16,7 @@ class SpellingQuizController extends ChangeNotifier {
   static const _consonants = 'BCDFGHJKLMNPQRSTVWXYZ';
 
   final List<ImageWord> _animals;
+  final AssetAudioPlayer _audioPlayer;
   final Set<String> _animalNames;
   final Random _random;
   final Duration feedbackDuration;
@@ -29,7 +31,8 @@ class SpellingQuizController extends ChangeNotifier {
   List<ImageWord> _deck = [];
   int _deckIndex = 0;
 
-  SpellingQuizController({
+  SpellingQuizController(
+    this._audioPlayer, {
     required List<ImageWord> animals,
     Random? random,
     this.feedbackDuration = spellingQuizFeedbackDuration,
@@ -81,8 +84,17 @@ class SpellingQuizController extends ChangeNotifier {
     } else {
       state = SpellingQuizState.guessing;
       _generateQuestion();
+      await playAudio();
     }
     notifyListeners();
+  }
+
+  Future<void> playAudio() async {
+    try {
+      await _audioPlayer.play(question.animal.audioPath);
+    } catch (_) {
+      // Audio failure must not block the offline activity.
+    }
   }
 
   void _generateQuestion() {

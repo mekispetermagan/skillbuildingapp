@@ -13,12 +13,14 @@ import '../widgets/reward_gem_row.dart';
 class SpellingQuizScreen extends StatelessWidget {
   final SpellingQuizViewData viewData;
   final Future<void> Function(int) onSubmit;
+  final Future<void> Function() onPlayAudio;
   final VoidCallback onBack;
   final VoidCallback onRestart;
 
   const SpellingQuizScreen({
     required this.viewData,
     required this.onSubmit,
+    required this.onPlayAudio,
     required this.onBack,
     required this.onRestart,
     super.key,
@@ -39,9 +41,26 @@ class SpellingQuizScreen extends StatelessWidget {
                   children: [
                     SizedBox(
                       height: 220,
-                      child: Image.asset(
-                        question.animal.imagePath,
-                        fit: BoxFit.contain,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Positioned.fill(
+                            child: Image.asset(
+                              question.animal.imagePath,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: IconButton.filled(
+                              onPressed: onPlayAudio,
+                              icon: const Icon(Icons.volume_up),
+                              iconSize: 32,
+                              tooltip: 'Play word',
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     for (

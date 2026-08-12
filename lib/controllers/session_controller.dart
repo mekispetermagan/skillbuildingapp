@@ -139,6 +139,7 @@ class SessionController extends ChangeNotifier {
   void openPhraseBuilding() {
     _phraseBuildingController?.start();
     _open(SessionStatus.phraseBuilding);
+    unawaited(_phraseBuildingController?.playAudio());
   }
 
   LetterDraggingViewData get letterDraggingViewData => LetterDraggingViewData(
@@ -325,13 +326,19 @@ class SessionController extends ChangeNotifier {
 
   Future<void> spellingQuizSubmit(int guessIndex) =>
       _spellingQuizController?.submit(guessIndex) ?? Future.value();
+  Future<void> spellingQuizPlayAudio() =>
+      _spellingQuizController?.playAudio() ?? Future.value();
 
   void openSpellingQuiz() {
     _spellingQuizController?.start();
     _open(SessionStatus.spellingQuiz);
+    unawaited(_spellingQuizController?.playAudio());
   }
 
-  void restartSpellingQuiz() => _spellingQuizController?.start();
+  void restartSpellingQuiz() {
+    _spellingQuizController?.start();
+    unawaited(_spellingQuizController?.playAudio());
+  }
 
   CrosswordViewData get crosswordViewData => CrosswordViewData(
     isLoading: _crosswordController == null && _crosswordError == null,
@@ -445,6 +452,10 @@ class SessionController extends ChangeNotifier {
         _audioPlayer,
         sentences: sentences,
       )..addListener(_forwardFeatureNotification);
+      if (status == SessionStatus.phraseBuilding) {
+        _phraseBuildingController!.start();
+        unawaited(_phraseBuildingController!.playAudio());
+      }
     } catch (_) {
       if (_disposed) return;
       _phraseBuildingError = 'Could not load the sentence activity.';
@@ -606,10 +617,13 @@ class SessionController extends ChangeNotifier {
       ];
       if (_disposed) return;
 
-      _spellingQuizController = SpellingQuizController(animals: animals)
-        ..addListener(_forwardFeatureNotification);
+      _spellingQuizController = SpellingQuizController(
+        _audioPlayer,
+        animals: animals,
+      )..addListener(_forwardFeatureNotification);
       if (status == SessionStatus.spellingQuiz) {
         _spellingQuizController!.start();
+        unawaited(_spellingQuizController!.playAudio());
       }
     } catch (_) {
       if (_disposed) return;

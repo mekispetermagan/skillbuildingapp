@@ -4,8 +4,10 @@ import 'package:literacy_game/audio/asset_audio_player.dart';
 import 'package:literacy_game/controllers/session_controller.dart';
 
 class _FakeAudioPlayer implements AssetAudioPlayer {
+  final playedPaths = <String>[];
+
   @override
-  Future<void> play(String assetPath) async {}
+  Future<void> play(String assetPath) async => playedPaths.add(assetPath);
 
   @override
   Future<void> stop() async {}
@@ -25,15 +27,15 @@ class _SentenceAssetBundle extends CachingAssetBundle {
     if (key == 'assets/data/animal_image_words.json') {
       return '''
         [
-          {"id": 1, "word": "cat", "image_path": "one.png"},
-          {"id": 2, "word": "cow", "image_path": "two.png"},
-          {"id": 3, "word": "dog", "image_path": "three.png"},
-          {"id": 4, "word": "duck", "image_path": "four.png"},
-          {"id": 5, "word": "goat", "image_path": "five.png"},
-          {"id": 6, "word": "lion", "image_path": "six.png"},
-          {"id": 7, "word": "pig", "image_path": "seven.png"},
-          {"id": 8, "word": "sheep", "image_path": "eight.png"},
-          {"id": 9, "word": "zebra", "image_path": "nine.png"}
+          {"id": 1, "word": "cat", "image_path": "one.png", "audio_path": "one.mp3"},
+          {"id": 2, "word": "cow", "image_path": "two.png", "audio_path": "two.mp3"},
+          {"id": 3, "word": "dog", "image_path": "three.png", "audio_path": "three.mp3"},
+          {"id": 4, "word": "duck", "image_path": "four.png", "audio_path": "four.mp3"},
+          {"id": 5, "word": "goat", "image_path": "five.png", "audio_path": "five.mp3"},
+          {"id": 6, "word": "lion", "image_path": "six.png", "audio_path": "six.mp3"},
+          {"id": 7, "word": "pig", "image_path": "seven.png", "audio_path": "seven.mp3"},
+          {"id": 8, "word": "sheep", "image_path": "eight.png", "audio_path": "eight.mp3"},
+          {"id": 9, "word": "zebra", "image_path": "nine.png", "audio_path": "nine.mp3"}
         ]
       ''';
     }
@@ -144,6 +146,52 @@ void main() {
       isEmpty,
     );
 
+    controller.dispose();
+  });
+
+  test('opening and restarting spelling quiz autoplay pronunciation', () async {
+    final audioPlayer = _FakeAudioPlayer();
+    final controller = SessionController(
+      assetBundle: _SentenceAssetBundle(),
+      audioPlayer: audioPlayer,
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    controller.openSpellingQuiz();
+    await Future<void>.delayed(Duration.zero);
+    expect(audioPlayer.playedPaths, hasLength(1));
+    expect(
+      audioPlayer.playedPaths.single,
+      controller.spellingQuizViewData.question!.animal.audioPath,
+    );
+
+    controller.restartSpellingQuiz();
+    await Future<void>.delayed(Duration.zero);
+    expect(audioPlayer.playedPaths, hasLength(2));
+    expect(
+      audioPlayer.playedPaths.last,
+      controller.spellingQuizViewData.question!.animal.audioPath,
+    );
+    controller.dispose();
+  });
+
+  test('opening phrase building autoplays its sentence', () async {
+    final audioPlayer = _FakeAudioPlayer();
+    final controller = SessionController(
+      assetBundle: _SentenceAssetBundle(),
+      audioPlayer: audioPlayer,
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    controller.openPhraseBuilding();
+    await Future<void>.delayed(Duration.zero);
+    expect(audioPlayer.playedPaths, ['assets/audio/sentences/001.mp3']);
+
+    await controller.phraseBuildingPlayAudio();
+    expect(audioPlayer.playedPaths, [
+      'assets/audio/sentences/001.mp3',
+      'assets/audio/sentences/001.mp3',
+    ]);
     controller.dispose();
   });
 }

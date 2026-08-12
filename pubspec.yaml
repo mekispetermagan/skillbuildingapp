@@ -26,6 +26,7 @@ flutter:
     - assets/data/
     - assets/audio/letter_dragging/
     - assets/audio/sentences/
+    - assets/audio/ugandan_animals/
     - assets/images/
     - assets/images/ugandan_animals/
     - assets/images/sentence_building/

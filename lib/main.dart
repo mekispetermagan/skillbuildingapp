@@ -126,6 +126,7 @@ class AppRootState extends State<AppRoot> {
         SessionStatus.spellingQuiz => SpellingQuizScreen(
           viewData: _sessionController.spellingQuizViewData,
           onSubmit: _sessionController.spellingQuizSubmit,
+          onPlayAudio: _sessionController.spellingQuizPlayAudio,
           onBack: _sessionController.openMenu,
           onRestart: _sessionController.restartSpellingQuiz,
         ),

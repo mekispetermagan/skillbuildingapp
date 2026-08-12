@@ -24,8 +24,13 @@ const _config = ConveyorConfig(
 );
 
 const _words = [
-  ImageWord(id: 1, word: 'SHEEP', imagePath: 'sheep.png'),
-  ImageWord(id: 2, word: 'GOAT', imagePath: 'goat.png'),
+  ImageWord(
+    id: 1,
+    word: 'SHEEP',
+    imagePath: 'sheep.png',
+    audioPath: 'sheep.mp3',
+  ),
+  ImageWord(id: 2, word: 'GOAT', imagePath: 'goat.png', audioPath: 'goat.mp3'),
 ];
 
 ConveyorController _controller({ConveyorConfig config = _config}) {

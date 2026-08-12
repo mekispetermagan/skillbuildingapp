@@ -1,20 +1,48 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:literacy_game/audio/asset_audio_player.dart';
 import 'package:literacy_game/controllers/spelling_quiz_controller.dart';
 import 'package:literacy_game/models/image_word.dart';
 import 'package:literacy_game/models/spelling_quiz_state.dart';
 
 const _animals = [
-  ImageWord(id: 1, word: 'baboon', imagePath: 'baboon.png'),
-  ImageWord(id: 2, word: 'guinea fowl', imagePath: 'guinea_fowl.png'),
-  ImageWord(id: 3, word: 'lion', imagePath: 'lion.png'),
-  ImageWord(id: 4, word: 'zebra', imagePath: 'zebra.png'),
+  ImageWord(
+    id: 1,
+    word: 'baboon',
+    imagePath: 'baboon.png',
+    audioPath: 'baboon.mp3',
+  ),
+  ImageWord(
+    id: 2,
+    word: 'guinea fowl',
+    imagePath: 'guinea_fowl.png',
+    audioPath: 'guinea_fowl.mp3',
+  ),
+  ImageWord(id: 3, word: 'lion', imagePath: 'lion.png', audioPath: 'lion.mp3'),
+  ImageWord(
+    id: 4,
+    word: 'zebra',
+    imagePath: 'zebra.png',
+    audioPath: 'zebra.mp3',
+  ),
 ];
+
+class _FakeAudioPlayer implements AssetAudioPlayer {
+  final playedPaths = <String>[];
+  int stopCount = 0;
+
+  @override
+  Future<void> play(String assetPath) async => playedPaths.add(assetPath);
+
+  @override
+  Future<void> stop() async => stopCount++;
+}
 
 void main() {
   test('creates unique same-class one-letter distractors', () {
     final controller = SpellingQuizController(
+      _FakeAudioPlayer(),
       animals: _animals,
       random: Random(7),
       feedbackDuration: Duration.zero,
@@ -53,8 +81,14 @@ void main() {
 
   test('protects the first letter of every word', () {
     final controller = SpellingQuizController(
+      _FakeAudioPlayer(),
       animals: const [
-        ImageWord(id: 1, word: 'guinea fowl', imagePath: 'guinea_fowl.png'),
+        ImageWord(
+          id: 1,
+          word: 'guinea fowl',
+          imagePath: 'guinea_fowl.png',
+          audioPath: 'guinea_fowl.mp3',
+        ),
       ],
       random: Random(1),
     );
@@ -68,6 +102,7 @@ void main() {
 
   test('wrong answers do not score and correct answers win at ten', () async {
     final controller = SpellingQuizController(
+      _FakeAudioPlayer(),
       animals: _animals,
       random: Random(3),
       feedbackDuration: Duration.zero,
@@ -87,6 +122,25 @@ void main() {
     controller.start();
     expect(controller.score, 0);
     expect(controller.state, SpellingQuizState.guessing);
+    controller.dispose();
+  });
+
+  test('replay and each next question use the current pronunciation', () async {
+    final audioPlayer = _FakeAudioPlayer();
+    final controller = SpellingQuizController(
+      audioPlayer,
+      animals: _animals,
+      random: Random(9),
+      feedbackDuration: Duration.zero,
+    );
+
+    expect(audioPlayer.playedPaths, isEmpty);
+    await controller.playAudio();
+    expect(audioPlayer.playedPaths, [controller.question.animal.audioPath]);
+
+    await controller.submit(controller.question.correctIndex);
+    expect(audioPlayer.playedPaths.last, controller.question.animal.audioPath);
+    expect(audioPlayer.playedPaths, hasLength(2));
     controller.dispose();
   });
 }

@@ -7,7 +7,12 @@ import 'package:literacy_game/models/image_word.dart';
 
 List<ImageWord> _pairs() => [
   for (var id = 1; id <= 12; id++)
-    ImageWord(id: id, word: 'word$id', imagePath: 'image$id.png'),
+    ImageWord(
+      id: id,
+      word: 'word$id',
+      imagePath: 'image$id.png',
+      audioPath: 'audio$id.mp3',
+    ),
 ];
 
 void main() {
