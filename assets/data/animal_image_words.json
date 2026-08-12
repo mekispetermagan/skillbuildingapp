@@ -14,5 +14,19 @@
   {"id": 13, "word": "rabbit", "image_path": "assets/images/ugandan_animals/rabbit.png", "audio_path": "assets/audio/ugandan_animals/rabbit.mp3"},
   {"id": 14, "word": "sheep", "image_path": "assets/images/ugandan_animals/sheep.png", "audio_path": "assets/audio/ugandan_animals/sheep.mp3"},
   {"id": 15, "word": "turkey", "image_path": "assets/images/ugandan_animals/turkey.png", "audio_path": "assets/audio/ugandan_animals/turkey.mp3"},
-  {"id": 16, "word": "zebra", "image_path": "assets/images/ugandan_animals/zebra.png", "audio_path": "assets/audio/ugandan_animals/zebra.mp3"}
+  {"id": 16, "word": "zebra", "image_path": "assets/images/ugandan_animals/zebra.png", "audio_path": "assets/audio/ugandan_animals/zebra.mp3"},
+  {"id": 17, "word": "baboon", "image_path": "assets/images/ugandan_animals/baboon.png", "audio_path": "assets/audio/ugandan_animals/baboon.mp3"},
+  {"id": 18, "word": "buffalo", "image_path": "assets/images/ugandan_animals/buffalo.png", "audio_path": "assets/audio/ugandan_animals/buffalo.mp3"},
+  {"id": 19, "word": "chimpanzee", "image_path": "assets/images/ugandan_animals/chimpanzee.png", "audio_path": "assets/audio/ugandan_animals/chimpanzee.mp3"},
+  {"id": 20, "word": "crane", "image_path": "assets/images/ugandan_animals/crane.png", "audio_path": "assets/audio/ugandan_animals/crane.mp3"},
+  {"id": 21, "word": "crocodile", "image_path": "assets/images/ugandan_animals/crocodile.png", "audio_path": "assets/audio/ugandan_animals/crocodile.mp3"},
+  {"id": 22, "word": "elephant", "image_path": "assets/images/ugandan_animals/elephant.png", "audio_path": "assets/audio/ugandan_animals/elephant.mp3"},
+  {"id": 23, "word": "hippo", "image_path": "assets/images/ugandan_animals/hippo.png", "audio_path": "assets/audio/ugandan_animals/hippo.mp3"},
+  {"id": 24, "word": "hyena", "image_path": "assets/images/ugandan_animals/hyena.png", "audio_path": "assets/audio/ugandan_animals/hyena.mp3"},
+  {"id": 25, "word": "kob", "image_path": "assets/images/ugandan_animals/kob.png", "audio_path": "assets/audio/ugandan_animals/kob.mp3"},
+  {"id": 26, "word": "leopard", "image_path": "assets/images/ugandan_animals/leopard.png", "audio_path": "assets/audio/ugandan_animals/leopard.mp3"},
+  {"id": 27, "word": "shoebill", "image_path": "assets/images/ugandan_animals/shoebill.png", "audio_path": "assets/audio/ugandan_animals/shoebill.mp3"},
+  {"id": 28, "word": "stork", "image_path": "assets/images/ugandan_animals/stork.png", "audio_path": "assets/audio/ugandan_animals/stork.mp3"},
+  {"id": 29, "word": "warthog", "image_path": "assets/images/ugandan_animals/warthog.png", "audio_path": "assets/audio/ugandan_animals/warthog.mp3"},
+  {"id": 30, "word": "lizard", "image_path": "assets/images/ugandan_animals/lizard.png", "audio_path": "assets/audio/ugandan_animals/lizard.mp3"}
 ]
