@@ -1,5 +1,6 @@
 import 'answer_feedback.dart';
 import 'alphabet_letter.dart';
+import 'alphabet_object.dart';
 import 'countdown_status.dart';
 import 'conveyor_state.dart';
 import 'conveyor_world.dart';
@@ -12,6 +13,9 @@ import 'letter_catching_world.dart';
 import 'letter_catching_state.dart';
 import 'letter_dragging_state.dart';
 import 'letter_dragging_tile.dart';
+import 'letter_learning_config.dart';
+import 'letter_learning_slot.dart';
+import 'letter_learning_state.dart';
 import 'letter_practice_config.dart';
 import 'letter_practice_slot.dart';
 import 'letter_practice_state.dart';
@@ -260,5 +264,39 @@ class LetterPracticeViewData {
     required this.state,
     required this.config,
     required this.canPlay,
+  });
+}
+
+class LetterLearningViewData {
+  final bool isLoading;
+  final String? errorMessage;
+  final AlphabetLetter? currentLetter;
+  final AlphabetObject? currentObject;
+  final List<LetterLearningSlot> slots;
+  final List<AlphabetLetter> sourceLetters;
+  final Set<AlphabetDifficulty> difficulties;
+  final LetterLearningMode mode;
+  final LetterLearningState state;
+  final int score;
+  final int sourceColumnCount;
+  final LetterLearningConfig config;
+  final bool canGuess;
+  final bool isTargetRevealed;
+
+  const LetterLearningViewData({
+    required this.isLoading,
+    required this.errorMessage,
+    required this.currentLetter,
+    required this.currentObject,
+    required this.slots,
+    required this.sourceLetters,
+    required this.difficulties,
+    required this.mode,
+    required this.state,
+    required this.score,
+    required this.sourceColumnCount,
+    required this.config,
+    required this.canGuess,
+    required this.isTargetRevealed,
   });
 }

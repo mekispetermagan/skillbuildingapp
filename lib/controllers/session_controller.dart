@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import '../audio/asset_audio_player.dart';
 import '../models/answer_feedback.dart';
 import '../models/alphabet_letter.dart';
+import '../models/alphabet_object.dart';
 import '../models/conveyor_state.dart';
 import '../models/crossword_entry.dart';
 import '../models/crossword_state.dart';
@@ -15,6 +16,7 @@ import '../models/letter_catching_state.dart';
 import '../models/letter_catching_word.dart';
 import '../models/letter_dragging_state.dart';
 import '../models/letter_dragging_word.dart';
+import '../models/letter_learning_state.dart';
 import '../models/letter_shooting_state.dart';
 import '../models/letter_shooting_word.dart';
 import '../models/letter_shooting_world.dart';
@@ -32,6 +34,7 @@ import 'conveyor_controller.dart';
 import 'crossword_controller.dart';
 import 'letter_catching_controller.dart';
 import 'letter_dragging_controller.dart';
+import 'letter_learning_controller.dart';
 import 'letter_shooting_controller.dart';
 import 'letter_practice_controller.dart';
 import 'memory_controller.dart';
@@ -43,6 +46,8 @@ import 'spelling_quiz_controller.dart';
 
 enum SessionStatus {
   menu,
+  letterLearning,
+  letterPractice,
   phraseBuilding,
   letterDragging,
   missingLetters,
@@ -54,7 +59,6 @@ enum SessionStatus {
   sentenceComposer,
   spellingQuiz,
   crossword,
-  letterPractice,
 }
 
 class SessionController extends ChangeNotifier {
@@ -79,6 +83,8 @@ class SessionController extends ChangeNotifier {
   String? _spellingQuizError;
   CrosswordController? _crosswordController;
   String? _crosswordError;
+  LetterLearningController? _letterLearningController;
+  String? _letterLearningError;
   LetterPracticeController? _letterPracticeController;
   String? _letterPracticeError;
   bool _disposed = false;
@@ -102,10 +108,13 @@ class SessionController extends ChangeNotifier {
     unawaited(_initializeMemory());
     unawaited(_initializeSpellingQuiz());
     unawaited(_initializeCrossword());
+    unawaited(_initializeLetterLearning());
     unawaited(_initializeLetterPractice());
   }
 
   late final List<(String, VoidCallback)> menuItems = [
+    ('Letter learning', openLetterLearning),
+    ('Letter practice', openLetterPractice),
     ('Phrase building', openPhraseBuilding),
     ('Letter dragging', openLetterDragging),
     ('Missing letters', openMissingLetters),
@@ -117,7 +126,6 @@ class SessionController extends ChangeNotifier {
     ('Sentence composer', openSentenceComposer),
     ('Spelling quiz', openSpellingQuiz),
     ('Crossword', openCrossword),
-    ('Letter practice', openLetterPractice),
   ];
 
   PhraseBuildingViewData get phraseBuildingViewData => PhraseBuildingViewData(
@@ -375,6 +383,48 @@ class SessionController extends ChangeNotifier {
 
   void restartCrossword() => _crosswordController?.start();
 
+  LetterLearningViewData get letterLearningViewData => LetterLearningViewData(
+    isLoading:
+        _letterLearningController == null && _letterLearningError == null,
+    errorMessage: _letterLearningError,
+    currentLetter: _letterLearningController?.currentLetter,
+    currentObject: _letterLearningController?.currentObject,
+    slots: _letterLearningController?.slots ?? const [],
+    sourceLetters: _letterLearningController?.sourceLetters ?? const [],
+    difficulties:
+        _letterLearningController?.difficulties ??
+        const {AlphabetDifficulty.beginner},
+    mode: _letterLearningController?.mode ?? LetterLearningMode.masked,
+    state: _letterLearningController?.state ?? LetterLearningState.playing,
+    score: _letterLearningController?.score ?? 0,
+    sourceColumnCount: _letterLearningController?.sourceColumnCount ?? 5,
+    config: _letterLearningController?.config ?? letterLearningConfig,
+    canGuess: _letterLearningController?.canGuess ?? false,
+    isTargetRevealed: _letterLearningController?.isTargetRevealed ?? false,
+  );
+
+  void letterLearningSetDifficulties(Set<AlphabetDifficulty> values) =>
+      _letterLearningController?.setDifficulties(values);
+  void letterLearningSetMode(LetterLearningMode value) =>
+      _letterLearningController?.setMode(value);
+  void letterLearningGuess(String letter) {
+    unawaited(_letterLearningController?.guess(letter));
+  }
+
+  Future<void> letterLearningPlayAudio() =>
+      _letterLearningController?.playPrompt() ?? Future.value();
+
+  void openLetterLearning() {
+    _letterLearningController?.start();
+    _open(SessionStatus.letterLearning);
+    unawaited(_letterLearningController?.playPrompt());
+  }
+
+  void restartLetterLearning() {
+    _letterLearningController?.start();
+    unawaited(_letterLearningController?.playPrompt());
+  }
+
   LetterPracticeViewData get letterPracticeViewData => LetterPracticeViewData(
     isLoading:
         _letterPracticeController == null && _letterPracticeError == null,
@@ -486,6 +536,7 @@ class SessionController extends ChangeNotifier {
     _sentenceComposerController.stop();
     _spellingQuizController?.stop();
     _crosswordController?.stop();
+    _letterLearningController?.stop();
     _letterPracticeController?.stop();
     _open(SessionStatus.menu);
   }
@@ -749,6 +800,40 @@ class SessionController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> _initializeLetterLearning() async {
+    try {
+      final encodedResults = await Future.wait([
+        _assetBundle.loadString('assets/data/alphabet_progression.json'),
+        _assetBundle.loadString('assets/data/alphabet_objects.json'),
+      ]);
+      final alphabetData = jsonDecode(encodedResults[0]) as List<dynamic>;
+      final objectData = jsonDecode(encodedResults[1]) as List<dynamic>;
+      final alphabet = [
+        for (final item in alphabetData)
+          AlphabetLetter.fromJson(item as Map<String, dynamic>),
+      ];
+      final objects = [
+        for (final item in objectData)
+          AlphabetObject.fromJson(item as Map<String, dynamic>),
+      ];
+      if (_disposed) return;
+
+      _letterLearningController = LetterLearningController(
+        _audioPlayer,
+        alphabet: alphabet,
+        objects: objects,
+      )..addListener(_forwardFeatureNotification);
+      if (status == SessionStatus.letterLearning) {
+        _letterLearningController!.start();
+        unawaited(_letterLearningController!.playPrompt());
+      }
+    } catch (_) {
+      if (_disposed) return;
+      _letterLearningError = 'Could not load the letter-learning activity.';
+    }
+    notifyListeners();
+  }
+
   void _forwardFeatureNotification() => notifyListeners();
 
   @override
@@ -776,6 +861,8 @@ class SessionController extends ChangeNotifier {
     _spellingQuizController?.dispose();
     _crosswordController?.removeListener(_forwardFeatureNotification);
     _crosswordController?.dispose();
+    _letterLearningController?.removeListener(_forwardFeatureNotification);
+    _letterLearningController?.dispose();
     _letterPracticeController?.removeListener(_forwardFeatureNotification);
     _letterPracticeController?.dispose();
     super.dispose();

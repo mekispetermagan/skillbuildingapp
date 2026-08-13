@@ -64,15 +64,24 @@ class _SentenceAssetBundle extends CachingAssetBundle {
     if (key == 'assets/data/alphabet_progression.json') {
       return '''
         [
-          {"id": 1, "letter": "a", "color": "red", "difficulty": "beginner"},
-          {"id": 2, "letter": "m", "color": "orange", "difficulty": "beginner"},
-          {"id": 3, "letter": "s", "color": "amber", "difficulty": "beginner"},
-          {"id": 4, "letter": "t", "color": "green", "difficulty": "beginner"},
-          {"id": 5, "letter": "p", "color": "teal", "difficulty": "beginner"},
-          {"id": 6, "letter": "f", "color": "blue", "difficulty": "beginner"},
-          {"id": 7, "letter": "i", "color": "deepPurple", "difficulty": "beginner"},
-          {"id": 8, "letter": "n", "color": "pink", "difficulty": "beginner"},
-          {"id": 9, "letter": "o", "color": "brown", "difficulty": "beginner"}
+          {"id": 1, "letter": "a", "color": "red", "difficulty": "beginner", "audio_path": "audio/A.mp3"},
+          {"id": 2, "letter": "m", "color": "orange", "difficulty": "beginner", "audio_path": "audio/M.mp3"},
+          {"id": 3, "letter": "s", "color": "amber", "difficulty": "beginner", "audio_path": "audio/S.mp3"},
+          {"id": 4, "letter": "t", "color": "green", "difficulty": "beginner", "audio_path": "audio/T.mp3"},
+          {"id": 5, "letter": "p", "color": "teal", "difficulty": "beginner", "audio_path": "audio/P.mp3"},
+          {"id": 6, "letter": "f", "color": "blue", "difficulty": "beginner", "audio_path": "audio/F.mp3"},
+          {"id": 7, "letter": "i", "color": "deepPurple", "difficulty": "beginner", "audio_path": "audio/I.mp3"},
+          {"id": 8, "letter": "n", "color": "pink", "difficulty": "beginner", "audio_path": "audio/N.mp3"},
+          {"id": 9, "letter": "o", "color": "brown", "difficulty": "beginner", "audio_path": "audio/O.mp3"}
+        ]
+      ''';
+    }
+    if (key == 'assets/data/alphabet_objects.json') {
+      return '''
+        [
+          {"id": 1, "letter": "A", "word": "apple", "audio_path": "audio/apple.mp3"},
+          {"id": 2, "letter": "M", "word": "match", "audio_path": "audio/match.mp3"},
+          {"id": 3, "letter": "S", "word": "soap", "audio_path": "audio/soap.mp3"}
         ]
       ''';
     }
@@ -89,7 +98,7 @@ class _SentenceAssetBundle extends CachingAssetBundle {
 }
 
 void main() {
-  test('exposes all twelve activities', () async {
+  test('exposes all thirteen activities', () async {
     final controller = SessionController(
       assetBundle: _SentenceAssetBundle(),
       audioPlayer: _FakeAudioPlayer(),
@@ -97,6 +106,8 @@ void main() {
     await Future<void>.delayed(Duration.zero);
 
     expect(controller.menuItems.map((item) => item.$1), [
+      'Letter learning',
+      'Letter practice',
       'Phrase building',
       'Letter dragging',
       'Missing letters',
@@ -108,7 +119,6 @@ void main() {
       'Sentence composer',
       'Spelling quiz',
       'Crossword',
-      'Letter practice',
     ]);
     expect(controller.phraseBuildingViewData.isLoading, isFalse);
     expect(controller.phraseBuildingViewData.errorMessage, isNull);
@@ -128,10 +138,12 @@ void main() {
     expect(controller.spellingQuizViewData.errorMessage, isNull);
     expect(controller.crosswordViewData.isLoading, isFalse);
     expect(controller.crosswordViewData.errorMessage, isNull);
+    expect(controller.letterLearningViewData.isLoading, isFalse);
+    expect(controller.letterLearningViewData.errorMessage, isNull);
     expect(controller.letterPracticeViewData.isLoading, isFalse);
     expect(controller.letterPracticeViewData.errorMessage, isNull);
 
-    controller.menuItems[2].$2();
+    controller.menuItems[4].$2();
     expect(controller.status, SessionStatus.missingLetters);
 
     controller.dispose();
@@ -148,7 +160,7 @@ void main() {
     controller.phraseBuildingMove!(phraseTile);
     expect(controller.phraseBuildingViewData.targetPool, isNotEmpty);
     controller.openMenu();
-    controller.menuItems[0].$2();
+    controller.menuItems[2].$2();
     expect(controller.phraseBuildingViewData.targetPool, isEmpty);
 
     final firstCard = controller.memoryViewData.cards.first;
@@ -158,7 +170,7 @@ void main() {
       isNotEmpty,
     );
     controller.openMenu();
-    controller.menuItems[4].$2();
+    controller.menuItems[6].$2();
     expect(
       controller.memoryViewData.cards.where((card) => card.isFaceUp),
       isEmpty,

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,6 +22,13 @@ void main() {
 
       expect(entries, hasLength(26));
       expect(entries.map((entry) => entry.letter).toSet(), hasLength(26));
+      for (final entry in entries) {
+        expect(
+          File(entry.audioPath).existsSync(),
+          isTrue,
+          reason: entry.audioPath,
+        );
+      }
       expect(
         entries.where(
           (entry) => entry.difficulty == AlphabetDifficulty.beginner,
@@ -61,11 +69,13 @@ void main() {
       'letter': ' a ',
       'color': ' red ',
       'difficulty': 'beginner',
+      'audio_path': ' audio/A.mp3 ',
     });
 
     expect(entry.letter, 'A');
     expect(entry.colorName, 'red');
     expect(entry.difficulty, AlphabetDifficulty.beginner);
+    expect(entry.audioPath, 'audio/A.mp3');
   });
 
   test('rejects invalid difficulty values', () {
@@ -75,6 +85,7 @@ void main() {
         'letter': 'a',
         'color': 'red',
         'difficulty': 'expert',
+        'audio_path': 'audio/A.mp3',
       }),
       throwsFormatException,
     );
