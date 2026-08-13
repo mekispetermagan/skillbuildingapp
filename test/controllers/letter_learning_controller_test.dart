@@ -43,9 +43,27 @@ const _alphabet = [
 ];
 
 const _objects = [
-  AlphabetObject(id: 1, letter: 'A', word: 'apple', audioPath: 'apple.mp3'),
-  AlphabetObject(id: 2, letter: 'M', word: 'match', audioPath: 'match.mp3'),
-  AlphabetObject(id: 3, letter: 'L', word: 'lock', audioPath: 'lock.mp3'),
+  AlphabetObject(
+    id: 1,
+    letter: 'A',
+    word: 'apple',
+    audioPath: 'apple.mp3',
+    imagePath: 'apple.png',
+  ),
+  AlphabetObject(
+    id: 2,
+    letter: 'M',
+    word: 'match',
+    audioPath: 'match.mp3',
+    imagePath: 'match.png',
+  ),
+  AlphabetObject(
+    id: 3,
+    letter: 'L',
+    word: 'lock',
+    audioPath: 'lock.mp3',
+    imagePath: 'lock.png',
+  ),
 ];
 
 const _config = LetterLearningConfig(

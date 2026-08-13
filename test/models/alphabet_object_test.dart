@@ -9,7 +9,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test(
-    'object catalog has one unique word and audio file per letter',
+    'object catalog has one unique word, audio file, and image per letter',
     () async {
       final encoded = await rootBundle.loadString(
         'assets/data/alphabet_objects.json',
@@ -30,6 +30,11 @@ void main() {
           isTrue,
           reason: item.audioPath,
         );
+        expect(
+          File(item.imagePath).existsSync(),
+          isTrue,
+          reason: item.imagePath,
+        );
       }
     },
   );
@@ -40,10 +45,12 @@ void main() {
       'letter': ' a ',
       'word': ' Apple ',
       'audio_path': ' audio/apple.mp3 ',
+      'image_path': ' images/apple.png ',
     });
 
     expect(object.letter, 'A');
     expect(object.word, 'apple');
     expect(object.audioPath, 'audio/apple.mp3');
+    expect(object.imagePath, 'images/apple.png');
   });
 }

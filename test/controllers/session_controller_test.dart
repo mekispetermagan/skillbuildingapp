@@ -79,9 +79,9 @@ class _SentenceAssetBundle extends CachingAssetBundle {
     if (key == 'assets/data/alphabet_objects.json') {
       return '''
         [
-          {"id": 1, "letter": "A", "word": "apple", "audio_path": "audio/apple.mp3"},
-          {"id": 2, "letter": "M", "word": "match", "audio_path": "audio/match.mp3"},
-          {"id": 3, "letter": "S", "word": "soap", "audio_path": "audio/soap.mp3"}
+          {"id": 1, "letter": "A", "word": "apple", "audio_path": "audio/apple.mp3", "image_path": "images/apple.png"},
+          {"id": 2, "letter": "M", "word": "match", "audio_path": "audio/match.mp3", "image_path": "images/match.png"},
+          {"id": 3, "letter": "S", "word": "soap", "audio_path": "audio/soap.mp3", "image_path": "images/soap.png"}
         ]
       ''';
     }

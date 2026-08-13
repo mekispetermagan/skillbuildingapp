@@ -72,10 +72,12 @@ class LetterLearningScreen extends StatelessWidget {
                                   ),
                                   child: Stack(
                                     children: [
-                                      const Center(
-                                        child: Icon(
-                                          Icons.image_outlined,
-                                          size: 64,
+                                      Center(
+                                        child: Image.asset(
+                                          viewData.currentObject!.imagePath,
+                                          width: 120,
+                                          height: 120,
+                                          fit: BoxFit.contain,
                                         ),
                                       ),
                                       Positioned(
