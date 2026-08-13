@@ -75,6 +75,10 @@ set_target_properties(${BINARY_NAME}
 # Some plugins emit verbose informational CMake messages on stderr. Keep their
 # warnings and errors, but suppress routine configuration chatter.
 set(CMAKE_MESSAGE_LOG_LEVEL WARNING)
+# The app uses MP3/WAV assets, which SoLoud's MiniAudio backend decodes itself.
+# Avoid flutter_soloud's bundled Xiph libraries: their Linux binaries may target
+# a newer GLIBC than the host distribution and prevent the plugin from loading.
+set(ENV{NO_XIPH_LIBS} 1)
 include(flutter/generated_plugins.cmake)
 unset(CMAKE_MESSAGE_LOG_LEVEL)
 
