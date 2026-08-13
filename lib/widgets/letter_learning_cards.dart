@@ -8,13 +8,15 @@ class LetterLearningSourceCard extends StatelessWidget {
   final AlphabetLetter data;
   final double size;
   final bool isEnabled;
-  final ValueChanged<String> onGuess;
+  final bool isSelected;
+  final ValueChanged<String> onSelect;
 
   const LetterLearningSourceCard({
     required this.data,
     required this.size,
     required this.isEnabled,
-    required this.onGuess,
+    required this.isSelected,
+    required this.onSelect,
     super.key,
   });
 
@@ -26,6 +28,15 @@ class LetterLearningSourceCard extends StatelessWidget {
       child: Card(
         color: background,
         margin: const EdgeInsets.all(2),
+        shape: RoundedRectangleBorder(
+          side: isSelected
+              ? BorderSide(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  width: 3,
+                )
+              : BorderSide.none,
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Center(
           child: Text(
             data.letter,
@@ -41,9 +52,10 @@ class LetterLearningSourceCard extends StatelessWidget {
     if (!isEnabled) return Opacity(opacity: 0.5, child: card);
     return Draggable<String>(
       data: data.letter,
+      onDragStarted: isSelected ? null : () => onSelect(data.letter),
       feedback: Material(color: Colors.transparent, child: card),
       childWhenDragging: Opacity(opacity: 0.35, child: card),
-      child: InkWell(onTap: () => onGuess(data.letter), child: card),
+      child: InkWell(onTap: () => onSelect(data.letter), child: card),
     );
   }
 }
@@ -54,6 +66,8 @@ class LetterLearningWordCard extends StatelessWidget {
   final bool revealTarget;
   final bool isEnabled;
   final ValueChanged<String> onGuess;
+  final String? selectedLetter;
+  final VoidCallback onGuessSelected;
 
   const LetterLearningWordCard({
     required this.slot,
@@ -61,6 +75,8 @@ class LetterLearningWordCard extends StatelessWidget {
     required this.revealTarget,
     required this.isEnabled,
     required this.onGuess,
+    required this.selectedLetter,
+    required this.onGuessSelected,
     super.key,
   });
 
@@ -109,7 +125,11 @@ class LetterLearningWordCard extends StatelessWidget {
     return DragTarget<String>(
       onWillAcceptWithDetails: (_) => true,
       onAcceptWithDetails: (details) => onGuess(details.data),
-      builder: (_, candidates, _) => card(candidates.isNotEmpty),
+      builder: (_, candidates, _) => GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: selectedLetter == null ? null : onGuessSelected,
+        child: card(candidates.isNotEmpty),
+      ),
     );
   }
 }

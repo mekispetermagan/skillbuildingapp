@@ -1,0 +1,15 @@
+enum ActivityId {
+  letterLearning,
+  letterPractice,
+  phraseBuilding,
+  letterDragging,
+  missingLetters,
+  letterShooting,
+  memoryCards,
+  letterCatching,
+  wordConveyor,
+  sentenceQuiz,
+  sentenceComposer,
+  spellingQuiz,
+  crossword,
+}

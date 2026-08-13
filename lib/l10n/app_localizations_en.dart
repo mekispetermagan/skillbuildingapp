@@ -1,0 +1,171 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get appTitle => 'Literacy Game';
+
+  @override
+  String get activityLetterLearning => 'Letter learning';
+
+  @override
+  String get activityLetterPractice => 'Letter practice';
+
+  @override
+  String get activityPhraseBuilding => 'Phrase building';
+
+  @override
+  String get activityLetterDragging => 'Letter dragging';
+
+  @override
+  String get activityMissingLetters => 'Missing letters';
+
+  @override
+  String get activityLetterShooting => 'Letter shooting';
+
+  @override
+  String get activityMemoryCards => 'Memory cards';
+
+  @override
+  String get activityLetterCatching => 'Letter catching';
+
+  @override
+  String get activityWordConveyor => 'Word conveyor';
+
+  @override
+  String get activitySentenceQuiz => 'Sentence quiz';
+
+  @override
+  String get activitySentenceComposer => 'Sentence composer';
+
+  @override
+  String get activitySpellingQuiz => 'Spelling quiz';
+
+  @override
+  String get activityCrossword => 'Crossword';
+
+  @override
+  String get congratulations => 'Congratulations!';
+
+  @override
+  String get sorry => 'Sorry!';
+
+  @override
+  String get playAgain => 'Play again';
+
+  @override
+  String get check => 'Check';
+
+  @override
+  String get submit => 'Submit';
+
+  @override
+  String get pass => 'Pass';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get findBoth => 'Find both';
+
+  @override
+  String get playWord => 'Play word';
+
+  @override
+  String get playSentence => 'Play sentence';
+
+  @override
+  String get playLetterAndWord => 'Play letter and word';
+
+  @override
+  String get instructionOrderLetters => 'Put the letters in the right order';
+
+  @override
+  String get instructionMissingLetters =>
+      'Drag the missing letters into the word';
+
+  @override
+  String get instructionCrossword =>
+      'Choose or drag a letter into an empty square';
+
+  @override
+  String get memoryNotEnoughPairs => 'Not enough word and image pairs.';
+
+  @override
+  String get difficultyBeginner => 'Beginner';
+
+  @override
+  String get difficultyIntermediate => 'Intermediate';
+
+  @override
+  String get difficultyAdvanced => 'Advanced';
+
+  @override
+  String get colorsOn => 'Colors on';
+
+  @override
+  String get colorsOff => 'Colors off';
+
+  @override
+  String get masked => 'Masked';
+
+  @override
+  String get unmasked => 'Unmasked';
+
+  @override
+  String letterDraggingResult(int score) {
+    return 'Great work!\nYou collected $score gems.';
+  }
+
+  @override
+  String livesRemaining(int lives, int maximumLives) {
+    return '$lives of $maximumLives lives remaining';
+  }
+
+  @override
+  String get loadErrorPhraseBuilding => 'Could not load the sentence activity.';
+
+  @override
+  String get loadErrorLetterDragging =>
+      'Could not load the letter-dragging activity.';
+
+  @override
+  String get loadErrorMissingLetters =>
+      'Could not load the missing-letters activity.';
+
+  @override
+  String get loadErrorLetterShooting =>
+      'Could not load the letter-shooting activity.';
+
+  @override
+  String get loadErrorLetterCatching =>
+      'Could not load the letter-catching activity.';
+
+  @override
+  String get loadErrorMemoryCards => 'Could not load the memory-card activity.';
+
+  @override
+  String get loadErrorWordConveyor =>
+      'Could not load the word-conveyor activity.';
+
+  @override
+  String get loadErrorSpellingQuiz =>
+      'Could not load the spelling-quiz activity.';
+
+  @override
+  String get loadErrorCrossword => 'Could not load the crossword activity.';
+
+  @override
+  String get loadErrorLetterPractice =>
+      'Could not load the letter-practice activity.';
+
+  @override
+  String get loadErrorLetterLearning =>
+      'Could not load the letter-learning activity.';
+}

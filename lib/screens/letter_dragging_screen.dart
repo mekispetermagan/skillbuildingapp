@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 import '../models/countdown_status.dart';
 import '../models/view_data.dart';
@@ -25,19 +26,22 @@ class LetterDraggingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: FeatureAppBar(title: 'Letter dragging', onBack: onBack),
+      appBar: FeatureAppBar(
+        title: context.l10n.activityLetterDragging,
+        onBack: onBack,
+      ),
       body: FeatureLoadState(
         isLoading: viewData.isLoading,
-        errorMessage: viewData.errorMessage,
+        loadError: viewData.loadError,
         child: switch (viewData.countdown) {
-          final CountdownStatus countdown => _buildExercise(countdown),
+          final CountdownStatus countdown => _buildExercise(context, countdown),
           null => const SizedBox.shrink(),
         },
       ),
     );
   }
 
-  Widget _buildExercise(CountdownStatus countdown) {
+  Widget _buildExercise(BuildContext context, CountdownStatus countdown) {
     final reorder = onReorder;
     return SafeArea(
       child: Padding(
@@ -45,8 +49,8 @@ class LetterDraggingScreen extends StatelessWidget {
         child: Column(
           children: [
             const Spacer(),
-            const Text(
-              'Put the letters in the right order',
+            Text(
+              context.l10n.instructionOrderLetters,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 22),
             ),
@@ -75,7 +79,7 @@ class LetterDraggingScreen extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            FilledButton(onPressed: onPass, child: const Text('Pass')),
+            FilledButton(onPressed: onPass, child: Text(context.l10n.pass)),
             const SizedBox(height: 20),
             LetterDraggingCountdown(status: countdown),
             const SizedBox(height: 20),

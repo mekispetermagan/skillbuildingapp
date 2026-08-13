@@ -54,6 +54,32 @@ void main() {
     controller.dispose();
   });
 
+  test('tap selection toggles and tap placement clears it only on success', () {
+    final controller = _controller();
+    final target = controller.slots.firstWhere((slot) => slot.isMissing);
+    final wrong = controller.pool.firstWhere(
+      (tile) => tile.letter != target.letter,
+    );
+    final correct = controller.pool.firstWhere(
+      (tile) => tile.letter == target.letter,
+    );
+
+    controller.selectTile(wrong.id);
+    expect(controller.selectedTileId, wrong.id);
+    controller.placeSelected(target.id);
+    expect(controller.selectedTileId, wrong.id);
+
+    controller.selectTile(wrong.id);
+    expect(controller.selectedTileId, isNull);
+    controller.selectTile(correct.id);
+    controller.placeSelected(target.id);
+    expect(controller.selectedTileId, isNull);
+    expect(
+      controller.slots.singleWhere((slot) => slot.id == target.id).isFilled,
+      isTrue,
+    );
+  });
+
   test('consumes correct cards and enables Next after both drops', () {
     final controller = _controller();
     final targets = controller.slots.where((slot) => slot.isMissing).toList();

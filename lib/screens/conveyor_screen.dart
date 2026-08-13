@@ -1,5 +1,6 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 import '../games/conveyor_game.dart';
 import '../models/conveyor_state.dart';
@@ -17,6 +18,8 @@ class ConveyorScreen extends StatelessWidget {
   final ConveyorState Function(double) onTick;
   final bool Function({required int letterId, required int shelfId}) canAccept;
   final ValueChanged<int> onStartDragging;
+  final ValueChanged<int> onSelectLetter;
+  final ValueChanged<int> onPlaceSelected;
   final ValueChanged<int> onCancelDragging;
   final void Function({required int letterId, required int shelfId}) onDrop;
   final VoidCallback onBack;
@@ -28,6 +31,8 @@ class ConveyorScreen extends StatelessWidget {
     required this.onTick,
     required this.canAccept,
     required this.onStartDragging,
+    required this.onSelectLetter,
+    required this.onPlaceSelected,
     required this.onCancelDragging,
     required this.onDrop,
     required this.onBack,
@@ -37,10 +42,13 @@ class ConveyorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: FeatureAppBar(title: 'Word conveyor', onBack: onBack),
+    appBar: FeatureAppBar(
+      title: context.l10n.activityWordConveyor,
+      onBack: onBack,
+    ),
     body: FeatureLoadState(
       isLoading: viewData.isLoading,
-      errorMessage: viewData.errorMessage,
+      loadError: viewData.loadError,
       child: switch (viewData.world) {
         final ConveyorWorld world => SafeArea(
           child: _ConveyorPlayArea(
@@ -50,6 +58,9 @@ class ConveyorScreen extends StatelessWidget {
             onTick: onTick,
             canAccept: canAccept,
             onStartDragging: onStartDragging,
+            onSelectLetter: onSelectLetter,
+            onPlaceSelected: onPlaceSelected,
+            selectedLetterId: viewData.selectedLetterId,
             onCancelDragging: onCancelDragging,
             onDrop: onDrop,
             onRestart: onRestart,
@@ -68,6 +79,9 @@ class _ConveyorPlayArea extends StatefulWidget {
   final ConveyorState Function(double) onTick;
   final bool Function({required int letterId, required int shelfId}) canAccept;
   final ValueChanged<int> onStartDragging;
+  final ValueChanged<int> onSelectLetter;
+  final ValueChanged<int> onPlaceSelected;
+  final int? selectedLetterId;
   final ValueChanged<int> onCancelDragging;
   final void Function({required int letterId, required int shelfId}) onDrop;
   final VoidCallback onRestart;
@@ -79,6 +93,9 @@ class _ConveyorPlayArea extends StatefulWidget {
     required this.onTick,
     required this.canAccept,
     required this.onStartDragging,
+    required this.onSelectLetter,
+    required this.onPlaceSelected,
+    required this.selectedLetterId,
     required this.onCancelDragging,
     required this.onDrop,
     required this.onRestart,
@@ -125,6 +142,9 @@ class _ConveyorPlayAreaState extends State<_ConveyorPlayArea> {
                     world: widget.world,
                     canAccept: widget.canAccept,
                     onStartDragging: widget.onStartDragging,
+                    onSelectLetter: widget.onSelectLetter,
+                    onPlaceSelected: widget.onPlaceSelected,
+                    selectedLetterId: widget.selectedLetterId,
                     onCancelDragging: widget.onCancelDragging,
                     onDrop: widget.onDrop,
                   ),
@@ -149,11 +169,11 @@ class _ConveyorPlayAreaState extends State<_ConveyorPlayArea> {
                   builder: (_, _) => switch (_state) {
                     ConveyorState.playing => const SizedBox.shrink(),
                     ConveyorState.won => GameEndOverlay(
-                      message: 'Congratulations!',
+                      message: context.l10n.congratulations,
                       onRestart: widget.onRestart,
                     ),
                     ConveyorState.lost => GameEndOverlay(
-                      message: 'Sorry!',
+                      message: context.l10n.sorry,
                       onRestart: widget.onRestart,
                     ),
                   },
@@ -175,6 +195,9 @@ class _MovingPieces extends StatelessWidget {
   final ConveyorWorld world;
   final bool Function({required int letterId, required int shelfId}) canAccept;
   final ValueChanged<int> onStartDragging;
+  final ValueChanged<int> onSelectLetter;
+  final ValueChanged<int> onPlaceSelected;
+  final int? selectedLetterId;
   final ValueChanged<int> onCancelDragging;
   final void Function({required int letterId, required int shelfId}) onDrop;
 
@@ -182,6 +205,9 @@ class _MovingPieces extends StatelessWidget {
     required this.world,
     required this.canAccept,
     required this.onStartDragging,
+    required this.onSelectLetter,
+    required this.onPlaceSelected,
+    required this.selectedLetterId,
     required this.onCancelDragging,
     required this.onDrop,
   });
@@ -203,8 +229,16 @@ class _MovingPieces extends StatelessWidget {
                   canAccept(letterId: details.data, shelfId: shelf.id),
               onAcceptWithDetails: (details) =>
                   onDrop(letterId: details.data, shelfId: shelf.id),
-              builder: (_, candidates, _) =>
-                  _ShelfCard(shelf: shelf, isHovering: candidates.isNotEmpty),
+              builder: (_, candidates, _) => GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: selectedLetterId == null
+                    ? null
+                    : () => onPlaceSelected(shelf.id),
+                child: _ShelfCard(
+                  shelf: shelf,
+                  isHovering: candidates.isNotEmpty,
+                ),
+              ),
             ),
           ),
         for (final letter in world.letters)
@@ -233,7 +267,13 @@ class _MovingPieces extends StatelessWidget {
                 ),
               ),
               childWhenDragging: const SizedBox.shrink(),
-              child: _LetterCard(letter: letter.letter),
+              child: GestureDetector(
+                onTap: () => onSelectLetter(letter.id),
+                child: _LetterCard(
+                  letter: letter.letter,
+                  isSelected: selectedLetterId == letter.id,
+                ),
+              ),
             ),
           ),
       ],
@@ -292,14 +332,18 @@ class _ShelfCard extends StatelessWidget {
 
 class _LetterCard extends StatelessWidget {
   final String letter;
+  final bool isSelected;
 
-  const _LetterCard({required this.letter});
+  const _LetterCard({required this.letter, this.isSelected = false});
 
   @override
   Widget build(BuildContext context) => DecoratedBox(
     decoration: BoxDecoration(
       color: const Color(0xff5e35b1),
-      border: Border.all(color: Colors.white70, width: 2),
+      border: Border.all(
+        color: isSelected ? Colors.amberAccent : Colors.white70,
+        width: isSelected ? 4 : 2,
+      ),
       borderRadius: BorderRadius.circular(10),
       boxShadow: const [
         BoxShadow(color: Colors.black45, blurRadius: 4, offset: Offset(0, 2)),

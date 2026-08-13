@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 import '../models/answer_feedback.dart';
 import '../models/view_data.dart';
@@ -26,7 +27,10 @@ class SentenceQuizScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: FeatureAppBar(title: 'Sentence quiz', onBack: onBack),
+    appBar: FeatureAppBar(
+      title: context.l10n.activitySentenceQuiz,
+      onBack: onBack,
+    ),
     body: SafeArea(
       child: Stack(
         children: [
@@ -36,7 +40,7 @@ class SentenceQuizScreen extends StatelessWidget {
           if (viewData.state == SentenceQuizState.won)
             Positioned.fill(
               child: GameEndOverlay(
-                message: 'Congratulations!',
+                message: context.l10n.congratulations,
                 onRestart: onRestart,
               ),
             ),

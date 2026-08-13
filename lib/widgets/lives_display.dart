@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../l10n/l10n.dart';
 
 class LivesDisplay extends StatelessWidget {
   final int lives;
@@ -18,7 +19,7 @@ class LivesDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: '$lives of $maximumLives lives remaining',
+    label: context.l10n.livesRemaining(lives, maximumLives),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [

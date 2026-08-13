@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 import '../models/crossword_puzzle.dart';
 import '../models/crossword_state.dart';
@@ -32,10 +33,13 @@ class CrosswordScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: FeatureAppBar(title: 'Crossword', onBack: onBack),
+    appBar: FeatureAppBar(
+      title: context.l10n.activityCrossword,
+      onBack: onBack,
+    ),
     body: FeatureLoadState(
       isLoading: viewData.isLoading,
-      errorMessage: viewData.errorMessage,
+      loadError: viewData.loadError,
       child: SafeArea(
         child: Stack(
           children: [
@@ -55,7 +59,7 @@ class CrosswordScreen extends StatelessWidget {
             if (viewData.state == CrosswordState.won)
               Positioned.fill(
                 child: GameEndOverlay(
-                  message: 'Congratulations!',
+                  message: context.l10n.congratulations,
                   onRestart: onRestart,
                 ),
               ),
@@ -94,8 +98,8 @@ class _CrosswordContent extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           sliver: SliverList.list(
             children: [
-              const Text(
-                'Choose or drag a letter into an empty square',
+              Text(
+                context.l10n.instructionCrossword,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 20),
               ),

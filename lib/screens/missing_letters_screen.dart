@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 import '../models/missing_letters_state.dart';
 import '../models/view_data.dart';
@@ -13,6 +14,8 @@ class MissingLettersScreen extends StatelessWidget {
   final VoidCallback? onNext;
   final bool Function({required int targetId, required int tileId}) canDrop;
   final void Function({required int targetId, required int tileId}) onDrop;
+  final ValueChanged<int> onSelectTile;
+  final ValueChanged<int> onPlaceSelected;
 
   const MissingLettersScreen({
     required this.viewData,
@@ -20,16 +23,21 @@ class MissingLettersScreen extends StatelessWidget {
     required this.onNext,
     required this.canDrop,
     required this.onDrop,
+    required this.onSelectTile,
+    required this.onPlaceSelected,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: FeatureAppBar(title: 'Missing letters', onBack: onBack),
+      appBar: FeatureAppBar(
+        title: context.l10n.activityMissingLetters,
+        onBack: onBack,
+      ),
       body: FeatureLoadState(
         isLoading: viewData.isLoading,
-        errorMessage: viewData.errorMessage,
+        loadError: viewData.loadError,
         child: _buildExercise(context),
       ),
     );
@@ -44,8 +52,8 @@ class MissingLettersScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Drag the missing letters into the word',
+            Text(
+              context.l10n.instructionMissingLetters,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 22),
             ),
@@ -59,6 +67,8 @@ class MissingLettersScreen extends StatelessWidget {
                           slot: slot,
                           canDrop: canDrop,
                           onDrop: onDrop,
+                          selectedTileId: viewData.selectedTileId,
+                          onPlaceSelected: onPlaceSelected,
                         )
                       : MissingLetterCard(
                           key: ValueKey('letter-${slot.id}'),
@@ -77,6 +87,8 @@ class MissingLettersScreen extends StatelessWidget {
                   DraggableMissingLetterCard(
                     key: ValueKey('pool-${tile.id}'),
                     tile: tile,
+                    isSelected: viewData.selectedTileId == tile.id,
+                    onSelect: onSelectTile,
                   ),
               ],
             ),
@@ -87,8 +99,8 @@ class MissingLettersScreen extends StatelessWidget {
                 onPressed: onNext,
                 child: Text(
                   viewData.state == MissingLettersState.solved
-                      ? 'Next'
-                      : 'Find both',
+                      ? context.l10n.next
+                      : context.l10n.findBoth,
                 ),
               ),
             ),

@@ -84,6 +84,23 @@ void main() {
     ]);
   });
 
+  test('tap selection toggles and tap placement uses the selected letter', () {
+    final controller = _controller();
+    final shelf = controller.world.shelves.first;
+    final letter = controller.world.letters.first;
+    letter.letter = shelf.word.uppercaseWord[shelf.missingIndices.first];
+
+    controller.selectLetter(letter.id);
+    expect(controller.selectedLetterId, letter.id);
+    controller.selectLetter(letter.id);
+    expect(controller.selectedLetterId, isNull);
+
+    controller.selectLetter(letter.id);
+    controller.placeSelected(shelf.id);
+    expect(controller.selectedLetterId, isNull);
+    expect(shelf.recoveredIndices, isNotEmpty);
+  });
+
   test('keeps recycling safely when every visible shelf is complete', () {
     final controller = _controller();
     final lastShelf = controller.world.shelves.last;

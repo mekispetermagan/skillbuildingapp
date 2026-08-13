@@ -1,5 +1,6 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 import '../games/letter_catching_game.dart';
 import '../models/letter_catching_world.dart';
@@ -31,10 +32,13 @@ class LetterCatchingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: FeatureAppBar(title: 'Letter catching', onBack: onBack),
+    appBar: FeatureAppBar(
+      title: context.l10n.activityLetterCatching,
+      onBack: onBack,
+    ),
     body: FeatureLoadState(
       isLoading: viewData.isLoading,
-      errorMessage: viewData.errorMessage,
+      loadError: viewData.loadError,
       child: switch (viewData.world) {
         final LetterCatchingWorld world => SafeArea(
           child: _LetterCatchingPlayArea(
@@ -109,11 +113,11 @@ class _LetterCatchingPlayAreaState extends State<_LetterCatchingPlayArea> {
               child: switch (widget.state) {
                 LetterCatchingState.playing => const SizedBox.shrink(),
                 LetterCatchingState.won => GameEndOverlay(
-                  message: 'Congratulations!',
+                  message: context.l10n.congratulations,
                   onRestart: widget.onRestart,
                 ),
                 LetterCatchingState.lost => GameEndOverlay(
-                  message: 'Sorry!',
+                  message: context.l10n.sorry,
                   onRestart: widget.onRestart,
                 ),
               },

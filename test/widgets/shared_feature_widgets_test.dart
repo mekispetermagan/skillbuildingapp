@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:literacy_game/l10n/app_localizations.dart';
+import 'package:literacy_game/models/feature_load_error.dart';
 import 'package:literacy_game/models/answer_feedback.dart';
 import 'package:literacy_game/widgets/feature_load_state.dart';
 import 'package:literacy_game/widgets/game_end_overlay.dart';
@@ -7,7 +9,11 @@ import 'package:literacy_game/widgets/quiz_option_button.dart';
 import 'package:literacy_game/widgets/reward_gem_row.dart';
 
 void main() {
-  Widget app(Widget child) => MaterialApp(home: Scaffold(body: child));
+  Widget app(Widget child) => MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    home: Scaffold(body: child),
+  );
 
   testWidgets('feature load state prioritizes loading and errors', (
     tester,
@@ -16,7 +22,7 @@ void main() {
       app(
         const FeatureLoadState(
           isLoading: true,
-          errorMessage: 'Not shown yet',
+          loadError: FeatureLoadError.crossword,
           child: Text('Content'),
         ),
       ),
@@ -28,12 +34,12 @@ void main() {
       app(
         const FeatureLoadState(
           isLoading: false,
-          errorMessage: 'Could not load',
+          loadError: FeatureLoadError.crossword,
           child: Text('Content'),
         ),
       ),
     );
-    expect(find.text('Could not load'), findsOneWidget);
+    expect(find.text('Could not load the crossword activity.'), findsOneWidget);
     expect(find.text('Content'), findsNothing);
   });
 

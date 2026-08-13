@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 import '../models/outfit_sentence.dart';
 import '../models/sentence_composer_state.dart';
@@ -32,7 +33,10 @@ class SentenceComposerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: FeatureAppBar(title: 'Sentence composer', onBack: onBack),
+    appBar: FeatureAppBar(
+      title: context.l10n.activitySentenceComposer,
+      onBack: onBack,
+    ),
     body: SafeArea(
       child: Stack(
         children: [
@@ -48,7 +52,7 @@ class SentenceComposerScreen extends StatelessWidget {
           if (viewData.state == SentenceComposerState.won)
             Positioned.fill(
               child: GameEndOverlay(
-                message: 'Congratulations!',
+                message: context.l10n.congratulations,
                 onRestart: onRestart,
               ),
             ),
@@ -131,9 +135,12 @@ class _ComposerContent extends StatelessWidget {
           child: FilledButton(
             key: const ValueKey('sentence-composer-submit'),
             onPressed: viewData.canSubmit ? onSubmit : null,
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-              child: Text('Submit', style: TextStyle(fontSize: 18)),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+              child: Text(
+                context.l10n.submit,
+                style: const TextStyle(fontSize: 18),
+              ),
             ),
           ),
         ),

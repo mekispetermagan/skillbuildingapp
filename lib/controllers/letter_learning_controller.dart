@@ -39,6 +39,7 @@ class LetterLearningController extends ChangeNotifier {
   late AlphabetLetter currentLetter;
   late AlphabetObject currentObject;
   List<LetterLearningSlot> _slots = [];
+  String? _selectedLetter;
 
   LetterLearningController(
     this._audioPlayer, {
@@ -60,6 +61,7 @@ class LetterLearningController extends ChangeNotifier {
   LetterLearningState get state => _state;
   int get score => _score;
   bool get canGuess => _state == LetterLearningState.playing;
+  String? get selectedLetter => _selectedLetter;
   bool get isTargetRevealed =>
       _mode == LetterLearningMode.unmasked ||
       _state != LetterLearningState.playing;
@@ -84,6 +86,7 @@ class LetterLearningController extends ChangeNotifier {
     _score = 0;
     _state = LetterLearningState.playing;
     _previousObject = null;
+    _selectedLetter = null;
     _generateExercise();
     notifyListeners();
   }
@@ -98,6 +101,7 @@ class LetterLearningController extends ChangeNotifier {
     _generation++;
     _difficulties = Set.of(values);
     _state = LetterLearningState.playing;
+    _selectedLetter = null;
     _generateExercise();
     notifyListeners();
     unawaited(playPrompt());
@@ -107,6 +111,19 @@ class LetterLearningController extends ChangeNotifier {
     if (_mode == value) return;
     _mode = value;
     notifyListeners();
+  }
+
+  void selectLetter(String letter) {
+    if (!canGuess || !sourceLetters.any((item) => item.letter == letter)) {
+      return;
+    }
+    _selectedLetter = _selectedLetter == letter ? null : letter;
+    notifyListeners();
+  }
+
+  Future<void> guessSelected() async {
+    final letter = _selectedLetter;
+    if (letter != null) await guess(letter);
   }
 
   Future<void> guess(String letter) async {
@@ -119,6 +136,7 @@ class LetterLearningController extends ChangeNotifier {
     }
     final generation = _generation;
     _score++;
+    _selectedLetter = null;
     _state = LetterLearningState.correct;
     notifyListeners();
     await _play(_correctPath);
@@ -177,6 +195,7 @@ class LetterLearningController extends ChangeNotifier {
           isInSelectedGroups: active.contains(letter),
         ),
     ];
+    _selectedLetter = null;
   }
 
   Future<void> _play(String path) async {

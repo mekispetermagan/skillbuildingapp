@@ -11,6 +11,8 @@ import '../models/alphabet_object.dart';
 import '../models/conveyor_state.dart';
 import '../models/crossword_entry.dart';
 import '../models/crossword_state.dart';
+import '../models/activity_id.dart';
+import '../models/feature_load_error.dart';
 import '../models/image_word.dart';
 import '../models/letter_catching_state.dart';
 import '../models/letter_catching_word.dart';
@@ -66,27 +68,27 @@ class SessionController extends ChangeNotifier {
   final AssetAudioPlayer _audioPlayer;
 
   PhraseBuildingController? _phraseBuildingController;
-  String? _phraseBuildingError;
+  FeatureLoadError? _phraseBuildingError;
   LetterDraggingController? _letterDraggingController;
-  String? _letterDraggingError;
+  FeatureLoadError? _letterDraggingError;
   LetterShootingController? _letterShootingController;
-  String? _letterShootingError;
+  FeatureLoadError? _letterShootingError;
   LetterCatchingController? _letterCatchingController;
-  String? _letterCatchingError;
+  FeatureLoadError? _letterCatchingError;
   ConveyorController? _conveyorController;
-  String? _conveyorError;
+  FeatureLoadError? _conveyorError;
   MissingLettersController? _missingLettersController;
-  String? _missingLettersError;
+  FeatureLoadError? _missingLettersError;
   MemoryController? _memoryController;
-  String? _memoryError;
+  FeatureLoadError? _memoryError;
   SpellingQuizController? _spellingQuizController;
-  String? _spellingQuizError;
+  FeatureLoadError? _spellingQuizError;
   CrosswordController? _crosswordController;
-  String? _crosswordError;
+  FeatureLoadError? _crosswordError;
   LetterLearningController? _letterLearningController;
-  String? _letterLearningError;
+  FeatureLoadError? _letterLearningError;
   LetterPracticeController? _letterPracticeController;
-  String? _letterPracticeError;
+  FeatureLoadError? _letterPracticeError;
   bool _disposed = false;
   late final SentenceQuizController _sentenceQuizController;
   late final SentenceComposerController _sentenceComposerController;
@@ -112,26 +114,26 @@ class SessionController extends ChangeNotifier {
     unawaited(_initializeLetterPractice());
   }
 
-  late final List<(String, VoidCallback)> menuItems = [
-    ('Letter learning', openLetterLearning),
-    ('Letter practice', openLetterPractice),
-    ('Phrase building', openPhraseBuilding),
-    ('Letter dragging', openLetterDragging),
-    ('Missing letters', openMissingLetters),
-    ('Letter shooting', openLetterShooting),
-    ('Memory cards', openMemory),
-    ('Letter catching', openLetterCatching),
-    ('Word conveyor', openConveyor),
-    ('Sentence quiz', openSentenceQuiz),
-    ('Sentence composer', openSentenceComposer),
-    ('Spelling quiz', openSpellingQuiz),
-    ('Crossword', openCrossword),
+  late final List<(ActivityId, VoidCallback)> menuItems = [
+    (ActivityId.letterLearning, openLetterLearning),
+    (ActivityId.letterPractice, openLetterPractice),
+    (ActivityId.phraseBuilding, openPhraseBuilding),
+    (ActivityId.letterDragging, openLetterDragging),
+    (ActivityId.missingLetters, openMissingLetters),
+    (ActivityId.letterShooting, openLetterShooting),
+    (ActivityId.memoryCards, openMemory),
+    (ActivityId.letterCatching, openLetterCatching),
+    (ActivityId.wordConveyor, openConveyor),
+    (ActivityId.sentenceQuiz, openSentenceQuiz),
+    (ActivityId.sentenceComposer, openSentenceComposer),
+    (ActivityId.spellingQuiz, openSpellingQuiz),
+    (ActivityId.crossword, openCrossword),
   ];
 
   PhraseBuildingViewData get phraseBuildingViewData => PhraseBuildingViewData(
     isLoading:
         _phraseBuildingController == null && _phraseBuildingError == null,
-    errorMessage: _phraseBuildingError,
+    loadError: _phraseBuildingError,
     sourcePool: _phraseBuildingController?.sourcePool ?? const [],
     targetPool: _phraseBuildingController?.targetPool ?? const [],
     state: _phraseBuildingController?.state ?? PhraseBuildingState.guessing,
@@ -161,7 +163,7 @@ class SessionController extends ChangeNotifier {
   LetterDraggingViewData get letterDraggingViewData => LetterDraggingViewData(
     isLoading:
         _letterDraggingController == null && _letterDraggingError == null,
-    errorMessage: _letterDraggingError,
+    loadError: _letterDraggingError,
     tiles: _letterDraggingController?.tiles ?? const [],
     state: _letterDraggingController?.state ?? LetterDraggingState.playing,
     score: _letterDraggingController?.score ?? 0,
@@ -190,7 +192,7 @@ class SessionController extends ChangeNotifier {
   LetterShootingViewData get letterShootingViewData => LetterShootingViewData(
     isLoading:
         _letterShootingController == null && _letterShootingError == null,
-    errorMessage: _letterShootingError,
+    loadError: _letterShootingError,
     world: _letterShootingController?.world,
     state: _letterShootingController?.state ?? LetterShootingState.playing,
   );
@@ -217,7 +219,7 @@ class SessionController extends ChangeNotifier {
   LetterCatchingViewData get letterCatchingViewData => LetterCatchingViewData(
     isLoading:
         _letterCatchingController == null && _letterCatchingError == null,
-    errorMessage: _letterCatchingError,
+    loadError: _letterCatchingError,
     world: _letterCatchingController?.world,
     state: _letterCatchingController?.state ?? LetterCatchingState.playing,
   );
@@ -238,9 +240,10 @@ class SessionController extends ChangeNotifier {
 
   ConveyorViewData get conveyorViewData => ConveyorViewData(
     isLoading: _conveyorController == null && _conveyorError == null,
-    errorMessage: _conveyorError,
+    loadError: _conveyorError,
     world: _conveyorController?.world,
     state: _conveyorController?.state ?? ConveyorState.playing,
+    selectedLetterId: _conveyorController?.selectedLetterId,
   );
 
   void conveyorResize(double width, double height) =>
@@ -252,6 +255,10 @@ class SessionController extends ChangeNotifier {
       false;
   void conveyorStartDragging(int letterId) =>
       _conveyorController?.startDragging(letterId);
+  void conveyorSelectLetter(int letterId) =>
+      _conveyorController?.selectLetter(letterId);
+  void conveyorPlaceSelected(int shelfId) =>
+      _conveyorController?.placeSelected(shelfId);
   void conveyorCancelDragging(int letterId) =>
       _conveyorController?.cancelDragging(letterId);
   void conveyorDrop({required int letterId, required int shelfId}) =>
@@ -331,7 +338,7 @@ class SessionController extends ChangeNotifier {
 
   SpellingQuizViewData get spellingQuizViewData => SpellingQuizViewData(
     isLoading: _spellingQuizController == null && _spellingQuizError == null,
-    errorMessage: _spellingQuizError,
+    loadError: _spellingQuizError,
     question: _spellingQuizController?.question,
     state: _spellingQuizController?.state ?? SpellingQuizState.guessing,
     score: _spellingQuizController?.score ?? 0,
@@ -358,7 +365,7 @@ class SessionController extends ChangeNotifier {
 
   CrosswordViewData get crosswordViewData => CrosswordViewData(
     isLoading: _crosswordController == null && _crosswordError == null,
-    errorMessage: _crosswordError,
+    loadError: _crosswordError,
     puzzle: _crosswordController?.puzzle,
     config: _crosswordController?.config ?? crosswordConfig,
     state: _crosswordController?.state ?? CrosswordState.playing,
@@ -386,7 +393,7 @@ class SessionController extends ChangeNotifier {
   LetterLearningViewData get letterLearningViewData => LetterLearningViewData(
     isLoading:
         _letterLearningController == null && _letterLearningError == null,
-    errorMessage: _letterLearningError,
+    loadError: _letterLearningError,
     currentLetter: _letterLearningController?.currentLetter,
     currentObject: _letterLearningController?.currentObject,
     slots: _letterLearningController?.slots ?? const [],
@@ -401,6 +408,7 @@ class SessionController extends ChangeNotifier {
     config: _letterLearningController?.config ?? letterLearningConfig,
     canGuess: _letterLearningController?.canGuess ?? false,
     isTargetRevealed: _letterLearningController?.isTargetRevealed ?? false,
+    selectedLetter: _letterLearningController?.selectedLetter,
   );
 
   void letterLearningSetDifficulties(Set<AlphabetDifficulty> values) =>
@@ -409,6 +417,12 @@ class SessionController extends ChangeNotifier {
       _letterLearningController?.setMode(value);
   void letterLearningGuess(String letter) {
     unawaited(_letterLearningController?.guess(letter));
+  }
+
+  void letterLearningSelectLetter(String letter) =>
+      _letterLearningController?.selectLetter(letter);
+  void letterLearningGuessSelected() {
+    unawaited(_letterLearningController?.guessSelected());
   }
 
   Future<void> letterLearningPlayAudio() =>
@@ -428,7 +442,7 @@ class SessionController extends ChangeNotifier {
   LetterPracticeViewData get letterPracticeViewData => LetterPracticeViewData(
     isLoading:
         _letterPracticeController == null && _letterPracticeError == null,
-    errorMessage: _letterPracticeError,
+    loadError: _letterPracticeError,
     currentWord: _letterPracticeController?.currentWord,
     slots: _letterPracticeController?.slots ?? const [],
     sourceLetters: _letterPracticeController?.sourceLetters ?? const [],
@@ -478,11 +492,12 @@ class SessionController extends ChangeNotifier {
   MissingLettersViewData get missingLettersViewData => MissingLettersViewData(
     isLoading:
         _missingLettersController == null && _missingLettersError == null,
-    errorMessage: _missingLettersError,
+    loadError: _missingLettersError,
     slots: _missingLettersController?.slots ?? const [],
     pool: _missingLettersController?.pool ?? const [],
     state: _missingLettersController?.state ?? MissingLettersState.solving,
     score: _missingLettersController?.score ?? 0,
+    selectedTileId: _missingLettersController?.selectedTileId,
   );
   VoidCallback? get missingLettersNext =>
       _missingLettersController?.canContinue == true
@@ -495,6 +510,10 @@ class SessionController extends ChangeNotifier {
 
   void missingLettersDrop({required int targetId, required int tileId}) =>
       _missingLettersController?.drop(targetId: targetId, tileId: tileId);
+  void missingLettersSelectTile(int tileId) =>
+      _missingLettersController?.selectTile(tileId);
+  void missingLettersPlaceSelected(int targetId) =>
+      _missingLettersController?.placeSelected(targetId);
 
   void openMissingLetters() {
     _missingLettersController?.start();
@@ -503,7 +522,7 @@ class SessionController extends ChangeNotifier {
 
   MemoryViewData get memoryViewData => MemoryViewData(
     isLoading: _memoryController == null && _memoryError == null,
-    errorMessage: _memoryError,
+    loadError: _memoryError,
     cards: _memoryController?.cards ?? const [],
     isComplete: _memoryController?.isComplete ?? false,
     config: _memoryController?.config ?? memoryConfig,
@@ -568,7 +587,7 @@ class SessionController extends ChangeNotifier {
       }
     } catch (_) {
       if (_disposed) return;
-      _phraseBuildingError = 'Could not load the sentence activity.';
+      _phraseBuildingError = FeatureLoadError.phraseBuilding;
     }
     notifyListeners();
   }
@@ -594,7 +613,7 @@ class SessionController extends ChangeNotifier {
       }
     } catch (_) {
       if (_disposed) return;
-      _letterDraggingError = 'Could not load the letter-dragging activity.';
+      _letterDraggingError = FeatureLoadError.letterDragging;
     }
     notifyListeners();
   }
@@ -618,7 +637,7 @@ class SessionController extends ChangeNotifier {
       }
     } catch (_) {
       if (_disposed) return;
-      _missingLettersError = 'Could not load the missing-letters activity.';
+      _missingLettersError = FeatureLoadError.missingLetters;
     }
     notifyListeners();
   }
@@ -642,7 +661,7 @@ class SessionController extends ChangeNotifier {
       }
     } catch (_) {
       if (_disposed) return;
-      _letterShootingError = 'Could not load the letter-shooting activity.';
+      _letterShootingError = FeatureLoadError.letterShooting;
     }
     notifyListeners();
   }
@@ -666,7 +685,7 @@ class SessionController extends ChangeNotifier {
       }
     } catch (_) {
       if (_disposed) return;
-      _letterCatchingError = 'Could not load the letter-catching activity.';
+      _letterCatchingError = FeatureLoadError.letterCatching;
     }
     notifyListeners();
   }
@@ -687,7 +706,7 @@ class SessionController extends ChangeNotifier {
         ..addListener(_forwardFeatureNotification);
     } catch (_) {
       if (_disposed) return;
-      _memoryError = 'Could not load the memory-card activity.';
+      _memoryError = FeatureLoadError.memoryCards;
     }
     notifyListeners();
   }
@@ -710,7 +729,7 @@ class SessionController extends ChangeNotifier {
       }
     } catch (_) {
       if (_disposed) return;
-      _conveyorError = 'Could not load the word-conveyor activity.';
+      _conveyorError = FeatureLoadError.wordConveyor;
     }
     notifyListeners();
   }
@@ -737,7 +756,7 @@ class SessionController extends ChangeNotifier {
       }
     } catch (_) {
       if (_disposed) return;
-      _spellingQuizError = 'Could not load the spelling-quiz activity.';
+      _spellingQuizError = FeatureLoadError.spellingQuiz;
     }
     notifyListeners();
   }
@@ -761,7 +780,7 @@ class SessionController extends ChangeNotifier {
       }
     } catch (_) {
       if (_disposed) return;
-      _crosswordError = 'Could not load the crossword activity.';
+      _crosswordError = FeatureLoadError.crossword;
     }
     notifyListeners();
   }
@@ -795,7 +814,7 @@ class SessionController extends ChangeNotifier {
       }
     } catch (_) {
       if (_disposed) return;
-      _letterPracticeError = 'Could not load the letter-practice activity.';
+      _letterPracticeError = FeatureLoadError.letterPractice;
     }
     notifyListeners();
   }
@@ -829,7 +848,7 @@ class SessionController extends ChangeNotifier {
       }
     } catch (_) {
       if (_disposed) return;
-      _letterLearningError = 'Could not load the letter-learning activity.';
+      _letterLearningError = FeatureLoadError.letterLearning;
     }
     notifyListeners();
   }

@@ -1,27 +1,44 @@
 import 'package:flutter/material.dart';
 
 import 'controllers/session_controller.dart';
+import 'l10n/l10n.dart';
 import 'models/letter_dragging_state.dart';
+import 'models/interface_language.dart';
 import 'screens/screens.dart';
 
 void main() {
   runApp(const LiteracyApp());
 }
 
-class LiteracyApp extends StatelessWidget {
+class LiteracyApp extends StatefulWidget {
   const LiteracyApp({super.key});
+
+  @override
+  State<LiteracyApp> createState() => _LiteracyAppState();
+}
+
+class _LiteracyAppState extends State<LiteracyApp> {
+  InterfaceLanguage? _language;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Literacy Game',
+      locale: _language?.locale,
+      onGenerateTitle: (context) => context.l10n.appTitle,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.purple,
           dynamicSchemeVariant: DynamicSchemeVariant.rainbow,
         ),
       ),
-      home: const AppRoot(),
+      home: switch (_language) {
+        null => LanguageSelectionScreen(
+          onSelect: (language) => setState(() => _language = language),
+        ),
+        _ => const AppRoot(),
+      },
     );
   }
 }
@@ -51,6 +68,8 @@ class AppRootState extends State<AppRoot> {
           onSetDifficulties: _sessionController.letterLearningSetDifficulties,
           onSetMode: _sessionController.letterLearningSetMode,
           onGuess: _sessionController.letterLearningGuess,
+          onSelectLetter: _sessionController.letterLearningSelectLetter,
+          onGuessSelected: _sessionController.letterLearningGuessSelected,
           onPlayAudio: _sessionController.letterLearningPlayAudio,
         ),
         SessionStatus.letterPractice => LetterPracticeScreen(
@@ -92,6 +111,8 @@ class AppRootState extends State<AppRoot> {
           onNext: _sessionController.missingLettersNext,
           canDrop: _sessionController.missingLettersCanDrop,
           onDrop: _sessionController.missingLettersDrop,
+          onSelectTile: _sessionController.missingLettersSelectTile,
+          onPlaceSelected: _sessionController.missingLettersPlaceSelected,
         ),
         SessionStatus.letterShooting => LetterShootingScreen(
           viewData: _sessionController.letterShootingViewData,
@@ -124,6 +145,8 @@ class AppRootState extends State<AppRoot> {
           onTick: _sessionController.conveyorTick,
           canAccept: _sessionController.conveyorCanAccept,
           onStartDragging: _sessionController.conveyorStartDragging,
+          onSelectLetter: _sessionController.conveyorSelectLetter,
+          onPlaceSelected: _sessionController.conveyorPlaceSelected,
           onCancelDragging: _sessionController.conveyorCancelDragging,
           onDrop: _sessionController.conveyorDrop,
           onBack: _sessionController.openMenu,

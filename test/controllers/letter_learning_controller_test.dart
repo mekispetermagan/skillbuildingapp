@@ -110,6 +110,23 @@ void main() {
     expect(controller.isTargetRevealed, isTrue);
   });
 
+  test('tap-tap selection toggles and wrong guesses keep selection', () async {
+    final controller = _controller(_FakeAudioPlayer());
+    final correct = controller.currentLetter.letter;
+    final wrong = correct == 'A' ? 'M' : 'A';
+
+    controller.selectLetter(wrong);
+    await controller.guessSelected();
+    expect(controller.selectedLetter, wrong);
+
+    controller.selectLetter(wrong);
+    expect(controller.selectedLetter, isNull);
+    controller.selectLetter(correct);
+    await controller.guessSelected();
+    expect(controller.selectedLetter, isNull);
+    expect(controller.score, 1);
+  });
+
   test(
     'wrong guesses do not score and correct guesses reveal and score',
     () async {

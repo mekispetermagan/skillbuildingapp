@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import 'package:flame/game.dart';
 
 import '../games/letter_shooting_game.dart';
@@ -37,10 +38,13 @@ class LetterShootingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: FeatureAppBar(title: 'Letter shooting', onBack: onBack),
+      appBar: FeatureAppBar(
+        title: context.l10n.activityLetterShooting,
+        onBack: onBack,
+      ),
       body: FeatureLoadState(
         isLoading: viewData.isLoading,
-        errorMessage: viewData.errorMessage,
+        loadError: viewData.loadError,
         child: switch (viewData.world) {
           final LetterShootingWorld world => SafeArea(
             child: _LetterShootingPlayArea(

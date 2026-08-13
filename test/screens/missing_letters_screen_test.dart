@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:literacy_game/l10n/app_localizations.dart';
 import 'package:literacy_game/models/missing_letter_slot.dart';
 import 'package:literacy_game/models/missing_letter_tile.dart';
 import 'package:literacy_game/models/missing_letters_state.dart';
@@ -28,19 +29,24 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: MissingLettersScreen(
           viewData: MissingLettersViewData(
             isLoading: false,
-            errorMessage: null,
+            loadError: null,
             slots: slots,
             pool: pool,
             state: MissingLettersState.solving,
             score: 0,
+            selectedTileId: null,
           ),
           onBack: () {},
           onNext: null,
           canDrop: ({required targetId, required tileId}) => false,
           onDrop: ({required targetId, required tileId}) {},
+          onSelectTile: (_) {},
+          onPlaceSelected: (_) {},
         ),
       ),
     );

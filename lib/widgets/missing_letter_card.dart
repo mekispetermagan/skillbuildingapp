@@ -38,22 +38,36 @@ class MissingLetterCard extends StatelessWidget {
 
 class DraggableMissingLetterCard extends StatelessWidget {
   final MissingLetterTile tile;
+  final bool isSelected;
+  final ValueChanged<int> onSelect;
 
-  const DraggableMissingLetterCard({required this.tile, super.key});
+  const DraggableMissingLetterCard({
+    required this.tile,
+    required this.isSelected,
+    required this.onSelect,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final card = MissingLetterCard(
-      letter: tile.letter,
-      backgroundColor: scheme.tertiaryContainer,
-      foregroundColor: scheme.onTertiaryContainer,
+    final card = Container(
+      decoration: BoxDecoration(
+        border: isSelected ? Border.all(color: scheme.primary, width: 3) : null,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: MissingLetterCard(
+        letter: tile.letter,
+        backgroundColor: scheme.tertiaryContainer,
+        foregroundColor: scheme.onTertiaryContainer,
+      ),
     );
     return Draggable<MissingLetterTile>(
       data: tile,
+      onDragStarted: isSelected ? null : () => onSelect(tile.id),
       feedback: Material(color: Colors.transparent, child: card),
       childWhenDragging: Opacity(opacity: 0.3, child: card),
-      child: card,
+      child: InkWell(onTap: () => onSelect(tile.id), child: card),
     );
   }
 }
@@ -62,11 +76,15 @@ class MissingLetterTargetCard extends StatelessWidget {
   final MissingLetterSlot slot;
   final bool Function({required int targetId, required int tileId}) canDrop;
   final void Function({required int targetId, required int tileId}) onDrop;
+  final int? selectedTileId;
+  final ValueChanged<int> onPlaceSelected;
 
   const MissingLetterTargetCard({
     required this.slot,
     required this.canDrop,
     required this.onDrop,
+    required this.selectedTileId,
+    required this.onPlaceSelected,
     super.key,
   });
 
@@ -86,14 +104,18 @@ class MissingLetterTargetCard extends StatelessWidget {
           canDrop(targetId: slot.id, tileId: details.data.id),
       onAcceptWithDetails: (details) =>
           onDrop(targetId: slot.id, tileId: details.data.id),
-      builder: (_, candidateData, _) => MissingLetterCard(
-        letter: '?',
-        backgroundColor: candidateData.isEmpty
-            ? scheme.errorContainer
-            : scheme.secondaryContainer,
-        foregroundColor: candidateData.isEmpty
-            ? scheme.onErrorContainer
-            : scheme.onSecondaryContainer,
+      builder: (_, candidateData, _) => GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: selectedTileId == null ? null : () => onPlaceSelected(slot.id),
+        child: MissingLetterCard(
+          letter: '?',
+          backgroundColor: candidateData.isEmpty
+              ? scheme.errorContainer
+              : scheme.secondaryContainer,
+          foregroundColor: candidateData.isEmpty
+              ? scheme.onErrorContainer
+              : scheme.onSecondaryContainer,
+        ),
       ),
     );
   }

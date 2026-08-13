@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 import '../widgets/feature_app_bar.dart';
 import '../widgets/reward_gems.dart';
@@ -18,7 +19,10 @@ class LetterDraggingResultScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: FeatureAppBar(title: 'Letter dragging', onBack: onBack),
+      appBar: FeatureAppBar(
+        title: context.l10n.activityLetterDragging,
+        onBack: onBack,
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -27,14 +31,14 @@ class LetterDraggingResultScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Great work!\nYou collected $score gems.',
+                context.l10n.letterDraggingResult(score),
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 30),
               ),
               RewardGems(count: score),
               FilledButton(
                 onPressed: onRestart,
-                child: const Text('Play again'),
+                child: Text(context.l10n.playAgain),
               ),
             ],
           ),

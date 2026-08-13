@@ -27,6 +27,7 @@ class ConveyorController extends ChangeNotifier {
   final ConveyorWorld world;
   bool _isRunning = false;
   ConveyorState state = ConveyorState.playing;
+  int? _selectedLetterId;
 
   ConveyorController({
     required List<ImageWord> words,
@@ -38,6 +39,22 @@ class ConveyorController extends ChangeNotifier {
     world.reset();
     state = ConveyorState.playing;
     _isRunning = true;
+    _selectedLetterId = null;
+  }
+
+  int? get selectedLetterId => _selectedLetterId;
+
+  void selectLetter(int letterId) {
+    if (!_isRunning || !world.letters.any((letter) => letter.id == letterId)) {
+      return;
+    }
+    _selectedLetterId = _selectedLetterId == letterId ? null : letterId;
+    notifyListeners();
+  }
+
+  void placeSelected(int shelfId) {
+    final letterId = _selectedLetterId;
+    if (letterId != null) drop(letterId: letterId, shelfId: shelfId);
   }
 
   void stop() => _isRunning = false;
@@ -63,7 +80,11 @@ class ConveyorController extends ChangeNotifier {
       world.canAccept(letterId: letterId, shelfId: shelfId);
 
   void startDragging(int letterId) {
-    if (_isRunning) world.setDragging(letterId, true);
+    if (_isRunning) {
+      _selectedLetterId = letterId;
+      world.setDragging(letterId, true);
+      notifyListeners();
+    }
   }
 
   void cancelDragging(int letterId) => world.setDragging(letterId, false);
@@ -71,6 +92,7 @@ class ConveyorController extends ChangeNotifier {
   void drop({required int letterId, required int shelfId}) {
     if (!_isRunning || state != ConveyorState.playing) return;
     world.drop(letterId: letterId, shelfId: shelfId);
+    _selectedLetterId = null;
     if (world.score >= world.config.winningScore) {
       state = ConveyorState.won;
       _isRunning = false;
@@ -78,5 +100,6 @@ class ConveyorController extends ChangeNotifier {
       state = ConveyorState.lost;
       _isRunning = false;
     }
+    notifyListeners();
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 import '../models/memory_board_layout.dart';
 import '../models/memory_card_data.dart';
@@ -26,20 +27,23 @@ class MemoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: FeatureAppBar(title: 'Memory cards', onBack: onBack),
+      appBar: FeatureAppBar(
+        title: context.l10n.activityMemoryCards,
+        onBack: onBack,
+      ),
       body: SafeArea(
         child: FeatureLoadState(
           isLoading: viewData.isLoading,
-          errorMessage: viewData.errorMessage,
+          loadError: viewData.loadError,
           child: viewData.cards.length == viewData.config.cardCount
-              ? _buildBoard()
-              : const Center(child: Text('Not enough word and image pairs.')),
+              ? _buildBoard(context)
+              : Center(child: Text(context.l10n.memoryNotEnoughPairs)),
         ),
       ),
     );
   }
 
-  Widget _buildBoard() => LayoutBuilder(
+  Widget _buildBoard(BuildContext context) => LayoutBuilder(
     builder: (_, constraints) {
       final board = MemoryBoardLayout.calculate(
         availableWidth: constraints.maxWidth,
@@ -70,7 +74,7 @@ class MemoryScreen extends StatelessWidget {
                 child: FilledButton.icon(
                   onPressed: onNewGame,
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Play again'),
+                  label: Text(context.l10n.playAgain),
                 ),
               ),
             ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:literacy_game/l10n/app_localizations.dart';
 import 'package:literacy_game/widgets/lives_display.dart';
 
 void main() {
@@ -7,7 +8,9 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(body: LivesDisplay(lives: 3, maximumLives: 5)),
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 import '../models/alphabet_letter.dart';
 import '../models/letter_practice_state.dart';
@@ -38,10 +39,13 @@ class LetterPracticeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: FeatureAppBar(title: 'Letter practice', onBack: onBack),
+    appBar: FeatureAppBar(
+      title: context.l10n.activityLetterPractice,
+      onBack: onBack,
+    ),
     body: FeatureLoadState(
       isLoading: viewData.isLoading,
-      errorMessage: viewData.errorMessage,
+      loadError: viewData.loadError,
       child: SafeArea(
         child: Stack(
           children: [
@@ -78,7 +82,7 @@ class LetterPracticeScreen extends StatelessWidget {
                                     onPressed: onPlayAudio,
                                     icon: const Icon(Icons.volume_up),
                                     iconSize: 32,
-                                    tooltip: 'Play word',
+                                    tooltip: context.l10n.playWord,
                                   ),
                                 ),
                               ],
@@ -149,7 +153,7 @@ class LetterPracticeScreen extends StatelessWidget {
             if (viewData.state == LetterPracticeState.won)
               Positioned.fill(
                 child: GameEndOverlay(
-                  message: 'Congratulations!',
+                  message: context.l10n.congratulations,
                   onRestart: onRestart,
                 ),
               ),
@@ -185,7 +189,7 @@ class _Controls extends StatelessWidget {
           for (final difficulty in AlphabetDifficulty.values)
             ButtonSegment(
               value: difficulty,
-              label: Text(_difficultyLabel(difficulty)),
+              label: Text(_difficultyLabel(context.l10n, difficulty)),
             ),
         ],
         selected: difficulties,
@@ -195,9 +199,9 @@ class _Controls extends StatelessWidget {
         onSelectionChanged: onSetDifficulties,
       ),
       SegmentedButton<bool>(
-        segments: const [
-          ButtonSegment(value: true, label: Text('Colors on')),
-          ButtonSegment(value: false, label: Text('Colors off')),
+        segments: [
+          ButtonSegment(value: true, label: Text(context.l10n.colorsOn)),
+          ButtonSegment(value: false, label: Text(context.l10n.colorsOff)),
         ],
         selected: {useColors},
         showSelectedIcon: false,
@@ -207,8 +211,9 @@ class _Controls extends StatelessWidget {
   );
 }
 
-String _difficultyLabel(AlphabetDifficulty difficulty) => switch (difficulty) {
-  AlphabetDifficulty.beginner => 'Beginner',
-  AlphabetDifficulty.intermediate => 'Intermediate',
-  AlphabetDifficulty.advanced => 'Advanced',
-};
+String _difficultyLabel(AppLocalizations l10n, AlphabetDifficulty difficulty) =>
+    switch (difficulty) {
+      AlphabetDifficulty.beginner => l10n.difficultyBeginner,
+      AlphabetDifficulty.intermediate => l10n.difficultyIntermediate,
+      AlphabetDifficulty.advanced => l10n.difficultyAdvanced,
+    };

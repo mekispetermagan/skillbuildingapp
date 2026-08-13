@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:literacy_game/audio/asset_audio_player.dart';
 import 'package:literacy_game/controllers/session_controller.dart';
+import 'package:literacy_game/models/activity_id.dart';
 
 class _FakeAudioPlayer implements AssetAudioPlayer {
   final playedPaths = <String>[];
@@ -106,42 +107,42 @@ void main() {
     await Future<void>.delayed(Duration.zero);
 
     expect(controller.menuItems.map((item) => item.$1), [
-      'Letter learning',
-      'Letter practice',
-      'Phrase building',
-      'Letter dragging',
-      'Missing letters',
-      'Letter shooting',
-      'Memory cards',
-      'Letter catching',
-      'Word conveyor',
-      'Sentence quiz',
-      'Sentence composer',
-      'Spelling quiz',
-      'Crossword',
+      ActivityId.letterLearning,
+      ActivityId.letterPractice,
+      ActivityId.phraseBuilding,
+      ActivityId.letterDragging,
+      ActivityId.missingLetters,
+      ActivityId.letterShooting,
+      ActivityId.memoryCards,
+      ActivityId.letterCatching,
+      ActivityId.wordConveyor,
+      ActivityId.sentenceQuiz,
+      ActivityId.sentenceComposer,
+      ActivityId.spellingQuiz,
+      ActivityId.crossword,
     ]);
     expect(controller.phraseBuildingViewData.isLoading, isFalse);
-    expect(controller.phraseBuildingViewData.errorMessage, isNull);
+    expect(controller.phraseBuildingViewData.loadError, isNull);
     expect(controller.letterDraggingViewData.isLoading, isFalse);
-    expect(controller.letterDraggingViewData.errorMessage, isNull);
+    expect(controller.letterDraggingViewData.loadError, isNull);
     expect(controller.missingLettersViewData.isLoading, isFalse);
-    expect(controller.missingLettersViewData.errorMessage, isNull);
+    expect(controller.missingLettersViewData.loadError, isNull);
     expect(controller.memoryViewData.isLoading, isFalse);
-    expect(controller.memoryViewData.errorMessage, isNull);
+    expect(controller.memoryViewData.loadError, isNull);
     expect(controller.letterShootingViewData.isLoading, isFalse);
-    expect(controller.letterShootingViewData.errorMessage, isNull);
+    expect(controller.letterShootingViewData.loadError, isNull);
     expect(controller.letterCatchingViewData.isLoading, isFalse);
-    expect(controller.letterCatchingViewData.errorMessage, isNull);
+    expect(controller.letterCatchingViewData.loadError, isNull);
     expect(controller.conveyorViewData.isLoading, isFalse);
-    expect(controller.conveyorViewData.errorMessage, isNull);
+    expect(controller.conveyorViewData.loadError, isNull);
     expect(controller.spellingQuizViewData.isLoading, isFalse);
-    expect(controller.spellingQuizViewData.errorMessage, isNull);
+    expect(controller.spellingQuizViewData.loadError, isNull);
     expect(controller.crosswordViewData.isLoading, isFalse);
-    expect(controller.crosswordViewData.errorMessage, isNull);
+    expect(controller.crosswordViewData.loadError, isNull);
     expect(controller.letterLearningViewData.isLoading, isFalse);
-    expect(controller.letterLearningViewData.errorMessage, isNull);
+    expect(controller.letterLearningViewData.loadError, isNull);
     expect(controller.letterPracticeViewData.isLoading, isFalse);
-    expect(controller.letterPracticeViewData.errorMessage, isNull);
+    expect(controller.letterPracticeViewData.loadError, isNull);
 
     controller.menuItems[4].$2();
     expect(controller.status, SessionStatus.missingLetters);

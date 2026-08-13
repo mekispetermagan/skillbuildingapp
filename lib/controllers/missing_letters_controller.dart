@@ -23,6 +23,7 @@ class MissingLettersController extends ChangeNotifier {
   int _score = 0;
   MissingLettersWord? _currentWord;
   MissingLettersState _state = MissingLettersState.solving;
+  int? _selectedTileId;
 
   MissingLettersController({
     required List<MissingLettersWord> words,
@@ -40,6 +41,22 @@ class MissingLettersController extends ChangeNotifier {
   MissingLettersState get state => _state;
   int get score => _score;
   bool get canContinue => _state == MissingLettersState.solved;
+  int? get selectedTileId => _selectedTileId;
+
+  void selectTile(int tileId) {
+    if (_state != MissingLettersState.solving ||
+        !_pool.any((tile) => tile.id == tileId)) {
+      return;
+    }
+    _selectedTileId = _selectedTileId == tileId ? null : tileId;
+    notifyListeners();
+  }
+
+  void placeSelected(int targetId) {
+    final tileId = _selectedTileId;
+    if (tileId == null) return;
+    drop(targetId: targetId, tileId: tileId);
+  }
 
   bool canDrop({required int targetId, required int tileId}) {
     if (_state != MissingLettersState.solving) return false;
@@ -57,6 +74,7 @@ class MissingLettersController extends ChangeNotifier {
     _deck = _words.shuffled(_random);
     _deckIndex = 0;
     _currentWord = null;
+    _selectedTileId = null;
     _generateExercise();
     notifyListeners();
   }
@@ -70,6 +88,7 @@ class MissingLettersController extends ChangeNotifier {
     final tile = _pool[tileIndex];
     _slots[slotIndex] = slot.fillWith(tile.id);
     _pool.removeAt(tileIndex);
+    _selectedTileId = null;
     if (_slots.every((item) => item.isFilled)) {
       _state = MissingLettersState.solved;
       _score++;
@@ -97,6 +116,7 @@ class MissingLettersController extends ChangeNotifier {
     final word = _deck[_deckIndex++];
     _currentWord = word;
     _state = MissingLettersState.solving;
+    _selectedTileId = null;
     final letters = word.word.characters.toList();
     final missingIndices = [
       for (var index = 0; index < letters.length; index++) index,

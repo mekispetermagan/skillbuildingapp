@@ -7,6 +7,7 @@ import 'conveyor_world.dart';
 import 'crossword_config.dart';
 import 'crossword_puzzle.dart';
 import 'crossword_state.dart';
+import 'feature_load_error.dart';
 import 'image_word.dart';
 import 'layered_person_outfit.dart';
 import 'letter_catching_world.dart';
@@ -37,14 +38,14 @@ import 'spelling_quiz_state.dart';
 
 class PhraseBuildingViewData {
   final bool isLoading;
-  final String? errorMessage;
+  final FeatureLoadError? loadError;
   final List<PhraseBuildingTile> sourcePool;
   final List<PhraseBuildingTile> targetPool;
   final PhraseBuildingState state;
 
   const PhraseBuildingViewData({
     required this.isLoading,
-    required this.errorMessage,
+    required this.loadError,
     required this.sourcePool,
     required this.targetPool,
     required this.state,
@@ -53,7 +54,7 @@ class PhraseBuildingViewData {
 
 class LetterDraggingViewData {
   final bool isLoading;
-  final String? errorMessage;
+  final FeatureLoadError? loadError;
   final List<LetterDraggingTile> tiles;
   final LetterDraggingState state;
   final int score;
@@ -61,7 +62,7 @@ class LetterDraggingViewData {
 
   const LetterDraggingViewData({
     required this.isLoading,
-    required this.errorMessage,
+    required this.loadError,
     required this.tiles,
     required this.state,
     required this.score,
@@ -71,32 +72,34 @@ class LetterDraggingViewData {
 
 class MissingLettersViewData {
   final bool isLoading;
-  final String? errorMessage;
+  final FeatureLoadError? loadError;
   final List<MissingLetterSlot> slots;
   final List<MissingLetterTile> pool;
   final MissingLettersState state;
   final int score;
+  final int? selectedTileId;
 
   const MissingLettersViewData({
     required this.isLoading,
-    required this.errorMessage,
+    required this.loadError,
     required this.slots,
     required this.pool,
     required this.state,
     required this.score,
+    required this.selectedTileId,
   });
 }
 
 class MemoryViewData {
   final bool isLoading;
-  final String? errorMessage;
+  final FeatureLoadError? loadError;
   final List<MemoryCardData> cards;
   final bool isComplete;
   final MemoryConfig config;
 
   const MemoryViewData({
     required this.isLoading,
-    required this.errorMessage,
+    required this.loadError,
     required this.cards,
     required this.isComplete,
     required this.config,
@@ -105,13 +108,13 @@ class MemoryViewData {
 
 class LetterShootingViewData {
   final bool isLoading;
-  final String? errorMessage;
+  final FeatureLoadError? loadError;
   final LetterShootingWorld? world;
   final LetterShootingState state;
 
   const LetterShootingViewData({
     required this.isLoading,
-    required this.errorMessage,
+    required this.loadError,
     required this.world,
     required this.state,
   });
@@ -119,13 +122,13 @@ class LetterShootingViewData {
 
 class LetterCatchingViewData {
   final bool isLoading;
-  final String? errorMessage;
+  final FeatureLoadError? loadError;
   final LetterCatchingWorld? world;
   final LetterCatchingState state;
 
   const LetterCatchingViewData({
     required this.isLoading,
-    required this.errorMessage,
+    required this.loadError,
     required this.world,
     required this.state,
   });
@@ -133,15 +136,17 @@ class LetterCatchingViewData {
 
 class ConveyorViewData {
   final bool isLoading;
-  final String? errorMessage;
+  final FeatureLoadError? loadError;
   final ConveyorWorld? world;
   final ConveyorState state;
+  final int? selectedLetterId;
 
   const ConveyorViewData({
     required this.isLoading,
-    required this.errorMessage,
+    required this.loadError,
     required this.world,
     required this.state,
+    required this.selectedLetterId,
   });
 }
 
@@ -195,7 +200,7 @@ class SentenceComposerViewData {
 
 class SpellingQuizViewData {
   final bool isLoading;
-  final String? errorMessage;
+  final FeatureLoadError? loadError;
   final SpellingQuizQuestion? question;
   final SpellingQuizState state;
   final int score;
@@ -205,7 +210,7 @@ class SpellingQuizViewData {
 
   const SpellingQuizViewData({
     required this.isLoading,
-    required this.errorMessage,
+    required this.loadError,
     required this.question,
     required this.state,
     required this.score,
@@ -217,7 +222,7 @@ class SpellingQuizViewData {
 
 class CrosswordViewData {
   final bool isLoading;
-  final String? errorMessage;
+  final FeatureLoadError? loadError;
   final CrosswordPuzzle? puzzle;
   final CrosswordConfig config;
   final CrosswordState state;
@@ -226,7 +231,7 @@ class CrosswordViewData {
 
   const CrosswordViewData({
     required this.isLoading,
-    required this.errorMessage,
+    required this.loadError,
     required this.puzzle,
     required this.config,
     required this.state,
@@ -237,7 +242,7 @@ class CrosswordViewData {
 
 class LetterPracticeViewData {
   final bool isLoading;
-  final String? errorMessage;
+  final FeatureLoadError? loadError;
   final ImageWord? currentWord;
   final List<LetterPracticeSlot> slots;
   final List<AlphabetLetter> sourceLetters;
@@ -252,7 +257,7 @@ class LetterPracticeViewData {
 
   const LetterPracticeViewData({
     required this.isLoading,
-    required this.errorMessage,
+    required this.loadError,
     required this.currentWord,
     required this.slots,
     required this.sourceLetters,
@@ -269,7 +274,7 @@ class LetterPracticeViewData {
 
 class LetterLearningViewData {
   final bool isLoading;
-  final String? errorMessage;
+  final FeatureLoadError? loadError;
   final AlphabetLetter? currentLetter;
   final AlphabetObject? currentObject;
   final List<LetterLearningSlot> slots;
@@ -282,10 +287,11 @@ class LetterLearningViewData {
   final LetterLearningConfig config;
   final bool canGuess;
   final bool isTargetRevealed;
+  final String? selectedLetter;
 
   const LetterLearningViewData({
     required this.isLoading,
-    required this.errorMessage,
+    required this.loadError,
     required this.currentLetter,
     required this.currentObject,
     required this.slots,
@@ -298,5 +304,6 @@ class LetterLearningViewData {
     required this.config,
     required this.canGuess,
     required this.isTargetRevealed,
+    required this.selectedLetter,
   });
 }

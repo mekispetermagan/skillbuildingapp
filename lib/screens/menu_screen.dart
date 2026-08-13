@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
+import '../models/activity_id.dart';
 import '../widgets/menu_button.dart';
 
 class MenuScreen extends StatelessWidget {
-  final List<(String, VoidCallback)> menuItems;
+  final List<(ActivityId, VoidCallback)> menuItems;
 
   const MenuScreen({required this.menuItems, super.key});
 
@@ -17,8 +19,11 @@ class MenuScreen extends StatelessWidget {
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
           children: [
-            for (final (text, onPressed) in menuItems)
-              MenuButton(text: text, onPressed: onPressed),
+            for (final (activity, onPressed) in menuItems)
+              MenuButton(
+                text: activity.label(context.l10n),
+                onPressed: onPressed,
+              ),
           ],
         ),
       ),

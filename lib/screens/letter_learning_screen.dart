@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 import '../models/alphabet_letter.dart';
 import '../models/letter_learning_state.dart';
@@ -17,6 +18,8 @@ class LetterLearningScreen extends StatelessWidget {
   final ValueChanged<Set<AlphabetDifficulty>> onSetDifficulties;
   final ValueChanged<LetterLearningMode> onSetMode;
   final ValueChanged<String> onGuess;
+  final ValueChanged<String> onSelectLetter;
+  final VoidCallback onGuessSelected;
   final Future<void> Function() onPlayAudio;
 
   const LetterLearningScreen({
@@ -26,16 +29,21 @@ class LetterLearningScreen extends StatelessWidget {
     required this.onSetDifficulties,
     required this.onSetMode,
     required this.onGuess,
+    required this.onSelectLetter,
+    required this.onGuessSelected,
     required this.onPlayAudio,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: FeatureAppBar(title: 'Letter learning', onBack: onBack),
+    appBar: FeatureAppBar(
+      title: context.l10n.activityLetterLearning,
+      onBack: onBack,
+    ),
     body: FeatureLoadState(
       isLoading: viewData.isLoading,
-      errorMessage: viewData.errorMessage,
+      loadError: viewData.loadError,
       child: SafeArea(
         child: Stack(
           children: [
@@ -86,7 +94,8 @@ class LetterLearningScreen extends StatelessWidget {
                                         child: IconButton.filled(
                                           onPressed: onPlayAudio,
                                           icon: const Icon(Icons.volume_up),
-                                          tooltip: 'Play letter and word',
+                                          tooltip:
+                                              context.l10n.playLetterAndWord,
                                         ),
                                       ),
                                     ],
@@ -108,6 +117,8 @@ class LetterLearningScreen extends StatelessWidget {
                                       revealTarget: viewData.isTargetRevealed,
                                       isEnabled: viewData.canGuess,
                                       onGuess: onGuess,
+                                      selectedLetter: viewData.selectedLetter,
+                                      onGuessSelected: onGuessSelected,
                                     ),
                                 ],
                               ),
@@ -136,7 +147,10 @@ class LetterLearningScreen extends StatelessWidget {
                                           data: letter,
                                           size: viewData.config.sourceCellSize,
                                           isEnabled: viewData.canGuess,
-                                          onGuess: onGuess,
+                                          isSelected:
+                                              viewData.selectedLetter ==
+                                              letter.letter,
+                                          onSelect: onSelectLetter,
                                         ),
                                     ],
                                   ),
@@ -153,7 +167,7 @@ class LetterLearningScreen extends StatelessWidget {
             if (viewData.state == LetterLearningState.won)
               Positioned.fill(
                 child: GameEndOverlay(
-                  message: 'Congratulations!',
+                  message: context.l10n.congratulations,
                   onRestart: onRestart,
                 ),
               ),
@@ -189,7 +203,7 @@ class _Controls extends StatelessWidget {
           for (final difficulty in AlphabetDifficulty.values)
             ButtonSegment(
               value: difficulty,
-              label: Text(_difficultyLabel(difficulty)),
+              label: Text(_difficultyLabel(context.l10n, difficulty)),
             ),
         ],
         selected: difficulties,
@@ -199,14 +213,14 @@ class _Controls extends StatelessWidget {
         onSelectionChanged: onSetDifficulties,
       ),
       SegmentedButton<LetterLearningMode>(
-        segments: const [
+        segments: [
           ButtonSegment(
             value: LetterLearningMode.masked,
-            label: Text('Masked'),
+            label: Text(context.l10n.masked),
           ),
           ButtonSegment(
             value: LetterLearningMode.unmasked,
-            label: Text('Unmasked'),
+            label: Text(context.l10n.unmasked),
           ),
         ],
         selected: {mode},
@@ -217,8 +231,9 @@ class _Controls extends StatelessWidget {
   );
 }
 
-String _difficultyLabel(AlphabetDifficulty difficulty) => switch (difficulty) {
-  AlphabetDifficulty.beginner => 'Beginner',
-  AlphabetDifficulty.intermediate => 'Intermediate',
-  AlphabetDifficulty.advanced => 'Advanced',
-};
+String _difficultyLabel(AppLocalizations l10n, AlphabetDifficulty difficulty) =>
+    switch (difficulty) {
+      AlphabetDifficulty.beginner => l10n.difficultyBeginner,
+      AlphabetDifficulty.intermediate => l10n.difficultyIntermediate,
+      AlphabetDifficulty.advanced => l10n.difficultyAdvanced,
+    };

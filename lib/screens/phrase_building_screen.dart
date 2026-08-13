@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 import '../models/phrase_building_tile.dart';
 import '../models/view_data.dart';
@@ -25,16 +26,19 @@ class PhraseBuildingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: FeatureAppBar(title: 'Phrase building', onBack: onBack),
+      appBar: FeatureAppBar(
+        title: context.l10n.activityPhraseBuilding,
+        onBack: onBack,
+      ),
       body: FeatureLoadState(
         isLoading: viewData.isLoading,
-        errorMessage: viewData.errorMessage,
-        child: _buildExercise(),
+        loadError: viewData.loadError,
+        child: _buildExercise(context),
       ),
     );
   }
 
-  Widget _buildExercise() {
+  Widget _buildExercise(BuildContext context) {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -85,9 +89,12 @@ class PhraseBuildingScreen extends StatelessWidget {
                   onPressed: onPlayAudio,
                   icon: const Icon(Icons.volume_up),
                   iconSize: 36,
-                  tooltip: 'Play sentence',
+                  tooltip: context.l10n.playSentence,
                 ),
-                FilledButton(onPressed: onSubmit, child: const Text('Check')),
+                FilledButton(
+                  onPressed: onSubmit,
+                  child: Text(context.l10n.check),
+                ),
               ],
             ),
           ],

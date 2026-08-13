@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 import '../models/answer_feedback.dart';
 import '../models/spelling_quiz_state.dart';
@@ -28,10 +29,13 @@ class SpellingQuizScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: FeatureAppBar(title: 'Spelling quiz', onBack: onBack),
+    appBar: FeatureAppBar(
+      title: context.l10n.activitySpellingQuiz,
+      onBack: onBack,
+    ),
     body: FeatureLoadState(
       isLoading: viewData.isLoading,
-      errorMessage: viewData.errorMessage,
+      loadError: viewData.loadError,
       child: SafeArea(
         child: Stack(
           children: [
@@ -57,7 +61,7 @@ class SpellingQuizScreen extends StatelessWidget {
                               onPressed: onPlayAudio,
                               icon: const Icon(Icons.volume_up),
                               iconSize: 32,
-                              tooltip: 'Play word',
+                              tooltip: context.l10n.playWord,
                             ),
                           ),
                         ],
@@ -89,7 +93,7 @@ class SpellingQuizScreen extends StatelessWidget {
             if (viewData.state == SpellingQuizState.won)
               Positioned.fill(
                 child: GameEndOverlay(
-                  message: 'Congratulations!',
+                  message: context.l10n.congratulations,
                   onRestart: onRestart,
                 ),
               ),
