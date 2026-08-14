@@ -40,6 +40,8 @@ void main() {
             state: MissingLettersState.solving,
             score: 0,
             selectedTileId: null,
+            imagePath: 'assets/images/ugandan_animals/gorilla.png',
+            showImages: true,
           ),
           onBack: () {},
           onNext: null,
@@ -47,6 +49,7 @@ void main() {
           onDrop: ({required targetId, required tileId}) {},
           onSelectTile: (_) {},
           onPlaceSelected: (_) {},
+          onShowImagesChanged: (_) {},
         ),
       ),
     );

@@ -33,6 +33,8 @@
   "difficultyAdvanced": "Haladó",
   "colorsOn": "Színek be",
   "colorsOff": "Színek ki",
+  "imagesOn": "Képek be",
+  "imagesOff": "Képek ki",
   "masked": "Takarva",
   "unmasked": "Felfedve",
   "letterDraggingResult": "Szép volt!\n{score} drágakövet gyűjtöttél.",

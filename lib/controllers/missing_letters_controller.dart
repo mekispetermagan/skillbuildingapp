@@ -21,6 +21,7 @@ class MissingLettersController extends ChangeNotifier {
   List<MissingLettersWord> _deck = [];
   int _deckIndex = 0;
   int _score = 0;
+  bool _showImages = true;
   MissingLettersWord? _currentWord;
   MissingLettersState _state = MissingLettersState.solving;
   int? _selectedTileId;
@@ -40,6 +41,8 @@ class MissingLettersController extends ChangeNotifier {
   List<MissingLetterTile> get pool => List.unmodifiable(_pool);
   MissingLettersState get state => _state;
   int get score => _score;
+  String? get imagePath => _currentWord?.imagePath;
+  bool get showImages => _showImages;
   bool get canContinue => _state == MissingLettersState.solved;
   int? get selectedTileId => _selectedTileId;
 
@@ -71,11 +74,18 @@ class MissingLettersController extends ChangeNotifier {
 
   void start() {
     _score = 0;
+    _showImages = true;
     _deck = _words.shuffled(_random);
     _deckIndex = 0;
     _currentWord = null;
     _selectedTileId = null;
     _generateExercise();
+    notifyListeners();
+  }
+
+  void setShowImages(bool value) {
+    if (_showImages == value) return;
+    _showImages = value;
     notifyListeners();
   }
 

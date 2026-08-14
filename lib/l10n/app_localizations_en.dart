@@ -113,6 +113,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get colorsOff => 'Colors off';
 
   @override
+  String get imagesOn => 'Images on';
+
+  @override
+  String get imagesOff => 'Images off';
+
+  @override
   String get masked => 'Masked';
 
   @override

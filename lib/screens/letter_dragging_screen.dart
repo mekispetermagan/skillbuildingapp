@@ -7,6 +7,7 @@ import '../widgets/feature_app_bar.dart';
 import '../widgets/feature_load_state.dart';
 import '../widgets/letter_dragging_card.dart';
 import '../widgets/letter_dragging_countdown.dart';
+import '../widgets/image_visibility_segments.dart';
 import '../widgets/reward_gem_row.dart';
 
 class LetterDraggingScreen extends StatelessWidget {
@@ -14,12 +15,14 @@ class LetterDraggingScreen extends StatelessWidget {
   final VoidCallback onBack;
   final void Function(int, int)? onReorder;
   final VoidCallback? onPass;
+  final ValueChanged<bool> onShowImagesChanged;
 
   const LetterDraggingScreen({
     required this.viewData,
     required this.onBack,
     required this.onReorder,
     required this.onPass,
+    required this.onShowImagesChanged,
     super.key,
   });
 
@@ -43,6 +46,7 @@ class LetterDraggingScreen extends StatelessWidget {
 
   Widget _buildExercise(BuildContext context, CountdownStatus countdown) {
     final reorder = onReorder;
+    final imagePath = viewData.imagePath;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -54,6 +58,20 @@ class LetterDraggingScreen extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 22),
             ),
+            const SizedBox(height: 16),
+            ImageVisibilitySegments(
+              showImages: viewData.showImages,
+              onChanged: onShowImagesChanged,
+            ),
+            if (viewData.showImages && imagePath != null) ...[
+              const SizedBox(height: 12),
+              Image.asset(
+                imagePath,
+                width: 90,
+                height: 90,
+                fit: BoxFit.contain,
+              ),
+            ],
             const SizedBox(height: 24),
             SizedBox(
               height: 60,

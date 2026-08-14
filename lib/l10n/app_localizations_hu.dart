@@ -112,6 +112,12 @@ class AppLocalizationsHu extends AppLocalizations {
   String get colorsOff => 'Színek ki';
 
   @override
+  String get imagesOn => 'Képek be';
+
+  @override
+  String get imagesOff => 'Képek ki';
+
+  @override
   String get masked => 'Takarva';
 
   @override

@@ -168,6 +168,8 @@ class SessionController extends ChangeNotifier {
     state: _letterDraggingController?.state ?? LetterDraggingState.playing,
     score: _letterDraggingController?.score ?? 0,
     countdown: _letterDraggingController?.countdown.status,
+    imagePath: _letterDraggingController?.imagePath,
+    showImages: _letterDraggingController?.showImages ?? true,
   );
 
   void Function(int, int)? get letterDraggingReorder {
@@ -181,6 +183,9 @@ class SessionController extends ChangeNotifier {
     final controller = _letterDraggingController;
     return controller != null && controller.canPass ? controller.pass : null;
   }
+
+  void letterDraggingSetShowImages(bool value) =>
+      _letterDraggingController?.setShowImages(value);
 
   void openLetterDragging() {
     _letterDraggingController?.start();
@@ -498,7 +503,11 @@ class SessionController extends ChangeNotifier {
     state: _missingLettersController?.state ?? MissingLettersState.solving,
     score: _missingLettersController?.score ?? 0,
     selectedTileId: _missingLettersController?.selectedTileId,
+    imagePath: _missingLettersController?.imagePath,
+    showImages: _missingLettersController?.showImages ?? true,
   );
+  void missingLettersSetShowImages(bool value) =>
+      _missingLettersController?.setShowImages(value);
   VoidCallback? get missingLettersNext =>
       _missingLettersController?.canContinue == true
       ? _missingLettersController!.next
@@ -595,7 +604,7 @@ class SessionController extends ChangeNotifier {
   Future<void> _initializeLetterDragging() async {
     try {
       final encoded = await _assetBundle.loadString(
-        'assets/data/animal_words.json',
+        'assets/data/animal_image_words.json',
       );
       final data = jsonDecode(encoded) as List<dynamic>;
       final words = [
@@ -621,7 +630,7 @@ class SessionController extends ChangeNotifier {
   Future<void> _initializeMissingLetters() async {
     try {
       final encoded = await _assetBundle.loadString(
-        'assets/data/animal_words.json',
+        'assets/data/animal_image_words.json',
       );
       final data = jsonDecode(encoded) as List<dynamic>;
       final words = [

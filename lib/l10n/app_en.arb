@@ -33,6 +33,8 @@
   "difficultyAdvanced": "Advanced",
   "colorsOn": "Colors on",
   "colorsOff": "Colors off",
+  "imagesOn": "Images on",
+  "imagesOff": "Images off",
   "masked": "Masked",
   "unmasked": "Unmasked",
   "letterDraggingResult": "Great work!\nYou collected {score} gems.",

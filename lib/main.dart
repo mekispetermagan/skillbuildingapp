@@ -104,6 +104,8 @@ class AppRootState extends State<AppRoot> {
                   onBack: _sessionController.openMenu,
                   onReorder: _sessionController.letterDraggingReorder,
                   onPass: _sessionController.letterDraggingPass,
+                  onShowImagesChanged:
+                      _sessionController.letterDraggingSetShowImages,
                 ),
         SessionStatus.missingLetters => MissingLettersScreen(
           viewData: _sessionController.missingLettersViewData,
@@ -113,6 +115,7 @@ class AppRootState extends State<AppRoot> {
           onDrop: _sessionController.missingLettersDrop,
           onSelectTile: _sessionController.missingLettersSelectTile,
           onPlaceSelected: _sessionController.missingLettersPlaceSelected,
+          onShowImagesChanged: _sessionController.missingLettersSetShowImages,
         ),
         SessionStatus.letterShooting => LetterShootingScreen(
           viewData: _sessionController.letterShootingViewData,

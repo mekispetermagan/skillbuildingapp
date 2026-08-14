@@ -6,6 +6,7 @@ import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/feature_load_state.dart';
 import '../widgets/missing_letter_card.dart';
+import '../widgets/image_visibility_segments.dart';
 import '../widgets/reward_gem_row.dart';
 
 class MissingLettersScreen extends StatelessWidget {
@@ -16,6 +17,7 @@ class MissingLettersScreen extends StatelessWidget {
   final void Function({required int targetId, required int tileId}) onDrop;
   final ValueChanged<int> onSelectTile;
   final ValueChanged<int> onPlaceSelected;
+  final ValueChanged<bool> onShowImagesChanged;
 
   const MissingLettersScreen({
     required this.viewData,
@@ -25,6 +27,7 @@ class MissingLettersScreen extends StatelessWidget {
     required this.onDrop,
     required this.onSelectTile,
     required this.onPlaceSelected,
+    required this.onShowImagesChanged,
     super.key,
   });
 
@@ -45,6 +48,7 @@ class MissingLettersScreen extends StatelessWidget {
 
   Widget _buildExercise(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final imagePath = viewData.imagePath;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -57,6 +61,17 @@ class MissingLettersScreen extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 22),
             ),
+            ImageVisibilitySegments(
+              showImages: viewData.showImages,
+              onChanged: onShowImagesChanged,
+            ),
+            if (viewData.showImages && imagePath != null)
+              Image.asset(
+                imagePath,
+                width: 90,
+                height: 90,
+                fit: BoxFit.contain,
+              ),
             Wrap(
               alignment: WrapAlignment.center,
               children: [

@@ -22,9 +22,6 @@ class _SentenceAssetBundle extends CachingAssetBundle {
 
   @override
   Future<String> loadString(String key, {bool cache = true}) async {
-    if (key == 'assets/data/animal_words.json') {
-      return '[{"id": 1, "word": "zebra"}]';
-    }
     if (key == 'assets/data/animal_image_words.json') {
       return '''
         [

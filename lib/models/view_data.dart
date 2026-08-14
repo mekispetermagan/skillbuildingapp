@@ -59,6 +59,8 @@ class LetterDraggingViewData {
   final LetterDraggingState state;
   final int score;
   final CountdownStatus? countdown;
+  final String? imagePath;
+  final bool showImages;
 
   const LetterDraggingViewData({
     required this.isLoading,
@@ -67,6 +69,8 @@ class LetterDraggingViewData {
     required this.state,
     required this.score,
     required this.countdown,
+    required this.imagePath,
+    required this.showImages,
   });
 }
 
@@ -78,6 +82,8 @@ class MissingLettersViewData {
   final MissingLettersState state;
   final int score;
   final int? selectedTileId;
+  final String? imagePath;
+  final bool showImages;
 
   const MissingLettersViewData({
     required this.isLoading,
@@ -87,6 +93,8 @@ class MissingLettersViewData {
     required this.state,
     required this.score,
     required this.selectedTileId,
+    required this.imagePath,
+    required this.showImages,
   });
 }
 

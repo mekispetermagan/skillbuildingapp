@@ -7,7 +7,7 @@ import 'package:literacy_game/models/missing_letters_word.dart';
 
 MissingLettersController _controller({
   List<MissingLettersWord> words = const [
-    MissingLettersWord(id: 1, word: 'GORILLA'),
+    MissingLettersWord(id: 1, word: 'GORILLA', imagePath: 'gorilla.png'),
   ],
 }) => MissingLettersController(words: words, random: Random(7));
 
@@ -51,6 +51,23 @@ void main() {
     );
     expect(controller.pool, originalPool);
     expect(controller.state, MissingLettersState.solving);
+    controller.dispose();
+  });
+
+  test('image visibility changes immediately and resets with the session', () {
+    final controller = _controller();
+    final slots = controller.slots;
+
+    expect(controller.showImages, isTrue);
+    expect(controller.imagePath, 'gorilla.png');
+
+    controller.setShowImages(false);
+
+    expect(controller.showImages, isFalse);
+    expect(controller.slots, slots);
+
+    controller.start();
+    expect(controller.showImages, isTrue);
     controller.dispose();
   });
 
@@ -126,9 +143,9 @@ void main() {
   test('uses every word before starting the next deck', () {
     final controller = _controller(
       words: const [
-        MissingLettersWord(id: 1, word: 'LION'),
-        MissingLettersWord(id: 2, word: 'ZEBRA'),
-        MissingLettersWord(id: 3, word: 'CRANE'),
+        MissingLettersWord(id: 1, word: 'LION', imagePath: 'lion.png'),
+        MissingLettersWord(id: 2, word: 'ZEBRA', imagePath: 'zebra.png'),
+        MissingLettersWord(id: 3, word: 'CRANE', imagePath: 'crane.png'),
       ],
     );
     final seen = <String>{};

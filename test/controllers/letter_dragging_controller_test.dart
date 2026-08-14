@@ -21,7 +21,7 @@ class _FakeAudioPlayer implements AssetAudioPlayer {
 
 LetterDraggingController _controller({
   List<LetterDraggingWord> words = const [
-    LetterDraggingWord(id: 1, word: 'ZEBRA'),
+    LetterDraggingWord(id: 1, word: 'ZEBRA', imagePath: 'zebra.png'),
   ],
   _FakeAudioPlayer? audioPlayer,
   Duration successFeedbackDuration = Duration.zero,
@@ -87,12 +87,29 @@ void main() {
     controller.dispose();
   });
 
+  test('image visibility changes immediately and resets with the session', () {
+    final controller = _controller()..start();
+    final tiles = controller.tiles;
+
+    expect(controller.showImages, isTrue);
+    expect(controller.imagePath, 'zebra.png');
+
+    controller.setShowImages(false);
+
+    expect(controller.showImages, isFalse);
+    expect(controller.tiles, tiles);
+
+    controller.start();
+    expect(controller.showImages, isTrue);
+    controller.dispose();
+  });
+
   test('uses every word before starting another shuffled deck', () {
     final controller = _controller(
       words: const [
-        LetterDraggingWord(id: 1, word: 'LION'),
-        LetterDraggingWord(id: 2, word: 'ZEBRA'),
-        LetterDraggingWord(id: 3, word: 'CRANE'),
+        LetterDraggingWord(id: 1, word: 'LION', imagePath: 'lion.png'),
+        LetterDraggingWord(id: 2, word: 'ZEBRA', imagePath: 'zebra.png'),
+        LetterDraggingWord(id: 3, word: 'CRANE', imagePath: 'crane.png'),
       ],
     )..start();
     final seen = <String>{};
@@ -108,7 +125,9 @@ void main() {
 
   test('keeps repeated letters as distinct draggable tiles', () {
     final controller = _controller(
-      words: const [LetterDraggingWord(id: 1, word: 'BALLOON')],
+      words: const [
+        LetterDraggingWord(id: 1, word: 'BALLOON', imagePath: 'balloon.png'),
+      ],
     )..start();
 
     expect(controller.tiles.map((tile) => tile.id).toSet(), hasLength(7));

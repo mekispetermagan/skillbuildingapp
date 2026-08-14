@@ -302,6 +302,18 @@ abstract class AppLocalizations {
   /// **'Colors off'**
   String get colorsOff;
 
+  /// No description provided for @imagesOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Images on'**
+  String get imagesOn;
+
+  /// No description provided for @imagesOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Images off'**
+  String get imagesOff;
+
   /// No description provided for @masked.
   ///
   /// In en, this message translates to:
