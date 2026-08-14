@@ -144,6 +144,15 @@ class SessionController extends ChangeNotifier {
     return controller != null && controller.canMove ? controller.move : null;
   }
 
+  bool phraseBuildingCanMoveToTarget(PhraseBuildingTile tile) =>
+      _phraseBuildingController?.canMoveToTarget(tile) ?? false;
+  bool phraseBuildingCanMoveToSource(PhraseBuildingTile tile) =>
+      _phraseBuildingController?.canMoveToSource(tile) ?? false;
+  void phraseBuildingMoveToTarget(PhraseBuildingTile tile) =>
+      _phraseBuildingController?.moveToTarget(tile);
+  void phraseBuildingMoveToSource(PhraseBuildingTile tile) =>
+      _phraseBuildingController?.moveToSource(tile);
+
   Future<void> Function()? get phraseBuildingSubmit {
     final controller = _phraseBuildingController;
     return controller != null && controller.canSubmit

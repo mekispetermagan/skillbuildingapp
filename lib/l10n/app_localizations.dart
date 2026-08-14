@@ -121,7 +121,7 @@ abstract class AppLocalizations {
   /// No description provided for @activityPhraseBuilding.
   ///
   /// In en, this message translates to:
-  /// **'Phrase building'**
+  /// **'Sentence building'**
   String get activityPhraseBuilding;
 
   /// No description provided for @activityLetterDragging.

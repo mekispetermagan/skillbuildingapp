@@ -18,7 +18,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activityLetterPractice => 'Letter practice';
 
   @override
-  String get activityPhraseBuilding => 'Phrase building';
+  String get activityPhraseBuilding => 'Sentence building';
 
   @override
   String get activityLetterDragging => 'Letter dragging';

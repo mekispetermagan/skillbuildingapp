@@ -12,7 +12,7 @@ void main() {
     await tester.tap(find.text('English'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Phrase building'), findsOneWidget);
+    expect(find.text('Sentence building'), findsOneWidget);
     expect(find.text('Letter dragging'), findsOneWidget);
 
     await tester.tap(find.text('Letter dragging'));
@@ -34,6 +34,6 @@ void main() {
 
     expect(find.text('Mondatkirakó'), findsOneWidget);
     expect(find.text('Betűrendező'), findsOneWidget);
-    expect(find.text('Phrase building'), findsNothing);
+    expect(find.text('Sentence building'), findsNothing);
   });
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 
 import '../models/phrase_building_tile.dart';
+import '../models/phrase_building_state.dart';
 import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/feature_load_state.dart';
@@ -11,6 +12,10 @@ class PhraseBuildingScreen extends StatelessWidget {
   final PhraseBuildingViewData viewData;
   final VoidCallback onBack;
   final void Function(PhraseBuildingTile)? onMove;
+  final bool Function(PhraseBuildingTile) canMoveToTarget;
+  final bool Function(PhraseBuildingTile) canMoveToSource;
+  final ValueChanged<PhraseBuildingTile> onMoveToTarget;
+  final ValueChanged<PhraseBuildingTile> onMoveToSource;
   final Future<void> Function()? onSubmit;
   final Future<void> Function() onPlayAudio;
 
@@ -18,6 +23,10 @@ class PhraseBuildingScreen extends StatelessWidget {
     required this.viewData,
     required this.onBack,
     required this.onMove,
+    required this.canMoveToTarget,
+    required this.canMoveToSource,
+    required this.onMoveToTarget,
+    required this.onMoveToSource,
     required this.onSubmit,
     required this.onPlayAudio,
     super.key,
@@ -46,40 +55,26 @@ class PhraseBuildingScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: Align(
+              child: _PhrasePoolTarget(
                 alignment: Alignment.bottomLeft,
-                child: Wrap(
-                  spacing: 4,
-                  runSpacing: 4,
-                  children: [
-                    for (final tile in viewData.targetPool)
-                      PhraseBuildingCard(
-                        key: ValueKey('target-${tile.id}'),
-                        tile: tile,
-                        state: viewData.state,
-                        onMove: onMove,
-                      ),
-                  ],
-                ),
+                tiles: viewData.targetPool,
+                state: viewData.state,
+                onMove: onMove,
+                canAccept: canMoveToTarget,
+                onAccept: onMoveToTarget,
+                keyPrefix: 'target',
               ),
             ),
             const Divider(height: 32),
             Expanded(
-              child: Align(
+              child: _PhrasePoolTarget(
                 alignment: Alignment.topLeft,
-                child: Wrap(
-                  spacing: 4,
-                  runSpacing: 4,
-                  children: [
-                    for (final tile in viewData.sourcePool)
-                      PhraseBuildingCard(
-                        key: ValueKey('source-${tile.id}'),
-                        tile: tile,
-                        state: viewData.state,
-                        onMove: onMove,
-                      ),
-                  ],
-                ),
+                tiles: viewData.sourcePool,
+                state: viewData.state,
+                onMove: onMove,
+                canAccept: canMoveToSource,
+                onAccept: onMoveToSource,
+                keyPrefix: 'source',
               ),
             ),
             Row(
@@ -102,4 +97,53 @@ class PhraseBuildingScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class _PhrasePoolTarget extends StatelessWidget {
+  final Alignment alignment;
+  final List<PhraseBuildingTile> tiles;
+  final PhraseBuildingState state;
+  final void Function(PhraseBuildingTile)? onMove;
+  final bool Function(PhraseBuildingTile) canAccept;
+  final ValueChanged<PhraseBuildingTile> onAccept;
+  final String keyPrefix;
+
+  const _PhrasePoolTarget({
+    required this.alignment,
+    required this.tiles,
+    required this.state,
+    required this.onMove,
+    required this.canAccept,
+    required this.onAccept,
+    required this.keyPrefix,
+  });
+
+  @override
+  Widget build(BuildContext context) => DragTarget<PhraseBuildingTile>(
+    onWillAcceptWithDetails: (details) => canAccept(details.data),
+    onAcceptWithDetails: (details) => onAccept(details.data),
+    builder: (context, candidates, _) => AnimatedContainer(
+      duration: const Duration(milliseconds: 150),
+      decoration: BoxDecoration(
+        color: candidates.isEmpty
+            ? null
+            : Theme.of(context).colorScheme.primaryContainer.withAlpha(80),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      alignment: alignment,
+      child: Wrap(
+        spacing: 4,
+        runSpacing: 4,
+        children: [
+          for (final tile in tiles)
+            PhraseBuildingCard(
+              key: ValueKey('$keyPrefix-${tile.id}'),
+              tile: tile,
+              state: state,
+              onMove: onMove,
+            ),
+        ],
+      ),
+    ),
+  );
 }

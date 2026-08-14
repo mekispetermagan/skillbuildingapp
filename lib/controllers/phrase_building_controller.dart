@@ -52,15 +52,31 @@ class PhraseBuildingController extends ChangeNotifier {
   void move(PhraseBuildingTile tile) {
     if (!canMove) return;
 
-    if (_sourcePool.remove(tile)) {
-      _targetPool.add(tile);
-      notifyListeners();
-      return;
+    if (_sourcePool.contains(tile)) {
+      moveToTarget(tile);
+    } else {
+      moveToSource(tile);
     }
-    if (_targetPool.remove(tile)) {
-      _sourcePool.add(tile);
-      notifyListeners();
-    }
+  }
+
+  bool canMoveToTarget(PhraseBuildingTile tile) =>
+      canMove && _sourcePool.contains(tile);
+
+  bool canMoveToSource(PhraseBuildingTile tile) =>
+      canMove && _targetPool.contains(tile);
+
+  void moveToTarget(PhraseBuildingTile tile) {
+    if (!canMoveToTarget(tile)) return;
+    _sourcePool.remove(tile);
+    _targetPool.add(tile);
+    notifyListeners();
+  }
+
+  void moveToSource(PhraseBuildingTile tile) {
+    if (!canMoveToSource(tile)) return;
+    _targetPool.remove(tile);
+    _sourcePool.add(tile);
+    notifyListeners();
   }
 
   Future<void> submit() async {

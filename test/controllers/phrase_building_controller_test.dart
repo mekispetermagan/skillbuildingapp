@@ -19,6 +19,34 @@ class _FakeAudioPlayer implements AssetAudioPlayer {
 }
 
 void main() {
+  test('directional moves append to the other pool only', () {
+    final controller = PhraseBuildingController(
+      _FakeAudioPlayer(),
+      sentences: const [
+        Sentence(id: 1, text: 'red bird', audioPath: 'first.mp3'),
+      ],
+      random: Random(1),
+    );
+    final red = controller.sourcePool.singleWhere((tile) => tile.word == 'red');
+
+    expect(controller.canMoveToTarget(red), isTrue);
+    expect(controller.canMoveToSource(red), isFalse);
+    controller.moveToSource(red);
+    expect(controller.sourcePool, contains(red));
+
+    controller.moveToTarget(red);
+    expect(controller.targetPool, [red]);
+    expect(controller.canMoveToTarget(red), isFalse);
+    expect(controller.canMoveToSource(red), isTrue);
+
+    controller.moveToTarget(red);
+    expect(controller.targetPool, [red]);
+    controller.moveToSource(red);
+    expect(controller.targetPool, isEmpty);
+    expect(controller.sourcePool.last, red);
+    controller.dispose();
+  });
+
   test(
     'moves words between pools and advances after a correct sentence',
     () async {

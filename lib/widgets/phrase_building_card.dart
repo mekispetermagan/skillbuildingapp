@@ -30,7 +30,7 @@ class PhraseBuildingCard extends StatelessWidget {
       ),
     };
 
-    return Card(
+    final card = Card(
       color: colorScheme.secondaryContainer,
       child: InkWell(
         onTap: onMove == null ? null : () => onMove!(tile),
@@ -45,6 +45,13 @@ class PhraseBuildingCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+    if (onMove == null) return card;
+    return Draggable<PhraseBuildingTile>(
+      data: tile,
+      feedback: Material(color: Colors.transparent, child: card),
+      childWhenDragging: Opacity(opacity: 0.3, child: card),
+      child: card,
     );
   }
 }

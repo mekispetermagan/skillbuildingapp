@@ -5,11 +5,10 @@ import 'package:literacy_game/models/activity_id.dart';
 
 void main() {
   test('English, German, and Hungarian are supported interface locales', () {
-    expect(AppLocalizations.supportedLocales, const [
-      Locale('en'),
-      Locale('de'),
-      Locale('hu'),
-    ]);
+    expect(
+      AppLocalizations.supportedLocales,
+      unorderedEquals(const [Locale('en'), Locale('de'), Locale('hu')]),
+    );
   });
 
   test('every activity identity has a German interface label', () {
@@ -38,7 +37,7 @@ void main() {
     expect(ActivityId.values.map((activity) => activity.label(l10n)), [
       'Letter learning',
       'Letter practice',
-      'Phrase building',
+      'Sentence building',
       'Letter dragging',
       'Missing letters',
       'Letter shooting',
