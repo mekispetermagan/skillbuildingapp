@@ -4,10 +4,31 @@ import 'package:literacy_game/l10n/l10n.dart';
 import 'package:literacy_game/models/activity_id.dart';
 
 void main() {
-  test('English and Hungarian are supported interface locales', () {
+  test('English, German, and Hungarian are supported interface locales', () {
     expect(AppLocalizations.supportedLocales, const [
       Locale('en'),
+      Locale('de'),
       Locale('hu'),
+    ]);
+  });
+
+  test('every activity identity has a German interface label', () {
+    final l10n = lookupAppLocalizations(const Locale('de'));
+
+    expect(ActivityId.values.map((activity) => activity.label(l10n)), [
+      'Buchstaben lernen',
+      'Buchstaben üben',
+      'Sätze bauen',
+      'Buchstaben ordnen',
+      'Fehlende Buchstaben',
+      'Buchstaben schießen',
+      'Memorykarten',
+      'Buchstaben fangen',
+      'Wortförderband',
+      'Satzquiz',
+      'Satz zusammenstellen',
+      'Rechtschreibquiz',
+      'Kreuzworträtsel',
     ]);
   });
 

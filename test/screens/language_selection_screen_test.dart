@@ -15,7 +15,16 @@ void main() {
     );
 
     expect(find.text('English'), findsOneWidget);
+    expect(find.text('Deutsch'), findsOneWidget);
     expect(find.text('Magyar'), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('English')).dy,
+      lessThan(tester.getTopLeft(find.text('Deutsch')).dy),
+    );
+    expect(
+      tester.getTopLeft(find.text('Deutsch')).dy,
+      lessThan(tester.getTopLeft(find.text('Magyar')).dy),
+    );
 
     await tester.tap(find.text('Magyar'));
     expect(selected, InterfaceLanguage.hungarian);
