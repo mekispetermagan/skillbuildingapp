@@ -508,10 +508,6 @@ class SessionController extends ChangeNotifier {
   );
   void missingLettersSetShowImages(bool value) =>
       _missingLettersController?.setShowImages(value);
-  VoidCallback? get missingLettersNext =>
-      _missingLettersController?.canContinue == true
-      ? _missingLettersController!.next
-      : null;
 
   bool missingLettersCanDrop({required int targetId, required int tileId}) =>
       _missingLettersController?.canDrop(targetId: targetId, tileId: tileId) ??

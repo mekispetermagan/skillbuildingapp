@@ -9,7 +9,12 @@ MissingLettersController _controller({
   List<MissingLettersWord> words = const [
     MissingLettersWord(id: 1, word: 'GORILLA', imagePath: 'gorilla.png'),
   ],
-}) => MissingLettersController(words: words, random: Random(7));
+  Duration completionFeedbackDuration = Duration.zero,
+}) => MissingLettersController(
+  words: words,
+  random: Random(7),
+  completionFeedbackDuration: completionFeedbackDuration,
+);
 
 void main() {
   test(
@@ -97,8 +102,9 @@ void main() {
     );
   });
 
-  test('consumes correct cards and enables Next after both drops', () {
+  test('shows completion feedback then advances automatically', () async {
     final controller = _controller();
+    final originalWord = controller.slots.map((slot) => slot.letter).join();
     final targets = controller.slots.where((slot) => slot.isMissing).toList();
 
     for (final target in targets) {
@@ -111,14 +117,37 @@ void main() {
 
     expect(controller.pool, hasLength(5));
     expect(controller.state, MissingLettersState.solved);
-    expect(controller.canContinue, isTrue);
     expect(controller.score, 1);
 
-    controller.next();
+    await Future<void>.delayed(Duration.zero);
+
     expect(controller.state, MissingLettersState.solving);
     expect(controller.score, 1);
     expect(controller.slots.where((slot) => slot.isMissing), hasLength(2));
     expect(controller.pool, hasLength(7));
+    expect(controller.slots.map((slot) => slot.letter).join(), originalWord);
+    controller.dispose();
+  });
+
+  test('restart cancels a pending automatic advance', () async {
+    final controller = _controller(
+      completionFeedbackDuration: const Duration(milliseconds: 10),
+    );
+    for (final target
+        in controller.slots.where((slot) => slot.isMissing).toList()) {
+      final tile = controller.pool.firstWhere(
+        (item) => item.letter == target.letter,
+      );
+      controller.drop(targetId: target.id, tileId: tile.id);
+    }
+
+    controller.start();
+    final restartedSlots = controller.slots;
+    await Future<void>.delayed(const Duration(milliseconds: 15));
+
+    expect(controller.score, 0);
+    expect(controller.state, MissingLettersState.solving);
+    expect(controller.slots, restartedSlots);
     controller.dispose();
   });
 
@@ -140,7 +169,7 @@ void main() {
     controller.dispose();
   });
 
-  test('uses every word before starting the next deck', () {
+  test('uses every word before starting the next deck', () async {
     final controller = _controller(
       words: const [
         MissingLettersWord(id: 1, word: 'LION', imagePath: 'lion.png'),
@@ -159,7 +188,7 @@ void main() {
         );
         controller.drop(targetId: target.id, tileId: tile.id);
       }
-      controller.next();
+      await Future<void>.delayed(Duration.zero);
     }
 
     expect(seen, {'LION', 'ZEBRA', 'CRANE'});

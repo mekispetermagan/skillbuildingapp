@@ -44,7 +44,6 @@ void main() {
             showImages: true,
           ),
           onBack: () {},
-          onNext: null,
           canDrop: ({required targetId, required tileId}) => false,
           onDrop: ({required targetId, required tileId}) {},
           onSelectTile: (_) {},
@@ -57,6 +56,6 @@ void main() {
     expect(find.text('Drag the missing letters into the word'), findsOneWidget);
     expect(find.text('?'), findsNWidgets(2));
     expect(find.byType(Draggable<MissingLetterTile>), findsNWidgets(7));
-    expect(find.text('Find both'), findsOneWidget);
+    expect(find.byType(FilledButton), findsNothing);
   });
 }

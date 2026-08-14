@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:characters/characters.dart';
@@ -15,6 +16,7 @@ class MissingLettersController extends ChangeNotifier {
 
   final List<MissingLettersWord> _words;
   final Random _random;
+  final Duration completionFeedbackDuration;
   final List<MissingLetterSlot> _slots = [];
   final List<MissingLetterTile> _pool = [];
 
@@ -25,10 +27,13 @@ class MissingLettersController extends ChangeNotifier {
   MissingLettersWord? _currentWord;
   MissingLettersState _state = MissingLettersState.solving;
   int? _selectedTileId;
+  int _sessionGeneration = 0;
+  bool _disposed = false;
 
   MissingLettersController({
     required List<MissingLettersWord> words,
     Random? random,
+    this.completionFeedbackDuration = const Duration(seconds: 1),
   }) : _words = List.unmodifiable(words),
        _random = random ?? Random() {
     if (_words.isEmpty) {
@@ -43,7 +48,6 @@ class MissingLettersController extends ChangeNotifier {
   int get score => _score;
   String? get imagePath => _currentWord?.imagePath;
   bool get showImages => _showImages;
-  bool get canContinue => _state == MissingLettersState.solved;
   int? get selectedTileId => _selectedTileId;
 
   void selectTile(int tileId) {
@@ -73,6 +77,7 @@ class MissingLettersController extends ChangeNotifier {
   }
 
   void start() {
+    _sessionGeneration++;
     _score = 0;
     _showImages = true;
     _deck = _words.shuffled(_random);
@@ -102,12 +107,17 @@ class MissingLettersController extends ChangeNotifier {
     if (_slots.every((item) => item.isFilled)) {
       _state = MissingLettersState.solved;
       _score++;
+      notifyListeners();
+      unawaited(_advanceAfterFeedback());
+      return;
     }
     notifyListeners();
   }
 
-  void next() {
-    if (!canContinue) return;
+  Future<void> _advanceAfterFeedback() async {
+    final generation = _sessionGeneration;
+    await Future<void>.delayed(completionFeedbackDuration);
+    if (_disposed || generation != _sessionGeneration) return;
     _generateExercise();
     notifyListeners();
   }
@@ -157,5 +167,11 @@ class MissingLettersController extends ChangeNotifier {
         for (final (index, letter) in poolLetters.indexed)
           MissingLetterTile(id: index, letter: letter),
       ]);
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
   }
 }

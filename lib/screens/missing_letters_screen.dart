@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 
-import '../models/missing_letters_state.dart';
 import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/feature_load_state.dart';
@@ -12,7 +11,6 @@ import '../widgets/reward_gem_row.dart';
 class MissingLettersScreen extends StatelessWidget {
   final MissingLettersViewData viewData;
   final VoidCallback onBack;
-  final VoidCallback? onNext;
   final bool Function({required int targetId, required int tileId}) canDrop;
   final void Function({required int targetId, required int tileId}) onDrop;
   final ValueChanged<int> onSelectTile;
@@ -22,7 +20,6 @@ class MissingLettersScreen extends StatelessWidget {
   const MissingLettersScreen({
     required this.viewData,
     required this.onBack,
-    required this.onNext,
     required this.canDrop,
     required this.onDrop,
     required this.onSelectTile,
@@ -108,17 +105,6 @@ class MissingLettersScreen extends StatelessWidget {
               ],
             ),
             RewardGemRow(count: viewData.score),
-            Align(
-              alignment: Alignment.centerRight,
-              child: FilledButton(
-                onPressed: onNext,
-                child: Text(
-                  viewData.state == MissingLettersState.solved
-                      ? context.l10n.next
-                      : context.l10n.findBoth,
-                ),
-              ),
-            ),
           ],
         ),
       ),

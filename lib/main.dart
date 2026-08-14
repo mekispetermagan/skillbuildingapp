@@ -110,7 +110,6 @@ class AppRootState extends State<AppRoot> {
         SessionStatus.missingLetters => MissingLettersScreen(
           viewData: _sessionController.missingLettersViewData,
           onBack: _sessionController.openMenu,
-          onNext: _sessionController.missingLettersNext,
           canDrop: _sessionController.missingLettersCanDrop,
           onDrop: _sessionController.missingLettersDrop,
           onSelectTile: _sessionController.missingLettersSelectTile,
