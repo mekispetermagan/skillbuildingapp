@@ -52,7 +52,10 @@ import 'sentence_quiz_controller.dart';
 import 'spelling_quiz_controller.dart';
 
 enum SessionStatus {
-  menu,
+  areaMenu,
+  literacyMenu,
+  mathMenu,
+  mathPlaceholder,
   letterLearning,
   letterPractice,
   phraseBuilding,
@@ -105,7 +108,8 @@ class SessionController extends ChangeNotifier {
   ActivityId? _ratingActivity;
   late final SentenceQuizController _sentenceQuizController;
   late final SentenceComposerController _sentenceComposerController;
-  SessionStatus status = SessionStatus.menu;
+  SessionStatus status = SessionStatus.areaMenu;
+  int? mathPlaceholderNumber;
 
   SessionController({
     AssetBundle? assetBundle,
@@ -153,12 +157,12 @@ class SessionController extends ChangeNotifier {
     _pendingRating = null;
     _ratingActivity = null;
     _activityStartedAt = null;
-    status = SessionStatus.menu;
+    status = SessionStatus.literacyMenu;
     notifyListeners();
     await _gameplayRecorder.recordCompleted(completion, rating);
   }
 
-  late final List<(ActivityId, VoidCallback)> menuItems = [
+  late final List<(ActivityId, VoidCallback)> literacyMenuItems = [
     (ActivityId.letterLearning, openLetterLearning),
     (ActivityId.letterPractice, openLetterPractice),
     (ActivityId.phraseBuilding, openPhraseBuilding),
@@ -172,6 +176,11 @@ class SessionController extends ChangeNotifier {
     (ActivityId.sentenceComposer, openSentenceComposer),
     (ActivityId.spellingQuiz, openSpellingQuiz),
     (ActivityId.crossword, openCrossword),
+  ];
+
+  late final List<(int, VoidCallback)> mathMenuItems = [
+    for (var number = 1; number <= 8; number++)
+      (number, () => openMathPlaceholder(number)),
   ];
 
   PhraseBuildingViewData get phraseBuildingViewData => PhraseBuildingViewData(
@@ -609,7 +618,25 @@ class SessionController extends ChangeNotifier {
         ComposerChoiceAssessment.wrong => AnswerFeedback.wrong,
       };
 
-  void openMenu() {
+  void openAreaMenu() {
+    mathPlaceholderNumber = null;
+    _open(SessionStatus.areaMenu);
+  }
+
+  void openMathMenu() {
+    mathPlaceholderNumber = null;
+    _open(SessionStatus.mathMenu);
+  }
+
+  void openMathPlaceholder(int number) {
+    if (number < 1 || number > 8) {
+      throw ArgumentError.value(number, 'number', 'Must be between 1 and 8');
+    }
+    mathPlaceholderNumber = number;
+    _open(SessionStatus.mathPlaceholder);
+  }
+
+  void openLiteracyMenu() {
     final currentStatus = status;
     if (_isActivity(currentStatus) && _activityStartedAt != null) {
       final abandoned = _buildCompletion(currentStatus, PlayOutcome.abandoned);
@@ -631,7 +658,22 @@ class SessionController extends ChangeNotifier {
     _crosswordController?.stop();
     _letterLearningController?.stop();
     _letterPracticeController?.stop();
-    _open(SessionStatus.menu);
+    _open(SessionStatus.literacyMenu);
+  }
+
+  void handleBack() {
+    switch (status) {
+      case SessionStatus.areaMenu:
+      case SessionStatus.rating:
+        return;
+      case SessionStatus.literacyMenu:
+      case SessionStatus.mathMenu:
+        openAreaMenu();
+      case SessionStatus.mathPlaceholder:
+        openMathMenu();
+      default:
+        openLiteracyMenu();
+    }
   }
 
   void _beginActivity(SessionStatus activity) {
@@ -641,8 +683,22 @@ class SessionController extends ChangeNotifier {
     _open(activity);
   }
 
-  bool _isActivity(SessionStatus value) =>
-      value != SessionStatus.menu && value != SessionStatus.rating;
+  bool _isActivity(SessionStatus value) => switch (value) {
+    SessionStatus.letterLearning ||
+    SessionStatus.letterPractice ||
+    SessionStatus.phraseBuilding ||
+    SessionStatus.letterDragging ||
+    SessionStatus.missingLetters ||
+    SessionStatus.letterShooting ||
+    SessionStatus.memory ||
+    SessionStatus.letterCatching ||
+    SessionStatus.conveyor ||
+    SessionStatus.sentenceQuiz ||
+    SessionStatus.sentenceComposer ||
+    SessionStatus.spellingQuiz ||
+    SessionStatus.crossword => true,
+    _ => false,
+  };
 
   bool _isTerminal(SessionStatus value) => switch (value) {
     SessionStatus.letterLearning =>
@@ -670,7 +726,11 @@ class SessionController extends ChangeNotifier {
       _spellingQuizController?.state == SpellingQuizState.won,
     SessionStatus.crossword =>
       _crosswordController?.state == CrosswordState.won,
-    SessionStatus.menu || SessionStatus.rating => false,
+    SessionStatus.areaMenu ||
+    SessionStatus.literacyMenu ||
+    SessionStatus.mathMenu ||
+    SessionStatus.mathPlaceholder ||
+    SessionStatus.rating => false,
   };
 
   PlayOutcome _terminalOutcome(SessionStatus value) => switch (value) {
@@ -684,7 +744,11 @@ class SessionController extends ChangeNotifier {
       _conveyorController?.state == ConveyorState.lost
           ? PlayOutcome.lost
           : PlayOutcome.won,
-    SessionStatus.menu || SessionStatus.rating => throw StateError(
+    SessionStatus.areaMenu ||
+    SessionStatus.literacyMenu ||
+    SessionStatus.mathMenu ||
+    SessionStatus.mathPlaceholder ||
+    SessionStatus.rating => throw StateError(
       'A non-gameplay status cannot finish.',
     ),
     _ => PlayOutcome.won,
@@ -704,7 +768,11 @@ class SessionController extends ChangeNotifier {
     SessionStatus.sentenceComposer => ActivityId.sentenceComposer,
     SessionStatus.spellingQuiz => ActivityId.spellingQuiz,
     SessionStatus.crossword => ActivityId.crossword,
-    SessionStatus.menu || SessionStatus.rating => throw StateError(
+    SessionStatus.areaMenu ||
+    SessionStatus.literacyMenu ||
+    SessionStatus.mathMenu ||
+    SessionStatus.mathPlaceholder ||
+    SessionStatus.rating => throw StateError(
       'A non-gameplay status has no activity.',
     ),
   };
@@ -723,7 +791,11 @@ class SessionController extends ChangeNotifier {
     SessionStatus.sentenceComposer => _sentenceComposerController.score,
     SessionStatus.spellingQuiz => _spellingQuizController?.score ?? 0,
     SessionStatus.crossword => _crosswordController?.score ?? 0,
-    SessionStatus.menu || SessionStatus.rating => null,
+    SessionStatus.areaMenu ||
+    SessionStatus.literacyMenu ||
+    SessionStatus.mathMenu ||
+    SessionStatus.mathPlaceholder ||
+    SessionStatus.rating => null,
   };
 
   FeatureMetrics _metricsFor(SessionStatus value) => switch (value) {
@@ -799,7 +871,11 @@ class SessionController extends ChangeNotifier {
       correctAnswers: _crosswordController?.score ?? 0,
       incorrectAttempts: _crosswordController?.incorrectAttempts ?? 0,
     ),
-    SessionStatus.menu || SessionStatus.rating => throw StateError(
+    SessionStatus.areaMenu ||
+    SessionStatus.literacyMenu ||
+    SessionStatus.mathMenu ||
+    SessionStatus.mathPlaceholder ||
+    SessionStatus.rating => throw StateError(
       'A non-gameplay status has no metrics.',
     ),
   };

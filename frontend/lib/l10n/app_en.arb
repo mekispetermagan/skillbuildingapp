@@ -13,6 +13,13 @@
   "activitySentenceComposer": "Sentence composer",
   "activitySpellingQuiz": "Spelling quiz",
   "activityCrossword": "Crossword",
+  "areaLiteracy": "Literacy",
+  "areaMath": "Math",
+  "mathFeature": "Feature {number}",
+  "@mathFeature": {
+    "placeholders": {"number": {"type": "int"}}
+  },
+  "featureComingSoon": "Coming soon",
   "congratulations": "Congratulations!",
   "sorry": "Sorry!",
   "playAgain": "Play again",

@@ -51,6 +51,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activityCrossword => 'Crossword';
 
   @override
+  String get areaLiteracy => 'Literacy';
+
+  @override
+  String get areaMath => 'Math';
+
+  @override
+  String mathFeature(int number) {
+    return 'Feature $number';
+  }
+
+  @override
+  String get featureComingSoon => 'Coming soon';
+
+  @override
   String get congratulations => 'Congratulations!';
 
   @override

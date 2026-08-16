@@ -51,6 +51,20 @@ class AppLocalizationsHu extends AppLocalizations {
   String get activityCrossword => 'Keresztrejtvény';
 
   @override
+  String get areaLiteracy => 'Írás és olvasás';
+
+  @override
+  String get areaMath => 'Matematika';
+
+  @override
+  String mathFeature(int number) {
+    return '$number. funkció';
+  }
+
+  @override
+  String get featureComingSoon => 'Hamarosan';
+
+  @override
   String get congratulations => 'Gratulálok!';
 
   @override

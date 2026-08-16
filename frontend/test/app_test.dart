@@ -7,14 +7,14 @@ void main() {
     await tester.pumpWidget(const LiteracyApp());
     await tester.pumpAndSettle();
 
-    expect(find.text('English'), findsOneWidget);
-    expect(find.text('Magyar'), findsOneWidget);
-    await tester.tap(find.text('English'));
+    await tester.tap(find.text('Literacy'));
     await tester.pumpAndSettle();
 
     expect(find.text('Sentence building'), findsOneWidget);
     expect(find.text('Letter dragging'), findsOneWidget);
 
+    await tester.drag(find.byType(GridView), const Offset(0, -160));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Letter dragging'));
     await tester.pumpAndSettle();
 
@@ -23,17 +23,33 @@ void main() {
     expect(find.byIcon(Icons.arrow_back), findsOneWidget);
   });
 
-  testWidgets('selecting Hungarian opens the localized activity menu', (
+  testWidgets('temporarily skips language selection and defaults to English', (
     tester,
   ) async {
     await tester.pumpWidget(const LiteracyApp());
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Magyar'));
+    expect(find.text('English'), findsNothing);
+    expect(find.text('Magyar'), findsNothing);
+    expect(find.text('Deutsch'), findsNothing);
+    expect(find.text('Literacy'), findsOneWidget);
+    expect(find.text('Math'), findsOneWidget);
+    expect(find.text('Sentence building'), findsNothing);
+  });
+
+  testWidgets('opens math entries into the shared placeholder', (tester) async {
+    await tester.pumpWidget(const LiteracyApp());
     await tester.pumpAndSettle();
 
-    expect(find.text('Mondatkirakó'), findsOneWidget);
-    expect(find.text('Betűrendező'), findsOneWidget);
-    expect(find.text('Sentence building'), findsNothing);
+    await tester.tap(find.text('Math'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Feature 1'), findsOneWidget);
+
+    await tester.tap(find.text('Feature 1'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Feature 1'), findsOneWidget);
+    expect(find.text('Coming soon'), findsOneWidget);
   });
 }

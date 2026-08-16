@@ -184,6 +184,30 @@ abstract class AppLocalizations {
   /// **'Crossword'**
   String get activityCrossword;
 
+  /// No description provided for @areaLiteracy.
+  ///
+  /// In en, this message translates to:
+  /// **'Literacy'**
+  String get areaLiteracy;
+
+  /// No description provided for @areaMath.
+  ///
+  /// In en, this message translates to:
+  /// **'Math'**
+  String get areaMath;
+
+  /// No description provided for @mathFeature.
+  ///
+  /// In en, this message translates to:
+  /// **'Feature {number}'**
+  String mathFeature(int number);
+
+  /// No description provided for @featureComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get featureComingSoon;
+
   /// No description provided for @congratulations.
   ///
   /// In en, this message translates to:

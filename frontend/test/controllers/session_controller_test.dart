@@ -125,7 +125,8 @@ void main() {
     );
     await Future<void>.delayed(Duration.zero);
 
-    expect(controller.menuItems.map((item) => item.$1), [
+    expect(controller.status, SessionStatus.areaMenu);
+    expect(controller.literacyMenuItems.map((item) => item.$1), [
       ActivityId.letterLearning,
       ActivityId.letterPractice,
       ActivityId.phraseBuilding,
@@ -163,7 +164,7 @@ void main() {
     expect(controller.letterPracticeViewData.isLoading, isFalse);
     expect(controller.letterPracticeViewData.loadError, isNull);
 
-    controller.menuItems[4].$2();
+    controller.literacyMenuItems[4].$2();
     expect(controller.status, SessionStatus.missingLetters);
 
     controller.dispose();
@@ -179,8 +180,8 @@ void main() {
     final phraseTile = controller.phraseBuildingViewData.sourcePool.first;
     controller.phraseBuildingMove!(phraseTile);
     expect(controller.phraseBuildingViewData.targetPool, isNotEmpty);
-    controller.openMenu();
-    controller.menuItems[2].$2();
+    controller.openLiteracyMenu();
+    controller.literacyMenuItems[2].$2();
     expect(controller.phraseBuildingViewData.targetPool, isEmpty);
 
     final firstCard = controller.memoryViewData.cards.first;
@@ -189,8 +190,8 @@ void main() {
       controller.memoryViewData.cards.where((card) => card.isFaceUp),
       isNotEmpty,
     );
-    controller.openMenu();
-    controller.menuItems[6].$2();
+    controller.openLiteracyMenu();
+    controller.literacyMenuItems[6].$2();
     expect(
       controller.memoryViewData.cards.where((card) => card.isFaceUp),
       isEmpty,
@@ -276,10 +277,10 @@ void main() {
 
     controller.openPhraseBuilding();
     now = now.add(const Duration(seconds: 12));
-    controller.openMenu();
+    controller.openLiteracyMenu();
     await Future<void>.delayed(Duration.zero);
 
-    expect(controller.status, SessionStatus.menu);
+    expect(controller.status, SessionStatus.literacyMenu);
     expect(recorder.abandoned, hasLength(1));
     expect(recorder.abandoned.single.feature, ActivityId.phraseBuilding);
     expect(recorder.abandoned.single.outcome, PlayOutcome.abandoned);
@@ -307,11 +308,32 @@ void main() {
 
       await controller.submitRating(5);
 
-      expect(controller.status, SessionStatus.menu);
+      expect(controller.status, SessionStatus.literacyMenu);
       expect(recorder.completed, hasLength(1));
       expect(recorder.completed.single.$1.outcome, PlayOutcome.won);
       expect(recorder.completed.single.$2, 5);
       controller.dispose();
     },
   );
+
+  test('area and math menus use the expected navigation hierarchy', () {
+    final controller = SessionController(
+      assetBundle: _SentenceAssetBundle(),
+      audioPlayer: _FakeAudioPlayer(),
+    );
+
+    controller.openMathMenu();
+    expect(controller.status, SessionStatus.mathMenu);
+    expect(controller.mathMenuItems, hasLength(8));
+
+    controller.mathMenuItems.last.$2();
+    expect(controller.status, SessionStatus.mathPlaceholder);
+    expect(controller.mathPlaceholderNumber, 8);
+
+    controller.handleBack();
+    expect(controller.status, SessionStatus.mathMenu);
+    controller.handleBack();
+    expect(controller.status, SessionStatus.areaMenu);
+    controller.dispose();
+  });
 }

@@ -5,7 +5,6 @@ import 'config/gameplay_api_config.dart';
 import 'controllers/session_controller.dart';
 import 'l10n/l10n.dart';
 import 'models/letter_dragging_state.dart';
-import 'models/interface_language.dart';
 import 'screens/screens.dart';
 import 'services/gameplay_recorder.dart';
 import 'storage/gameplay_record_store.dart';
@@ -19,7 +18,7 @@ void main() {
   runApp(LiteracyApp(gameplayRecorder: recorder));
 }
 
-class LiteracyApp extends StatefulWidget {
+class LiteracyApp extends StatelessWidget {
   final GameplayRecorder gameplayRecorder;
 
   const LiteracyApp({
@@ -28,16 +27,13 @@ class LiteracyApp extends StatefulWidget {
   });
 
   @override
-  State<LiteracyApp> createState() => _LiteracyAppState();
-}
-
-class _LiteracyAppState extends State<LiteracyApp> {
-  InterfaceLanguage? _language;
-
-  @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      locale: _language?.locale,
+      // Temporary pre-pilot behavior: learning content is English-only, so
+      // bypass language selection and pin the interface to English. For the
+      // pilot, remove this explicit locale and restore LanguageSelectionScreen
+      // as the gate before AppRoot (persisting the selected InterfaceLanguage).
+      locale: const Locale('en'),
       onGenerateTitle: (context) => context.l10n.appTitle,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
@@ -47,12 +43,7 @@ class _LiteracyAppState extends State<LiteracyApp> {
           dynamicSchemeVariant: DynamicSchemeVariant.rainbow,
         ),
       ),
-      home: switch (_language) {
-        null => LanguageSelectionScreen(
-          onSelect: (language) => setState(() => _language = language),
-        ),
-        _ => AppRoot(gameplayRecorder: widget.gameplayRecorder),
-      },
+      home: AppRoot(gameplayRecorder: gameplayRecorder),
     );
   }
 }
@@ -79,19 +70,32 @@ class AppRootState extends State<AppRoot> {
     return ListenableBuilder(
       listenable: _sessionController,
       builder: (_, _) => PopScope(
-        canPop: _sessionController.status == SessionStatus.menu,
+        canPop: _sessionController.status == SessionStatus.areaMenu,
         onPopInvokedWithResult: (didPop, _) {
           if (!didPop && _sessionController.status != SessionStatus.rating) {
-            _sessionController.openMenu();
+            _sessionController.handleBack();
           }
         },
         child: switch (_sessionController.status) {
-          SessionStatus.menu => MenuScreen(
-            menuItems: _sessionController.menuItems,
+          SessionStatus.areaMenu => AreaMenuScreen(
+            onOpenLiteracy: _sessionController.openLiteracyMenu,
+            onOpenMath: _sessionController.openMathMenu,
+          ),
+          SessionStatus.literacyMenu => LiteracyMenuScreen(
+            menuItems: _sessionController.literacyMenuItems,
+            onBack: _sessionController.openAreaMenu,
+          ),
+          SessionStatus.mathMenu => MathMenuScreen(
+            menuItems: _sessionController.mathMenuItems,
+            onBack: _sessionController.openAreaMenu,
+          ),
+          SessionStatus.mathPlaceholder => MathPlaceholderScreen(
+            featureNumber: _sessionController.mathPlaceholderNumber!,
+            onBack: _sessionController.openMathMenu,
           ),
           SessionStatus.letterLearning => LetterLearningScreen(
             viewData: _sessionController.letterLearningViewData,
-            onBack: _sessionController.openMenu,
+            onBack: _sessionController.openLiteracyMenu,
             onRestart: _sessionController.restartLetterLearning,
             onSetDifficulties: _sessionController.letterLearningSetDifficulties,
             onSetMode: _sessionController.letterLearningSetMode,
@@ -102,7 +106,7 @@ class AppRootState extends State<AppRoot> {
           ),
           SessionStatus.letterPractice => LetterPracticeScreen(
             viewData: _sessionController.letterPracticeViewData,
-            onBack: _sessionController.openMenu,
+            onBack: _sessionController.openLiteracyMenu,
             onRestart: _sessionController.restartLetterPractice,
             onSetDifficulties: _sessionController.letterPracticeSetDifficulties,
             onSetUseColors: _sessionController.letterPracticeSetUseColors,
@@ -114,7 +118,7 @@ class AppRootState extends State<AppRoot> {
           ),
           SessionStatus.phraseBuilding => PhraseBuildingScreen(
             viewData: _sessionController.phraseBuildingViewData,
-            onBack: _sessionController.openMenu,
+            onBack: _sessionController.openLiteracyMenu,
             onMove: _sessionController.phraseBuildingMove,
             canMoveToTarget: _sessionController.phraseBuildingCanMoveToTarget,
             canMoveToSource: _sessionController.phraseBuildingCanMoveToSource,
@@ -129,12 +133,12 @@ class AppRootState extends State<AppRoot> {
                     LetterDraggingState.result
                 ? LetterDraggingResultScreen(
                     score: _sessionController.letterDraggingViewData.score,
-                    onBack: _sessionController.openMenu,
+                    onBack: _sessionController.openLiteracyMenu,
                     onRestart: _sessionController.restartLetterDragging,
                   )
                 : LetterDraggingScreen(
                     viewData: _sessionController.letterDraggingViewData,
-                    onBack: _sessionController.openMenu,
+                    onBack: _sessionController.openLiteracyMenu,
                     onReorder: _sessionController.letterDraggingReorder,
                     onPass: _sessionController.letterDraggingPass,
                     onShowImagesChanged:
@@ -142,7 +146,7 @@ class AppRootState extends State<AppRoot> {
                   ),
           SessionStatus.missingLetters => MissingLettersScreen(
             viewData: _sessionController.missingLettersViewData,
-            onBack: _sessionController.openMenu,
+            onBack: _sessionController.openLiteracyMenu,
             canDrop: _sessionController.missingLettersCanDrop,
             onDrop: _sessionController.missingLettersDrop,
             onSelectTile: _sessionController.missingLettersSelectTile,
@@ -158,12 +162,12 @@ class AppRootState extends State<AppRoot> {
             onBeginAim: _sessionController.letterShootingBeginAim,
             onUpdateAim: _sessionController.letterShootingUpdateAim,
             onReleaseAim: _sessionController.letterShootingReleaseAim,
-            onBack: _sessionController.openMenu,
+            onBack: _sessionController.openLiteracyMenu,
             onRestart: _sessionController.restartLetterShooting,
           ),
           SessionStatus.memory => MemoryScreen(
             viewData: _sessionController.memoryViewData,
-            onBack: _sessionController.openMenu,
+            onBack: _sessionController.openLiteracyMenu,
             onSelect: _sessionController.memorySelect,
             onNewGame: _sessionController.memoryStartNewGame,
           ),
@@ -172,7 +176,7 @@ class AppRootState extends State<AppRoot> {
             onResize: _sessionController.letterCatchingResize,
             onTick: _sessionController.letterCatchingTick,
             onMovePaddleBy: _sessionController.letterCatchingMovePaddleBy,
-            onBack: _sessionController.openMenu,
+            onBack: _sessionController.openLiteracyMenu,
             onRestart: _sessionController.restartLetterCatching,
           ),
           SessionStatus.conveyor => ConveyorScreen(
@@ -185,13 +189,13 @@ class AppRootState extends State<AppRoot> {
             onPlaceSelected: _sessionController.conveyorPlaceSelected,
             onCancelDragging: _sessionController.conveyorCancelDragging,
             onDrop: _sessionController.conveyorDrop,
-            onBack: _sessionController.openMenu,
+            onBack: _sessionController.openLiteracyMenu,
             onRestart: _sessionController.restartConveyor,
           ),
           SessionStatus.sentenceQuiz => SentenceQuizScreen(
             viewData: _sessionController.sentenceQuizViewData,
             onSubmit: _sessionController.sentenceQuizSubmit,
-            onBack: _sessionController.openMenu,
+            onBack: _sessionController.openLiteracyMenu,
             onRestart: _sessionController.restartSentenceQuiz,
           ),
           SessionStatus.sentenceComposer => SentenceComposerScreen(
@@ -200,19 +204,19 @@ class AppRootState extends State<AppRoot> {
             onSelectColor: _sessionController.sentenceComposerSelectColor,
             onSelectPiece: _sessionController.sentenceComposerSelectPiece,
             onSubmit: _sessionController.sentenceComposerSubmit,
-            onBack: _sessionController.openMenu,
+            onBack: _sessionController.openLiteracyMenu,
             onRestart: _sessionController.restartSentenceComposer,
           ),
           SessionStatus.spellingQuiz => SpellingQuizScreen(
             viewData: _sessionController.spellingQuizViewData,
             onSubmit: _sessionController.spellingQuizSubmit,
             onPlayAudio: _sessionController.spellingQuizPlayAudio,
-            onBack: _sessionController.openMenu,
+            onBack: _sessionController.openLiteracyMenu,
             onRestart: _sessionController.restartSpellingQuiz,
           ),
           SessionStatus.crossword => CrosswordScreen(
             viewData: _sessionController.crosswordViewData,
-            onBack: _sessionController.openMenu,
+            onBack: _sessionController.openLiteracyMenu,
             onRestart: _sessionController.restartCrossword,
             onSelectLetter: _sessionController.crosswordSelectLetter,
             canPlace: _sessionController.crosswordCanPlace,
