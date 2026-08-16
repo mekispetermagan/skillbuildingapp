@@ -98,6 +98,29 @@ class Database:
                 next_record_number=1,
             )
 
+    def resolve_installation(
+        self, installation_id: int
+    ) -> InstallationRegistration | None:
+        with self.connect() as connection:
+            installation = connection.execute(
+                "SELECT id FROM installations WHERE id = ?",
+                (installation_id,),
+            ).fetchone()
+            if installation is None:
+                return None
+            maximum = connection.execute(
+                """
+                SELECT COALESCE(MAX(record_number), 0) AS maximum
+                FROM play_records
+                WHERE installation_id = ?
+                """,
+                (installation_id,),
+            ).fetchone()["maximum"]
+        return InstallationRegistration(
+            installation_id=installation_id,
+            next_record_number=maximum + 1,
+        )
+
     def store_batch(
         self,
         installation_id: int,
@@ -271,4 +294,3 @@ def _canonical_payload(record: PlayRecord) -> str:
 
 def _now() -> str:
     return datetime.now(UTC).isoformat()
-

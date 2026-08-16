@@ -16,6 +16,17 @@ enum RecordAcknowledgementStatus {
       );
 }
 
+class InstallationResolution {
+  final int? installationId;
+
+  InstallationResolution({required this.installationId}) {
+    final id = installationId;
+    if (id != null) _requirePositive(id, 'installationId');
+  }
+
+  Map<String, Object?> toJson() => {'installation_id': installationId};
+}
+
 class InstallationRegistration {
   final int installationId;
   final int nextRecordNumber;

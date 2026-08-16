@@ -54,14 +54,18 @@ def record(installation_id: int, number: int, *, rating: int = 4) -> dict:
 
 
 def register(client: TestClient) -> int:
-    response = client.post("/installations", headers=headers())
+    response = client.post(
+        "/installations",
+        headers=headers(),
+        json={"installation_id": None},
+    )
     assert response.status_code == 201
     assert response.json()["next_record_number"] == 1
     return response.json()["installation_id"]
 
 
 def test_api_key_is_required(client: TestClient):
-    response = client.post("/installations")
+    response = client.post("/installations", json={"installation_id": None})
 
     assert response.status_code == 401
 
@@ -71,6 +75,43 @@ def test_registers_monotonic_installation_ids(client: TestClient):
     second = register(client)
 
     assert second == first + 1
+
+
+def test_resolves_an_installation_with_the_authoritative_next_number(
+    client: TestClient,
+):
+    installation_id = register(client)
+    client.post(
+        "/records/batch",
+        headers=headers(),
+        json={
+            "installation_id": installation_id,
+            "records": [record(installation_id, 1), record(installation_id, 2)],
+        },
+    )
+
+    response = client.post(
+        "/installations",
+        headers=headers(),
+        json={"installation_id": installation_id},
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "installation_id": installation_id,
+        "next_record_number": 3,
+    }
+
+
+def test_rejects_an_unknown_installation_during_resolution(client: TestClient):
+    response = client.post(
+        "/installations",
+        headers=headers(),
+        json={"installation_id": 999},
+    )
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Installation does not exist."}
 
 
 def test_accepts_a_batch_and_acknowledges_an_identical_retry(client: TestClient):
@@ -166,4 +207,3 @@ def test_rejects_oversized_batches(database_path: Path):
         )
 
     assert response.status_code == 413
-

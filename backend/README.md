@@ -8,7 +8,8 @@ grow into the later pilot backend.
 
 Both endpoints require the shared `X-API-Key` header.
 
-- `POST /installations` allocates an installation ID.
+- `POST /installations` accepts a required nullable `installation_id`. `null`
+  allocates a new ID; an existing ID returns its authoritative next record number.
 - `POST /records/batch` stores a batch and returns one acknowledgement per
   record: `accepted`, `already_accepted`, or `stored_as_conflict`.
 
@@ -26,13 +27,17 @@ python3 -m venv .venv
 .venv/bin/pip install -e '.[test]'
 ```
 
-Set a preliminary shared key and optionally choose the database path:
+Copy the example environment file and set the preliminary shared key:
 
 ```sh
-export LITERACY_API_KEY='replace-this-before-running'
-export LITERACY_DATABASE_PATH='literacy_prepilot.db'
-.venv/bin/uvicorn app.main:create_app --factory --reload
+cp .env.example .env
+source .venv/bin/activate
+uvicorn main:app --reload
 ```
+
+The local development `.env` uses `dev-key`. It is ignored by Git; only
+`.env.example` is tracked. The root `main.py` loads `.env` before creating the
+FastAPI application.
 
 SQLite foreign keys, WAL mode, and a ten-second busy timeout are enabled when
 the application starts. Back up the database file regularly during testing.

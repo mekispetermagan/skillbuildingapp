@@ -136,6 +136,10 @@ class RecordBatch(ContractModel):
         return self
 
 
+class InstallationResolution(ContractModel):
+    installation_id: PositiveStrictInt | None
+
+
 class InstallationRegistration(ContractModel):
     installation_id: PositiveStrictInt
     next_record_number: PositiveStrictInt

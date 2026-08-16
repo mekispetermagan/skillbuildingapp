@@ -3,13 +3,14 @@ from __future__ import annotations
 import secrets
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import APIKeyHeader
 
 from .config import Settings
 from .database import Database
 from .models import (
     InstallationRegistration,
+    InstallationResolution,
     RecordBatch,
     RecordBatchAcknowledgement,
 )
@@ -37,11 +38,23 @@ def create_router(settings: Settings, database: Database) -> APIRouter:
     @router.post(
         "/installations",
         response_model=InstallationRegistration,
-        status_code=status.HTTP_201_CREATED,
         dependencies=[key_dependency],
     )
-    def register_installation() -> InstallationRegistration:
-        return database.register_installation()
+    def resolve_installation(
+        request: InstallationResolution,
+        response: Response,
+    ) -> InstallationRegistration:
+        if request.installation_id is None:
+            response.status_code = status.HTTP_201_CREATED
+            return database.register_installation()
+
+        registration = database.resolve_installation(request.installation_id)
+        if registration is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Installation does not exist.",
+            )
+        return registration
 
     @router.post(
         "/records/batch",

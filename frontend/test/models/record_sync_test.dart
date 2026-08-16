@@ -23,6 +23,22 @@ PlayRecord record(int number, {int installationId = 3}) => PlayRecord(
 );
 
 void main() {
+  test('installation resolution serializes a missing installation ID', () {
+    final resolution = InstallationResolution(installationId: null);
+
+    expect(resolution.toJson(), {'installation_id': null});
+  });
+
+  test('installation resolution serializes an existing installation ID', () {
+    final resolution = InstallationResolution(installationId: 3);
+
+    expect(resolution.toJson(), {'installation_id': 3});
+    expect(
+      () => InstallationResolution(installationId: 0),
+      throwsArgumentError,
+    );
+  });
+
   test('registration accepts a backend sequence identity', () {
     final registration = InstallationRegistration.fromJson(const {
       'installation_id': 3,
