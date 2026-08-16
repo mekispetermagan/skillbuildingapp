@@ -190,6 +190,24 @@ abstract class AppLocalizations {
   /// **'Number learning'**
   String get activityNumberLearning;
 
+  /// No description provided for @activityNumberComparison.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare numbers'**
+  String get activityNumberComparison;
+
+  /// No description provided for @numberPattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern'**
+  String get numberPattern;
+
+  /// No description provided for @numberScattered.
+  ///
+  /// In en, this message translates to:
+  /// **'Scattered'**
+  String get numberScattered;
+
   /// No description provided for @areaLiteracy.
   ///
   /// In en, this message translates to:

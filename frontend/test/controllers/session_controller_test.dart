@@ -357,4 +357,24 @@ void main() {
     expect(controller.status, SessionStatus.mathMenu);
     controller.dispose();
   });
+
+  test('compare numbers abandonment is recorded in the math area', () async {
+    final recorder = _FakeGameplayRecorder();
+    final controller = SessionController(
+      assetBundle: _SentenceAssetBundle(),
+      audioPlayer: _FakeAudioPlayer(),
+      gameplayRecorder: recorder,
+    );
+
+    controller.mathMenuItems[1].$2();
+    expect(controller.status, SessionStatus.numberComparison);
+    controller.openMathMenu();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(recorder.abandoned, hasLength(1));
+    expect(recorder.abandoned.single.area, LearningArea.math);
+    expect(recorder.abandoned.single.feature, ActivityId.numberComparison);
+    expect(controller.status, SessionStatus.mathMenu);
+    controller.dispose();
+  });
 }

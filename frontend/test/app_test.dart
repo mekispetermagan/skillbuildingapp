@@ -52,4 +52,18 @@ void main() {
     expect(find.text('1–6'), findsOneWidget);
     expect(find.text('Coming soon'), findsNothing);
   });
+
+  testWidgets('opens compare numbers from the math menu', (tester) async {
+    await tester.pumpWidget(const LiteracyApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Math'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Compare numbers'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pattern'), findsOneWidget);
+    expect(find.text('<'), findsOneWidget);
+    expect(find.text('='), findsOneWidget);
+    expect(find.text('>'), findsOneWidget);
+  });
 }

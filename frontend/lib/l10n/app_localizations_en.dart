@@ -54,6 +54,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activityNumberLearning => 'Number learning';
 
   @override
+  String get activityNumberComparison => 'Compare numbers';
+
+  @override
+  String get numberPattern => 'Pattern';
+
+  @override
+  String get numberScattered => 'Scattered';
+
+  @override
   String get areaLiteracy => 'Literacy';
 
   @override

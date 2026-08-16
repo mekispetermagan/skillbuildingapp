@@ -14,14 +14,16 @@ enum ActivityId {
   sentenceComposer('sentence_composer'),
   spellingQuiz('spelling_quiz'),
   crossword('crossword'),
-  numberLearning('number_learning');
+  numberLearning('number_learning'),
+  numberComparison('number_comparison');
 
   final String wireName;
 
   const ActivityId(this.wireName);
 
   LearningArea get area => switch (this) {
-    ActivityId.numberLearning => LearningArea.math,
+    ActivityId.numberLearning ||
+    ActivityId.numberComparison => LearningArea.math,
     _ => LearningArea.literacy,
   };
 

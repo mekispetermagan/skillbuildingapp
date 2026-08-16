@@ -54,6 +54,15 @@ class AppLocalizationsHu extends AppLocalizations {
   String get activityNumberLearning => 'Számtanulás';
 
   @override
+  String get activityNumberComparison => 'Számok összehasonlítása';
+
+  @override
+  String get numberPattern => 'Minta';
+
+  @override
+  String get numberScattered => 'Szórt';
+
+  @override
   String get areaLiteracy => 'Írás és olvasás';
 
   @override

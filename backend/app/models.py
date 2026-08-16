@@ -90,7 +90,7 @@ LITERACY_FEATURES = frozenset(
         "crossword",
     }
 )
-MATH_FEATURES = frozenset({"number_learning"})
+MATH_FEATURES = frozenset({"number_learning", "number_comparison"})
 
 
 class PlayRecord(ContractModel):

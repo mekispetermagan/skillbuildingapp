@@ -28,6 +28,7 @@ import 'missing_letter_slot.dart';
 import 'missing_letter_tile.dart';
 import 'missing_letters_state.dart';
 import 'number_learning.dart';
+import 'number_comparison.dart';
 import 'outfit_sentence.dart';
 import 'phrase_building_state.dart';
 import 'phrase_building_tile.dart';
@@ -338,6 +339,36 @@ class NumberLearningViewData {
     required this.target,
     required this.emoji,
     required this.choices,
+    required this.canGuess,
+    required this.config,
+  });
+}
+
+class NumberComparisonViewData {
+  final ComparisonRange range;
+  final NumberArrangement arrangement;
+  final NumberComparisonState state;
+  final int score;
+  final int leftNumber;
+  final int rightNumber;
+  final String leftEmoji;
+  final String rightEmoji;
+  final List<(double, double)> leftPositions;
+  final List<(double, double)> rightPositions;
+  final bool canGuess;
+  final NumberComparisonConfig config;
+
+  const NumberComparisonViewData({
+    required this.range,
+    required this.arrangement,
+    required this.state,
+    required this.score,
+    required this.leftNumber,
+    required this.rightNumber,
+    required this.leftEmoji,
+    required this.rightEmoji,
+    required this.leftPositions,
+    required this.rightPositions,
     required this.canGuess,
     required this.config,
   });

@@ -54,6 +54,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get activityNumberLearning => 'Zahlen lernen';
 
   @override
+  String get activityNumberComparison => 'Zahlen vergleichen';
+
+  @override
+  String get numberPattern => 'Muster';
+
+  @override
+  String get numberScattered => 'Verstreut';
+
+  @override
   String get areaLiteracy => 'Lesen und Schreiben';
 
   @override

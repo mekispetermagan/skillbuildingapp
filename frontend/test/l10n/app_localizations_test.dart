@@ -29,6 +29,7 @@ void main() {
       'Rechtschreibquiz',
       'Kreuzworträtsel',
       'Zahlen lernen',
+      'Zahlen vergleichen',
     ]);
   });
 
@@ -50,6 +51,7 @@ void main() {
       'Spelling quiz',
       'Crossword',
       'Number learning',
+      'Compare numbers',
     ]);
   });
 
@@ -71,6 +73,7 @@ void main() {
       'Helyesírás kvíz',
       'Keresztrejtvény',
       'Számtanulás',
+      'Számok összehasonlítása',
     ]);
   });
 }

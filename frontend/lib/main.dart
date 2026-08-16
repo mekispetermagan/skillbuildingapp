@@ -100,6 +100,13 @@ class AppRootState extends State<AppRoot> {
             onSetUseColors: _sessionController.numberLearningSetUseColors,
             onGuess: _sessionController.numberLearningGuess,
           ),
+          SessionStatus.numberComparison => NumberComparisonScreen(
+            viewData: _sessionController.numberComparisonViewData,
+            onBack: _sessionController.openMathMenu,
+            onSetRange: _sessionController.numberComparisonSetRange,
+            onSetArrangement: _sessionController.numberComparisonSetArrangement,
+            onGuess: _sessionController.numberComparisonGuess,
+          ),
           SessionStatus.letterLearning => LetterLearningScreen(
             viewData: _sessionController.letterLearningViewData,
             onBack: _sessionController.openLiteracyMenu,

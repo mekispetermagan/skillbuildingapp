@@ -28,6 +28,7 @@ import '../models/letter_practice_state.dart';
 import '../models/missing_letters_state.dart';
 import '../models/missing_letters_word.dart';
 import '../models/number_learning.dart';
+import '../models/number_comparison.dart';
 import '../models/outfit_sentence.dart';
 import '../models/phrase_building_state.dart';
 import '../models/phrase_building_tile.dart';
@@ -49,6 +50,7 @@ import 'letter_practice_controller.dart';
 import 'memory_controller.dart';
 import 'missing_letters_controller.dart';
 import 'number_learning_controller.dart';
+import 'number_comparison_controller.dart';
 import 'phrase_building_controller.dart';
 import 'sentence_composer_controller.dart';
 import 'sentence_quiz_controller.dart';
@@ -60,6 +62,7 @@ enum SessionStatus {
   mathMenu,
   mathPlaceholder,
   numberLearning,
+  numberComparison,
   letterLearning,
   letterPractice,
   phraseBuilding,
@@ -113,6 +116,7 @@ class SessionController extends ChangeNotifier {
   late final SentenceQuizController _sentenceQuizController;
   late final SentenceComposerController _sentenceComposerController;
   late final NumberLearningController _numberLearningController;
+  late final NumberComparisonController _numberComparisonController;
   SessionStatus status = SessionStatus.areaMenu;
   int? mathPlaceholderNumber;
 
@@ -138,6 +142,8 @@ class SessionController extends ChangeNotifier {
     _sentenceComposerController = SentenceComposerController()
       ..addListener(_forwardFeatureNotification);
     _numberLearningController = NumberLearningController(_audioPlayer)
+      ..addListener(_forwardFeatureNotification);
+    _numberComparisonController = NumberComparisonController(_audioPlayer)
       ..addListener(_forwardFeatureNotification);
     unawaited(_gameplayRecorder.synchronize());
     unawaited(_initializePhraseBuilding());
@@ -189,7 +195,8 @@ class SessionController extends ChangeNotifier {
 
   late final List<(int, VoidCallback)> mathMenuItems = [
     (1, openNumberLearning),
-    for (var number = 2; number <= 8; number++)
+    (2, openNumberComparison),
+    for (var number = 3; number <= 8; number++)
       (number, () => openMathPlaceholder(number)),
   ];
 
@@ -216,6 +223,35 @@ class SessionController extends ChangeNotifier {
   void openNumberLearning() {
     _numberLearningController.start();
     _beginActivity(SessionStatus.numberLearning);
+  }
+
+  NumberComparisonViewData get numberComparisonViewData =>
+      NumberComparisonViewData(
+        range: _numberComparisonController.range,
+        arrangement: _numberComparisonController.arrangement,
+        state: _numberComparisonController.state,
+        score: _numberComparisonController.score,
+        leftNumber: _numberComparisonController.leftNumber,
+        rightNumber: _numberComparisonController.rightNumber,
+        leftEmoji: _numberComparisonController.leftEmoji,
+        rightEmoji: _numberComparisonController.rightEmoji,
+        leftPositions: _numberComparisonController.leftPositions,
+        rightPositions: _numberComparisonController.rightPositions,
+        canGuess: _numberComparisonController.canGuess,
+        config: _numberComparisonController.config,
+      );
+
+  void numberComparisonSetRange(ComparisonRange value) =>
+      _numberComparisonController.setRange(value);
+  void numberComparisonSetArrangement(NumberArrangement value) =>
+      _numberComparisonController.setArrangement(value);
+  void numberComparisonGuess(NumberRelation relation) {
+    unawaited(_numberComparisonController.guess(relation));
+  }
+
+  void openNumberComparison() {
+    _numberComparisonController.start();
+    _beginActivity(SessionStatus.numberComparison);
   }
 
   PhraseBuildingViewData get phraseBuildingViewData => PhraseBuildingViewData(
@@ -698,6 +734,7 @@ class SessionController extends ChangeNotifier {
     _letterLearningController?.stop();
     _letterPracticeController?.stop();
     _numberLearningController.stop();
+    _numberComparisonController.stop();
     _open(destination);
   }
 
@@ -740,6 +777,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.spellingQuiz ||
     SessionStatus.crossword => true,
     SessionStatus.numberLearning => true,
+    SessionStatus.numberComparison => true,
     _ => false,
   };
 
@@ -771,6 +809,8 @@ class SessionController extends ChangeNotifier {
       _crosswordController?.state == CrosswordState.won,
     SessionStatus.numberLearning =>
       _numberLearningController.state == NumberLearningState.won,
+    SessionStatus.numberComparison =>
+      _numberComparisonController.state == NumberComparisonState.won,
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
     SessionStatus.mathMenu ||
@@ -814,6 +854,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.spellingQuiz => ActivityId.spellingQuiz,
     SessionStatus.crossword => ActivityId.crossword,
     SessionStatus.numberLearning => ActivityId.numberLearning,
+    SessionStatus.numberComparison => ActivityId.numberComparison,
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
     SessionStatus.mathMenu ||
@@ -838,6 +879,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.spellingQuiz => _spellingQuizController?.score ?? 0,
     SessionStatus.crossword => _crosswordController?.score ?? 0,
     SessionStatus.numberLearning => _numberLearningController.score,
+    SessionStatus.numberComparison => _numberComparisonController.score,
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
     SessionStatus.mathMenu ||
@@ -921,6 +963,10 @@ class SessionController extends ChangeNotifier {
     SessionStatus.numberLearning => AttemptMetrics(
       correctAnswers: _numberLearningController.score,
       incorrectAttempts: _numberLearningController.incorrectAttempts,
+    ),
+    SessionStatus.numberComparison => AttemptMetrics(
+      correctAnswers: _numberComparisonController.score,
+      incorrectAttempts: _numberComparisonController.incorrectAttempts,
     ),
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
@@ -1294,6 +1340,8 @@ class SessionController extends ChangeNotifier {
     _letterPracticeController?.dispose();
     _numberLearningController.removeListener(_forwardFeatureNotification);
     _numberLearningController.dispose();
+    _numberComparisonController.removeListener(_forwardFeatureNotification);
+    _numberComparisonController.dispose();
     super.dispose();
   }
 }

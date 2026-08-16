@@ -260,11 +260,12 @@ def test_rejects_unknown_installations_and_invalid_contracts(client: TestClient)
     assert invalid.status_code == 422
 
 
-def test_accepts_number_learning_records(client: TestClient):
+@pytest.mark.parametrize("feature_id", ["number_learning", "number_comparison"])
+def test_accepts_math_records(client: TestClient, feature_id: str):
     installation_id = register(client)
     math_record = record(installation_id, 1)
     math_record["area_id"] = "math"
-    math_record["feature_id"] = "number_learning"
+    math_record["feature_id"] = feature_id
 
     response = client.post(
         "/records/batch",

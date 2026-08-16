@@ -25,5 +25,6 @@ extension ActivityIdLocalization on ActivityId {
     ActivityId.spellingQuiz => l10n.activitySpellingQuiz,
     ActivityId.crossword => l10n.activityCrossword,
     ActivityId.numberLearning => l10n.activityNumberLearning,
+    ActivityId.numberComparison => l10n.activityNumberComparison,
   };
 }
