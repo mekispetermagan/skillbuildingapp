@@ -60,6 +60,23 @@ class PendingCompletion {
     contentVersion: contentVersion,
   );
 
+  PlayRecord abandon({required int recordNumber, int? installationId}) =>
+      PlayRecord(
+        installationId: installationId,
+        recordNumber: recordNumber,
+        area: area,
+        feature: feature,
+        outcome: outcome,
+        score: score,
+        rating: null,
+        metrics: metrics,
+        startedAt: startedAt,
+        completedAt: completedAt,
+        elapsedMilliseconds: elapsedMilliseconds,
+        appVersion: appVersion,
+        contentVersion: contentVersion,
+      );
+
   Map<String, Object?> toJson() => {
     'area_id': area.wireName,
     'feature_id': feature.wireName,

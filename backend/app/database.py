@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS play_records (
     feature_id TEXT NOT NULL,
     outcome TEXT NOT NULL,
     score INTEGER,
-    rating INTEGER NOT NULL,
+    rating INTEGER,
     metrics_json TEXT NOT NULL,
     started_at TEXT NOT NULL,
     completed_at TEXT NOT NULL,
@@ -71,6 +71,74 @@ class Database:
         with self.connect() as connection:
             connection.execute("PRAGMA journal_mode = WAL")
             connection.executescript(SCHEMA)
+            self._migrate_nullable_rating(connection)
+
+    def _migrate_nullable_rating(self, connection: sqlite3.Connection) -> None:
+        columns = connection.execute("PRAGMA table_info(play_records)").fetchall()
+        rating = next((column for column in columns if column["name"] == "rating"), None)
+        if rating is None or rating["notnull"] == 0:
+            return
+
+        connection.execute("PRAGMA foreign_keys = OFF")
+        try:
+            connection.executescript(
+                """
+                BEGIN IMMEDIATE;
+                ALTER TABLE record_conflicts RENAME TO record_conflicts_legacy;
+                ALTER TABLE play_records RENAME TO play_records_legacy;
+
+                CREATE TABLE play_records (
+                    installation_id INTEGER NOT NULL,
+                    record_number INTEGER NOT NULL,
+                    area_id TEXT NOT NULL,
+                    feature_id TEXT NOT NULL,
+                    outcome TEXT NOT NULL,
+                    score INTEGER,
+                    rating INTEGER,
+                    metrics_json TEXT NOT NULL,
+                    started_at TEXT NOT NULL,
+                    completed_at TEXT NOT NULL,
+                    elapsed_milliseconds INTEGER NOT NULL,
+                    app_version TEXT NOT NULL,
+                    content_version TEXT NOT NULL,
+                    schema_version INTEGER NOT NULL,
+                    payload_json TEXT NOT NULL,
+                    payload_hash TEXT NOT NULL,
+                    received_at TEXT NOT NULL,
+                    PRIMARY KEY (installation_id, record_number),
+                    FOREIGN KEY (installation_id) REFERENCES installations(id)
+                );
+
+                INSERT INTO play_records SELECT * FROM play_records_legacy;
+
+                CREATE TABLE record_conflicts (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    installation_id INTEGER NOT NULL,
+                    record_number INTEGER NOT NULL,
+                    accepted_payload_hash TEXT NOT NULL,
+                    conflicting_payload_hash TEXT NOT NULL,
+                    payload_json TEXT NOT NULL,
+                    received_at TEXT NOT NULL,
+                    FOREIGN KEY (installation_id, record_number)
+                        REFERENCES play_records(installation_id, record_number),
+                    UNIQUE (installation_id, record_number, conflicting_payload_hash)
+                );
+
+                INSERT INTO record_conflicts SELECT * FROM record_conflicts_legacy;
+                DROP TABLE record_conflicts_legacy;
+                DROP TABLE play_records_legacy;
+                DROP INDEX IF EXISTS play_records_feature_index;
+                CREATE INDEX play_records_feature_index
+                    ON play_records(area_id, feature_id);
+                COMMIT;
+                """
+            )
+        except BaseException:
+            if connection.in_transaction:
+                connection.rollback()
+            raise
+        finally:
+            connection.execute("PRAGMA foreign_keys = ON")
 
     @contextmanager
     def connect(self) -> Iterator[sqlite3.Connection]:

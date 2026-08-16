@@ -53,13 +53,17 @@ class MemoryMetrics(ContractModel):
     type: Literal["memory"]
     schema_version: Literal[1]
     pair_count: PositiveStrictInt
-    pair_attempts: PositiveStrictInt
+    pair_attempts: Annotated[StrictInt, Field(ge=0)]
     mismatches: Annotated[StrictInt, Field(ge=0)]
 
     @model_validator(mode="after")
     def validate_attempt_count(self) -> MemoryMetrics:
-        if self.pair_attempts != self.pair_count + self.mismatches:
-            raise ValueError("pair_attempts must equal pair_count plus mismatches")
+        if not self.mismatches <= self.pair_attempts <= (
+            self.pair_count + self.mismatches
+        ):
+            raise ValueError(
+                "pair_attempts must represent at most pair_count matches"
+            )
         return self
 
 
@@ -94,9 +98,9 @@ class PlayRecord(ContractModel):
     record_number: PositiveStrictInt
     area_id: Literal["literacy"]
     feature_id: str = Field(min_length=1, max_length=64)
-    outcome: Literal["completed", "won", "lost"]
+    outcome: Literal["completed", "won", "lost", "abandoned"]
     score: Annotated[StrictInt, Field(ge=0)] | None
-    rating: Annotated[StrictInt, Field(ge=1, le=5)]
+    rating: Annotated[StrictInt, Field(ge=1, le=5)] | None
     metrics: FeatureMetrics
     started_at: datetime
     completed_at: datetime
@@ -117,6 +121,18 @@ class PlayRecord(ContractModel):
             raise ValueError("feature_id is not registered in area_id")
         if self.completed_at < self.started_at:
             raise ValueError("completed_at must not be before started_at")
+        if self.outcome == "abandoned":
+            if self.rating is not None:
+                raise ValueError("abandoned records must not have a rating")
+        elif self.rating is None:
+            raise ValueError("completed records require a rating")
+        if (
+            self.outcome != "abandoned"
+            and isinstance(self.metrics, MemoryMetrics)
+            and self.metrics.pair_attempts
+            != self.metrics.pair_count + self.metrics.mismatches
+        ):
+            raise ValueError("completed memory records must include every pair")
         return self
 
 

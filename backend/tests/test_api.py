@@ -7,6 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.config import Settings
+from app.database import Database, SCHEMA
 from app.main import create_app
 
 
@@ -27,6 +28,22 @@ def client(database_path: Path):
 
 def headers() -> dict[str, str]:
     return {"X-API-Key": API_KEY}
+
+
+def test_initialization_migrates_a_legacy_required_rating(database_path: Path):
+    legacy_schema = SCHEMA.replace("rating INTEGER,", "rating INTEGER NOT NULL,")
+    with sqlite3.connect(database_path) as connection:
+        connection.executescript(legacy_schema)
+
+    Database(database_path).initialize()
+
+    with sqlite3.connect(database_path) as connection:
+        rating_column = next(
+            column
+            for column in connection.execute("PRAGMA table_info(play_records)")
+            if column[1] == "rating"
+        )
+    assert rating_column[3] == 0
 
 
 def record(installation_id: int, number: int, *, rating: int = 4) -> dict:
@@ -134,6 +151,62 @@ def test_accepts_a_batch_and_acknowledges_an_identical_retry(client: TestClient)
         "already_accepted",
         "already_accepted",
     ]
+
+
+def test_accepts_an_unrated_abandoned_play_with_partial_metrics(
+    client: TestClient,
+    database_path: Path,
+):
+    installation_id = register(client)
+    abandoned = record(installation_id, 1)
+    abandoned.update(
+        {
+            "outcome": "abandoned",
+            "score": None,
+            "rating": None,
+            "feature_id": "memory_cards",
+            "metrics": {
+                "type": "memory",
+                "schema_version": 1,
+                "pair_count": 9,
+                "pair_attempts": 4,
+                "mismatches": 2,
+            },
+        }
+    )
+
+    response = client.post(
+        "/records/batch",
+        headers=headers(),
+        json={"installation_id": installation_id, "records": [abandoned]},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["acknowledgements"][0]["status"] == "accepted"
+    with sqlite3.connect(database_path) as connection:
+        stored = connection.execute(
+            "SELECT outcome, rating FROM play_records"
+        ).fetchone()
+    assert stored == ("abandoned", None)
+
+
+def test_enforces_rating_for_completed_and_abandoned_plays(client: TestClient):
+    installation_id = register(client)
+    abandoned_with_rating = record(installation_id, 1)
+    abandoned_with_rating["outcome"] = "abandoned"
+    completed_without_rating = record(installation_id, 2)
+    completed_without_rating["rating"] = None
+
+    for invalid_record in (abandoned_with_rating, completed_without_rating):
+        response = client.post(
+            "/records/batch",
+            headers=headers(),
+            json={
+                "installation_id": installation_id,
+                "records": [invalid_record],
+            },
+        )
+        assert response.status_code == 422
 
 
 def test_preserves_and_reuses_a_conflicting_duplicate(

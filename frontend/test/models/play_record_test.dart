@@ -10,20 +10,23 @@ void main() {
   final startedAt = DateTime.utc(2026, 8, 16, 9);
   final completedAt = DateTime.utc(2026, 8, 16, 9, 2);
 
-  PendingCompletion completion({FeatureMetrics? metrics, int? score = 10}) =>
-      PendingCompletion(
-        area: LearningArea.literacy,
-        feature: ActivityId.phraseBuilding,
-        outcome: PlayOutcome.won,
-        score: score,
-        metrics:
-            metrics ?? AttemptMetrics(correctAnswers: 10, incorrectAttempts: 2),
-        startedAt: startedAt,
-        completedAt: completedAt,
-        elapsedMilliseconds: 118000,
-        appVersion: '0.1.0+1',
-        contentVersion: 'en-1',
-      );
+  PendingCompletion completion({
+    FeatureMetrics? metrics,
+    int? score = 10,
+    PlayOutcome outcome = PlayOutcome.won,
+  }) => PendingCompletion(
+    area: LearningArea.literacy,
+    feature: ActivityId.phraseBuilding,
+    outcome: outcome,
+    score: score,
+    metrics:
+        metrics ?? AttemptMetrics(correctAnswers: 10, incorrectAttempts: 2),
+    startedAt: startedAt,
+    completedAt: completedAt,
+    elapsedMilliseconds: 118000,
+    appVersion: '0.1.0+1',
+    contentVersion: 'en-1',
+  );
 
   test('every current activity has a stable literacy identity', () {
     expect(
@@ -81,11 +84,31 @@ void main() {
     );
   });
 
+  test('an abandoned activity is unrated and keeps partial metrics', () {
+    final original = completion(
+      outcome: PlayOutcome.abandoned,
+      score: null,
+      metrics: MemoryMetrics(pairCount: 9, pairAttempts: 4, mismatches: 2),
+    ).abandon(recordNumber: 2);
+    final decoded = PlayRecord.fromJson(original.toJson());
+
+    expect(decoded.outcome, PlayOutcome.abandoned);
+    expect(decoded.rating, isNull);
+    expect(decoded.toJson(), original.toJson());
+  });
+
   test('record validation rejects invalid ratings and area mismatches', () {
     expect(
       () => completion().rate(recordNumber: 1, rating: 0),
       throwsArgumentError,
     );
+    expect(
+      () => completion(
+        outcome: PlayOutcome.abandoned,
+      ).rate(recordNumber: 1, rating: 4),
+      throwsArgumentError,
+    );
+    expect(() => completion().abandon(recordNumber: 1), throwsArgumentError);
     expect(
       () => PendingCompletion(
         area: LearningArea.math,
@@ -114,7 +137,7 @@ void main() {
       throwsArgumentError,
     );
     expect(
-      () => MemoryMetrics(pairCount: 9, pairAttempts: 10, mismatches: 3),
+      () => MemoryMetrics(pairCount: 9, pairAttempts: 13, mismatches: 3),
       throwsArgumentError,
     );
   });

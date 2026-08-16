@@ -150,11 +150,11 @@ class MemoryMetrics extends FeatureMetrics {
       throw ArgumentError.value(pairCount, 'pairCount', 'Must be positive');
     }
     _requireNonNegative(mismatches, 'mismatches');
-    if (pairAttempts != pairCount + mismatches) {
+    if (pairAttempts < mismatches || pairAttempts > pairCount + mismatches) {
       throw ArgumentError.value(
         pairAttempts,
         'pairAttempts',
-        'Must equal pairCount plus mismatches',
+        'Must represent between zero and pairCount matches',
       );
     }
   }

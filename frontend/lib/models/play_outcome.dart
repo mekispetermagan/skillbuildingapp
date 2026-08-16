@@ -1,7 +1,8 @@
 enum PlayOutcome {
   completed('completed'),
   won('won'),
-  lost('lost');
+  lost('lost'),
+  abandoned('abandoned');
 
   final String wireName;
 

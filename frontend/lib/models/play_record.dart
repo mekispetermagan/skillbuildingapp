@@ -12,7 +12,7 @@ class PlayRecord {
   final ActivityId feature;
   final PlayOutcome outcome;
   final int? score;
-  final int rating;
+  final int? rating;
   final FeatureMetrics metrics;
   final DateTime startedAt;
   final DateTime completedAt;
@@ -51,8 +51,21 @@ class PlayRecord {
         'Must be positive',
       );
     }
-    if (rating < 1 || rating > 5) {
+    if (rating != null && (rating! < 1 || rating! > 5)) {
       throw ArgumentError.value(rating, 'rating', 'Must be between 1 and 5');
+    }
+    if (outcome == PlayOutcome.abandoned && rating != null) {
+      throw ArgumentError('An abandoned play must not have a rating.');
+    }
+    if (outcome != PlayOutcome.abandoned && rating == null) {
+      throw ArgumentError('A completed play requires a rating.');
+    }
+    final recordMetrics = metrics;
+    if (outcome != PlayOutcome.abandoned &&
+        recordMetrics is MemoryMetrics &&
+        recordMetrics.pairAttempts !=
+            recordMetrics.pairCount + recordMetrics.mismatches) {
+      throw ArgumentError('A completed memory play must include every pair.');
     }
     if (schemaVersion != playRecordSchemaVersion) {
       throw ArgumentError.value(
@@ -119,7 +132,7 @@ class PlayRecord {
       ),
       outcome: PlayOutcome.fromWireName(recordString(json, 'outcome')),
       score: recordNullableInt(json, 'score'),
-      rating: recordInt(json, 'rating'),
+      rating: recordNullableInt(json, 'rating'),
       metrics: FeatureMetrics.fromJson(recordMap(json, 'metrics')),
       startedAt: recordDateTime(json, 'started_at'),
       completedAt: recordDateTime(json, 'completed_at'),

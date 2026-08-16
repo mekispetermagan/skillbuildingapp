@@ -18,6 +18,9 @@ identical retry is acknowledged without inserting another row. A different
 payload claiming an existing identity is preserved in `record_conflicts` and
 returned with a reference such as `3-42-e1`.
 
+Completed plays require a rating from 1 to 5. Plays with the `abandoned`
+outcome have a null rating and may contain a partial metrics snapshot.
+
 ## Run locally
 
 Create a virtual environment and install the service:
