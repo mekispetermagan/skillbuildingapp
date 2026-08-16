@@ -21,7 +21,12 @@ class MathMenuScreen extends StatelessWidget {
       child: FeatureMenuGrid(
         items: [
           for (final (number, onPressed) in menuItems)
-            (context.l10n.mathFeature(number), onPressed),
+            (
+              number == 1
+                  ? context.l10n.activityNumberLearning
+                  : context.l10n.mathFeature(number),
+              onPressed,
+            ),
         ],
       ),
     ),

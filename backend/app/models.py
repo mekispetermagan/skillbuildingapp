@@ -90,13 +90,14 @@ LITERACY_FEATURES = frozenset(
         "crossword",
     }
 )
+MATH_FEATURES = frozenset({"number_learning"})
 
 
 class PlayRecord(ContractModel):
     schema_version: Literal[1]
     installation_id: PositiveStrictInt
     record_number: PositiveStrictInt
-    area_id: Literal["literacy"]
+    area_id: Literal["literacy", "math"]
     feature_id: str = Field(min_length=1, max_length=64)
     outcome: Literal["completed", "won", "lost", "abandoned"]
     score: Annotated[StrictInt, Field(ge=0)] | None
@@ -117,7 +118,8 @@ class PlayRecord(ContractModel):
 
     @model_validator(mode="after")
     def validate_record(self) -> PlayRecord:
-        if self.feature_id not in LITERACY_FEATURES:
+        features = LITERACY_FEATURES if self.area_id == "literacy" else MATH_FEATURES
+        if self.feature_id not in features:
             raise ValueError("feature_id is not registered in area_id")
         if self.completed_at < self.started_at:
             raise ValueError("completed_at must not be before started_at")

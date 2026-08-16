@@ -20,12 +20,14 @@ import '../models/letter_catching_word.dart';
 import '../models/letter_dragging_state.dart';
 import '../models/letter_dragging_word.dart';
 import '../models/letter_learning_state.dart';
+import '../models/learning_area.dart';
 import '../models/letter_shooting_state.dart';
 import '../models/letter_shooting_word.dart';
 import '../models/letter_shooting_world.dart';
 import '../models/letter_practice_state.dart';
 import '../models/missing_letters_state.dart';
 import '../models/missing_letters_word.dart';
+import '../models/number_learning.dart';
 import '../models/outfit_sentence.dart';
 import '../models/phrase_building_state.dart';
 import '../models/phrase_building_tile.dart';
@@ -46,6 +48,7 @@ import 'letter_shooting_controller.dart';
 import 'letter_practice_controller.dart';
 import 'memory_controller.dart';
 import 'missing_letters_controller.dart';
+import 'number_learning_controller.dart';
 import 'phrase_building_controller.dart';
 import 'sentence_composer_controller.dart';
 import 'sentence_quiz_controller.dart';
@@ -56,6 +59,7 @@ enum SessionStatus {
   literacyMenu,
   mathMenu,
   mathPlaceholder,
+  numberLearning,
   letterLearning,
   letterPractice,
   phraseBuilding,
@@ -108,6 +112,7 @@ class SessionController extends ChangeNotifier {
   ActivityId? _ratingActivity;
   late final SentenceQuizController _sentenceQuizController;
   late final SentenceComposerController _sentenceComposerController;
+  late final NumberLearningController _numberLearningController;
   SessionStatus status = SessionStatus.areaMenu;
   int? mathPlaceholderNumber;
 
@@ -131,6 +136,8 @@ class SessionController extends ChangeNotifier {
     _sentenceQuizController = SentenceQuizController()
       ..addListener(_forwardFeatureNotification);
     _sentenceComposerController = SentenceComposerController()
+      ..addListener(_forwardFeatureNotification);
+    _numberLearningController = NumberLearningController(_audioPlayer)
       ..addListener(_forwardFeatureNotification);
     unawaited(_gameplayRecorder.synchronize());
     unawaited(_initializePhraseBuilding());
@@ -157,7 +164,9 @@ class SessionController extends ChangeNotifier {
     _pendingRating = null;
     _ratingActivity = null;
     _activityStartedAt = null;
-    status = SessionStatus.literacyMenu;
+    status = completion.area == LearningArea.math
+        ? SessionStatus.mathMenu
+        : SessionStatus.literacyMenu;
     notifyListeners();
     await _gameplayRecorder.recordCompleted(completion, rating);
   }
@@ -179,9 +188,35 @@ class SessionController extends ChangeNotifier {
   ];
 
   late final List<(int, VoidCallback)> mathMenuItems = [
-    for (var number = 1; number <= 8; number++)
+    (1, openNumberLearning),
+    for (var number = 2; number <= 8; number++)
       (number, () => openMathPlaceholder(number)),
   ];
+
+  NumberLearningViewData get numberLearningViewData => NumberLearningViewData(
+    range: _numberLearningController.range,
+    useColors: _numberLearningController.useColors,
+    state: _numberLearningController.state,
+    score: _numberLearningController.score,
+    target: _numberLearningController.target,
+    emoji: _numberLearningController.emoji,
+    choices: _numberLearningController.choices,
+    canGuess: _numberLearningController.canGuess,
+    config: _numberLearningController.config,
+  );
+
+  void numberLearningSetRange(NumberRange value) =>
+      _numberLearningController.setRange(value);
+  void numberLearningSetUseColors(bool value) =>
+      _numberLearningController.setUseColors(value);
+  void numberLearningGuess(int number) {
+    unawaited(_numberLearningController.guess(number));
+  }
+
+  void openNumberLearning() {
+    _numberLearningController.start();
+    _beginActivity(SessionStatus.numberLearning);
+  }
 
   PhraseBuildingViewData get phraseBuildingViewData => PhraseBuildingViewData(
     isLoading:
@@ -625,7 +660,7 @@ class SessionController extends ChangeNotifier {
 
   void openMathMenu() {
     mathPlaceholderNumber = null;
-    _open(SessionStatus.mathMenu);
+    _leaveActivity(SessionStatus.mathMenu);
   }
 
   void openMathPlaceholder(int number) {
@@ -637,6 +672,10 @@ class SessionController extends ChangeNotifier {
   }
 
   void openLiteracyMenu() {
+    _leaveActivity(SessionStatus.literacyMenu);
+  }
+
+  void _leaveActivity(SessionStatus destination) {
     final currentStatus = status;
     if (_isActivity(currentStatus) && _activityStartedAt != null) {
       final abandoned = _buildCompletion(currentStatus, PlayOutcome.abandoned);
@@ -658,7 +697,8 @@ class SessionController extends ChangeNotifier {
     _crosswordController?.stop();
     _letterLearningController?.stop();
     _letterPracticeController?.stop();
-    _open(SessionStatus.literacyMenu);
+    _numberLearningController.stop();
+    _open(destination);
   }
 
   void handleBack() {
@@ -672,7 +712,9 @@ class SessionController extends ChangeNotifier {
       case SessionStatus.mathPlaceholder:
         openMathMenu();
       default:
-        openLiteracyMenu();
+        _activityFor(status).area == LearningArea.math
+            ? openMathMenu()
+            : openLiteracyMenu();
     }
   }
 
@@ -697,6 +739,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.sentenceComposer ||
     SessionStatus.spellingQuiz ||
     SessionStatus.crossword => true,
+    SessionStatus.numberLearning => true,
     _ => false,
   };
 
@@ -726,6 +769,8 @@ class SessionController extends ChangeNotifier {
       _spellingQuizController?.state == SpellingQuizState.won,
     SessionStatus.crossword =>
       _crosswordController?.state == CrosswordState.won,
+    SessionStatus.numberLearning =>
+      _numberLearningController.state == NumberLearningState.won,
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
     SessionStatus.mathMenu ||
@@ -768,6 +813,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.sentenceComposer => ActivityId.sentenceComposer,
     SessionStatus.spellingQuiz => ActivityId.spellingQuiz,
     SessionStatus.crossword => ActivityId.crossword,
+    SessionStatus.numberLearning => ActivityId.numberLearning,
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
     SessionStatus.mathMenu ||
@@ -791,6 +837,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.sentenceComposer => _sentenceComposerController.score,
     SessionStatus.spellingQuiz => _spellingQuizController?.score ?? 0,
     SessionStatus.crossword => _crosswordController?.score ?? 0,
+    SessionStatus.numberLearning => _numberLearningController.score,
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
     SessionStatus.mathMenu ||
@@ -870,6 +917,10 @@ class SessionController extends ChangeNotifier {
     SessionStatus.crossword => AttemptMetrics(
       correctAnswers: _crosswordController?.score ?? 0,
       incorrectAttempts: _crosswordController?.incorrectAttempts ?? 0,
+    ),
+    SessionStatus.numberLearning => AttemptMetrics(
+      correctAnswers: _numberLearningController.score,
+      incorrectAttempts: _numberLearningController.incorrectAttempts,
     ),
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
@@ -1241,6 +1292,8 @@ class SessionController extends ChangeNotifier {
     _letterLearningController?.dispose();
     _letterPracticeController?.removeListener(_forwardFeatureNotification);
     _letterPracticeController?.dispose();
+    _numberLearningController.removeListener(_forwardFeatureNotification);
+    _numberLearningController.dispose();
     super.dispose();
   }
 }

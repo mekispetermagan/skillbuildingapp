@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:literacy_game/audio/asset_audio_player.dart';
 import 'package:literacy_game/controllers/session_controller.dart';
 import 'package:literacy_game/models/activity_id.dart';
+import 'package:literacy_game/models/learning_area.dart';
 import 'package:literacy_game/models/pending_completion.dart';
 import 'package:literacy_game/models/play_outcome.dart';
 import 'package:literacy_game/services/gameplay_recorder.dart';
@@ -334,6 +335,26 @@ void main() {
     expect(controller.status, SessionStatus.mathMenu);
     controller.handleBack();
     expect(controller.status, SessionStatus.areaMenu);
+    controller.dispose();
+  });
+
+  test('number learning abandonment is recorded in the math area', () async {
+    final recorder = _FakeGameplayRecorder();
+    final controller = SessionController(
+      assetBundle: _SentenceAssetBundle(),
+      audioPlayer: _FakeAudioPlayer(),
+      gameplayRecorder: recorder,
+    );
+
+    controller.mathMenuItems.first.$2();
+    expect(controller.status, SessionStatus.numberLearning);
+    controller.openMathMenu();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(recorder.abandoned, hasLength(1));
+    expect(recorder.abandoned.single.area, LearningArea.math);
+    expect(recorder.abandoned.single.feature, ActivityId.numberLearning);
+    expect(controller.status, SessionStatus.mathMenu);
     controller.dispose();
   });
 }

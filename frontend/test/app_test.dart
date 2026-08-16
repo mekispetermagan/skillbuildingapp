@@ -37,19 +37,19 @@ void main() {
     expect(find.text('Sentence building'), findsNothing);
   });
 
-  testWidgets('opens math entries into the shared placeholder', (tester) async {
+  testWidgets('opens number learning from the math menu', (tester) async {
     await tester.pumpWidget(const LiteracyApp());
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Math'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Feature 1'), findsOneWidget);
+    expect(find.text('Number learning'), findsOneWidget);
 
-    await tester.tap(find.text('Feature 1'));
+    await tester.tap(find.text('Number learning'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Feature 1'), findsOneWidget);
-    expect(find.text('Coming soon'), findsOneWidget);
+    expect(find.text('1–6'), findsOneWidget);
+    expect(find.text('Coming soon'), findsNothing);
   });
 }

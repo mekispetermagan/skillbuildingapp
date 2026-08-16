@@ -184,6 +184,12 @@ abstract class AppLocalizations {
   /// **'Crossword'**
   String get activityCrossword;
 
+  /// No description provided for @activityNumberLearning.
+  ///
+  /// In en, this message translates to:
+  /// **'Number learning'**
+  String get activityNumberLearning;
+
   /// No description provided for @areaLiteracy.
   ///
   /// In en, this message translates to:

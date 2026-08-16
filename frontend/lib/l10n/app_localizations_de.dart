@@ -51,6 +51,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get activityCrossword => 'Kreuzworträtsel';
 
   @override
+  String get activityNumberLearning => 'Zahlen lernen';
+
+  @override
   String get areaLiteracy => 'Lesen und Schreiben';
 
   @override

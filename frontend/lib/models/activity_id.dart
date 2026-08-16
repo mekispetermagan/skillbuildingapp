@@ -13,26 +13,27 @@ enum ActivityId {
   sentenceQuiz('sentence_quiz'),
   sentenceComposer('sentence_composer'),
   spellingQuiz('spelling_quiz'),
-  crossword('crossword');
+  crossword('crossword'),
+  numberLearning('number_learning');
 
   final String wireName;
 
   const ActivityId(this.wireName);
 
-  LearningArea get area => LearningArea.literacy;
+  LearningArea get area => switch (this) {
+    ActivityId.numberLearning => LearningArea.math,
+    _ => LearningArea.literacy,
+  };
 
   static ActivityId fromWireName({
     required LearningArea area,
     required String value,
   }) {
-    if (area != LearningArea.literacy) {
-      throw FormatException(
-        'No activities are registered for ${area.wireName}.',
-      );
-    }
-    return values.firstWhere(
-      (activity) => activity.wireName == value,
-      orElse: () => throw FormatException('Unknown feature: $value'),
-    );
+    return values
+        .where((activity) => activity.area == area)
+        .firstWhere(
+          (activity) => activity.wireName == value,
+          orElse: () => throw FormatException('Unknown feature: $value'),
+        );
   }
 }

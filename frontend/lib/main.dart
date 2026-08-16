@@ -93,6 +93,13 @@ class AppRootState extends State<AppRoot> {
             featureNumber: _sessionController.mathPlaceholderNumber!,
             onBack: _sessionController.openMathMenu,
           ),
+          SessionStatus.numberLearning => NumberLearningScreen(
+            viewData: _sessionController.numberLearningViewData,
+            onBack: _sessionController.openMathMenu,
+            onSetRange: _sessionController.numberLearningSetRange,
+            onSetUseColors: _sessionController.numberLearningSetUseColors,
+            onGuess: _sessionController.numberLearningGuess,
+          ),
           SessionStatus.letterLearning => LetterLearningScreen(
             viewData: _sessionController.letterLearningViewData,
             onBack: _sessionController.openLiteracyMenu,

@@ -28,6 +28,7 @@ void main() {
       'Satz zusammenstellen',
       'Rechtschreibquiz',
       'Kreuzworträtsel',
+      'Zahlen lernen',
     ]);
   });
 
@@ -48,6 +49,7 @@ void main() {
       'Sentence composer',
       'Spelling quiz',
       'Crossword',
+      'Number learning',
     ]);
   });
 
@@ -68,6 +70,7 @@ void main() {
       'Mondatépítő',
       'Helyesírás kvíz',
       'Keresztrejtvény',
+      'Számtanulás',
     ]);
   });
 }

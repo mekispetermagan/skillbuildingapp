@@ -260,6 +260,22 @@ def test_rejects_unknown_installations_and_invalid_contracts(client: TestClient)
     assert invalid.status_code == 422
 
 
+def test_accepts_number_learning_records(client: TestClient):
+    installation_id = register(client)
+    math_record = record(installation_id, 1)
+    math_record["area_id"] = "math"
+    math_record["feature_id"] = "number_learning"
+
+    response = client.post(
+        "/records/batch",
+        headers=headers(),
+        json={"installation_id": installation_id, "records": [math_record]},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["acknowledgements"][0]["status"] == "accepted"
+
+
 def test_rejects_oversized_batches(database_path: Path):
     app = create_app(
         Settings(

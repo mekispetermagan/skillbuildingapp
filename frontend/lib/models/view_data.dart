@@ -27,6 +27,7 @@ import 'memory_config.dart';
 import 'missing_letter_slot.dart';
 import 'missing_letter_tile.dart';
 import 'missing_letters_state.dart';
+import 'number_learning.dart';
 import 'outfit_sentence.dart';
 import 'phrase_building_state.dart';
 import 'phrase_building_tile.dart';
@@ -315,5 +316,29 @@ class LetterLearningViewData {
     required this.canGuess,
     required this.isTargetRevealed,
     required this.selectedLetter,
+  });
+}
+
+class NumberLearningViewData {
+  final NumberRange range;
+  final bool useColors;
+  final NumberLearningState state;
+  final int score;
+  final int target;
+  final String emoji;
+  final List<int> choices;
+  final bool canGuess;
+  final NumberLearningConfig config;
+
+  const NumberLearningViewData({
+    required this.range,
+    required this.useColors,
+    required this.state,
+    required this.score,
+    required this.target,
+    required this.emoji,
+    required this.choices,
+    required this.canGuess,
+    required this.config,
   });
 }

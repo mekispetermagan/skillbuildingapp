@@ -28,16 +28,14 @@ void main() {
     contentVersion: 'en-1',
   );
 
-  test('every current activity has a stable literacy identity', () {
+  test('every current activity has a stable area-specific identity', () {
     expect(
       ActivityId.values.map((feature) => feature.wireName).toSet(),
       hasLength(ActivityId.values.length),
     );
     expect(
-      ActivityId.values.every(
-        (feature) => feature.area == LearningArea.literacy,
-      ),
-      isTrue,
+      ActivityId.values.where((feature) => feature.area == LearningArea.math),
+      [ActivityId.numberLearning],
     );
     expect(
       ActivityId.fromWireName(
@@ -45,6 +43,13 @@ void main() {
         value: 'letter_learning',
       ),
       ActivityId.letterLearning,
+    );
+    expect(
+      ActivityId.fromWireName(
+        area: LearningArea.math,
+        value: 'number_learning',
+      ),
+      ActivityId.numberLearning,
     );
   });
 
