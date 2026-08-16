@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "literacy-game-backend"
+version = "0.1.0"
+description = "Disposable pre-pilot gameplay record collector."
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.141,<0.142",
+  "pydantic>=2.13,<2.14",
+  "uvicorn[standard]>=0.52,<0.53",
+]
+
+[project.optional-dependencies]
+test = [
+  "httpx2>=2.10,<2.11",
+  "pytest>=9.1,<9.2",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
