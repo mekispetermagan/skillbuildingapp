@@ -24,6 +24,7 @@ class SpellingQuizController extends ChangeNotifier {
   late SpellingQuizQuestion question;
   SpellingQuizState state = SpellingQuizState.guessing;
   int score = 0;
+  int incorrectAttempts = 0;
   int? correctHighlightIndex;
   int? wrongHighlightIndex;
   bool _disposed = false;
@@ -51,6 +52,7 @@ class SpellingQuizController extends ChangeNotifier {
   void start() {
     _sessionGeneration++;
     score = 0;
+    incorrectAttempts = 0;
     state = SpellingQuizState.guessing;
     correctHighlightIndex = null;
     wrongHighlightIndex = null;
@@ -71,6 +73,7 @@ class SpellingQuizController extends ChangeNotifier {
     if (guessIndex == question.correctIndex) {
       score++;
     } else {
+      incorrectAttempts++;
       wrongHighlightIndex = guessIndex;
     }
     notifyListeners();

@@ -13,6 +13,7 @@ import '../models/crossword_entry.dart';
 import '../models/crossword_state.dart';
 import '../models/activity_id.dart';
 import '../models/feature_load_error.dart';
+import '../models/feature_metrics.dart';
 import '../models/image_word.dart';
 import '../models/letter_catching_state.dart';
 import '../models/letter_catching_word.dart';
@@ -28,10 +29,14 @@ import '../models/missing_letters_word.dart';
 import '../models/outfit_sentence.dart';
 import '../models/phrase_building_state.dart';
 import '../models/phrase_building_tile.dart';
+import '../models/pending_completion.dart';
+import '../models/play_outcome.dart';
 import '../models/sentence.dart';
 import '../models/sentence_composer_state.dart';
+import '../models/sentence_quiz_state.dart';
 import '../models/spelling_quiz_state.dart';
 import '../models/view_data.dart';
+import '../services/gameplay_recorder.dart';
 import 'conveyor_controller.dart';
 import 'crossword_controller.dart';
 import 'letter_catching_controller.dart';
@@ -61,11 +66,16 @@ enum SessionStatus {
   sentenceComposer,
   spellingQuiz,
   crossword,
+  rating,
 }
 
 class SessionController extends ChangeNotifier {
   final AssetBundle _assetBundle;
   final AssetAudioPlayer _audioPlayer;
+  final GameplayRecorder _gameplayRecorder;
+  final DateTime Function() _now;
+  final String _appVersion;
+  final String _contentVersion;
 
   PhraseBuildingController? _phraseBuildingController;
   FeatureLoadError? _phraseBuildingError;
@@ -90,17 +100,35 @@ class SessionController extends ChangeNotifier {
   LetterPracticeController? _letterPracticeController;
   FeatureLoadError? _letterPracticeError;
   bool _disposed = false;
+  DateTime? _activityStartedAt;
+  PendingCompletion? _pendingRating;
+  ActivityId? _ratingActivity;
   late final SentenceQuizController _sentenceQuizController;
   late final SentenceComposerController _sentenceComposerController;
   SessionStatus status = SessionStatus.menu;
 
-  SessionController({AssetBundle? assetBundle, AssetAudioPlayer? audioPlayer})
-    : _assetBundle = assetBundle ?? rootBundle,
-      _audioPlayer = audioPlayer ?? SoloudAssetAudioPlayer() {
+  SessionController({
+    AssetBundle? assetBundle,
+    AssetAudioPlayer? audioPlayer,
+    GameplayRecorder gameplayRecorder = const NoopGameplayRecorder(),
+    DateTime Function()? now,
+    String appVersion = '0.1.0+1',
+    String contentVersion = 'en-1',
+  }) : _assetBundle = assetBundle ?? rootBundle,
+       _audioPlayer = audioPlayer ?? SoloudAssetAudioPlayer(),
+       // Named public parameters keep dependency injection readable.
+       // ignore: prefer_initializing_formals
+       _gameplayRecorder = gameplayRecorder,
+       _now = now ?? DateTime.now,
+       // ignore: prefer_initializing_formals
+       _appVersion = appVersion,
+       // ignore: prefer_initializing_formals
+       _contentVersion = contentVersion {
     _sentenceQuizController = SentenceQuizController()
       ..addListener(_forwardFeatureNotification);
     _sentenceComposerController = SentenceComposerController()
       ..addListener(_forwardFeatureNotification);
+    unawaited(_gameplayRecorder.synchronize());
     unawaited(_initializePhraseBuilding());
     unawaited(_initializeLetterDragging());
     unawaited(_initializeLetterShooting());
@@ -112,6 +140,22 @@ class SessionController extends ChangeNotifier {
     unawaited(_initializeCrossword());
     unawaited(_initializeLetterLearning());
     unawaited(_initializeLetterPractice());
+  }
+
+  ActivityId get ratingActivity => _ratingActivity!;
+
+  Future<void> submitRating(int rating) async {
+    if (rating < 1 || rating > 5) {
+      throw ArgumentError.value(rating, 'rating', 'Must be between 1 and 5');
+    }
+    final completion = _pendingRating;
+    if (completion == null) return;
+    _pendingRating = null;
+    _ratingActivity = null;
+    _activityStartedAt = null;
+    status = SessionStatus.menu;
+    notifyListeners();
+    await _gameplayRecorder.recordCompleted(completion, rating);
   }
 
   late final List<(ActivityId, VoidCallback)> menuItems = [
@@ -166,7 +210,7 @@ class SessionController extends ChangeNotifier {
 
   void openPhraseBuilding() {
     _phraseBuildingController?.start();
-    _open(SessionStatus.phraseBuilding);
+    _beginActivity(SessionStatus.phraseBuilding);
     unawaited(_phraseBuildingController?.playAudio());
   }
 
@@ -204,7 +248,7 @@ class SessionController extends ChangeNotifier {
 
   void openLetterDragging() {
     _letterDraggingController?.start();
-    _open(SessionStatus.letterDragging);
+    _beginActivity(SessionStatus.letterDragging);
   }
 
   void restartLetterDragging() => _letterDraggingController?.start();
@@ -231,7 +275,7 @@ class SessionController extends ChangeNotifier {
 
   void openLetterShooting() {
     _letterShootingController?.start();
-    _open(SessionStatus.letterShooting);
+    _beginActivity(SessionStatus.letterShooting);
   }
 
   void restartLetterShooting() => _letterShootingController?.start();
@@ -253,7 +297,7 @@ class SessionController extends ChangeNotifier {
 
   void openLetterCatching() {
     _letterCatchingController?.start();
-    _open(SessionStatus.letterCatching);
+    _beginActivity(SessionStatus.letterCatching);
   }
 
   void restartLetterCatching() => _letterCatchingController?.start();
@@ -286,7 +330,7 @@ class SessionController extends ChangeNotifier {
 
   void openConveyor() {
     _conveyorController?.start();
-    _open(SessionStatus.conveyor);
+    _beginActivity(SessionStatus.conveyor);
   }
 
   void restartConveyor() => _conveyorController?.start();
@@ -305,7 +349,7 @@ class SessionController extends ChangeNotifier {
 
   void openSentenceQuiz() {
     _sentenceQuizController.start();
-    _open(SessionStatus.sentenceQuiz);
+    _beginActivity(SessionStatus.sentenceQuiz);
   }
 
   void restartSentenceQuiz() => _sentenceQuizController.start();
@@ -351,7 +395,7 @@ class SessionController extends ChangeNotifier {
 
   void openSentenceComposer() {
     _sentenceComposerController.start();
-    _open(SessionStatus.sentenceComposer);
+    _beginActivity(SessionStatus.sentenceComposer);
   }
 
   void restartSentenceComposer() => _sentenceComposerController.start();
@@ -374,7 +418,7 @@ class SessionController extends ChangeNotifier {
 
   void openSpellingQuiz() {
     _spellingQuizController?.start();
-    _open(SessionStatus.spellingQuiz);
+    _beginActivity(SessionStatus.spellingQuiz);
     unawaited(_spellingQuizController?.playAudio());
   }
 
@@ -405,7 +449,7 @@ class SessionController extends ChangeNotifier {
 
   void openCrossword() {
     _crosswordController?.start();
-    _open(SessionStatus.crossword);
+    _beginActivity(SessionStatus.crossword);
   }
 
   void restartCrossword() => _crosswordController?.start();
@@ -450,7 +494,7 @@ class SessionController extends ChangeNotifier {
 
   void openLetterLearning() {
     _letterLearningController?.start();
-    _open(SessionStatus.letterLearning);
+    _beginActivity(SessionStatus.letterLearning);
     unawaited(_letterLearningController?.playPrompt());
   }
 
@@ -500,7 +544,7 @@ class SessionController extends ChangeNotifier {
 
   void openLetterPractice() {
     _letterPracticeController?.start();
-    _open(SessionStatus.letterPractice);
+    _beginActivity(SessionStatus.letterPractice);
     unawaited(_letterPracticeController?.playAudio());
   }
 
@@ -537,7 +581,7 @@ class SessionController extends ChangeNotifier {
 
   void openMissingLetters() {
     _missingLettersController?.start();
-    _open(SessionStatus.missingLetters);
+    _beginActivity(SessionStatus.missingLetters);
   }
 
   void restartMissingLetters() => _missingLettersController?.start();
@@ -555,7 +599,7 @@ class SessionController extends ChangeNotifier {
 
   void openMemory() {
     _memoryController?.startNewGame();
-    _open(SessionStatus.memory);
+    _beginActivity(SessionStatus.memory);
   }
 
   AnswerFeedback _answerFeedback(ComposerChoiceAssessment assessment) =>
@@ -566,6 +610,14 @@ class SessionController extends ChangeNotifier {
       };
 
   void openMenu() {
+    final currentStatus = status;
+    if (_isActivity(currentStatus) && _activityStartedAt != null) {
+      final abandoned = _buildCompletion(currentStatus, PlayOutcome.abandoned);
+      unawaited(_gameplayRecorder.recordAbandoned(abandoned));
+    }
+    _activityStartedAt = null;
+    _pendingRating = null;
+    _ratingActivity = null;
     unawaited(_audioPlayer.stop());
     _phraseBuildingController?.stop();
     _letterDraggingController?.stop();
@@ -580,6 +632,197 @@ class SessionController extends ChangeNotifier {
     _letterLearningController?.stop();
     _letterPracticeController?.stop();
     _open(SessionStatus.menu);
+  }
+
+  void _beginActivity(SessionStatus activity) {
+    _activityStartedAt = _now();
+    _pendingRating = null;
+    _ratingActivity = null;
+    _open(activity);
+  }
+
+  bool _isActivity(SessionStatus value) =>
+      value != SessionStatus.menu && value != SessionStatus.rating;
+
+  bool _isTerminal(SessionStatus value) => switch (value) {
+    SessionStatus.letterLearning =>
+      _letterLearningController?.state == LetterLearningState.won,
+    SessionStatus.letterPractice =>
+      _letterPracticeController?.state == LetterPracticeState.won,
+    SessionStatus.phraseBuilding =>
+      _phraseBuildingController?.state == PhraseBuildingState.won,
+    SessionStatus.letterDragging =>
+      _letterDraggingController?.state == LetterDraggingState.result,
+    SessionStatus.missingLetters =>
+      _missingLettersController?.state == MissingLettersState.won,
+    SessionStatus.letterShooting =>
+      _letterShootingController?.state == LetterShootingState.ended,
+    SessionStatus.memory => _memoryController?.isComplete ?? false,
+    SessionStatus.letterCatching =>
+      _letterCatchingController?.state != LetterCatchingState.playing,
+    SessionStatus.conveyor =>
+      _conveyorController?.state != ConveyorState.playing,
+    SessionStatus.sentenceQuiz =>
+      _sentenceQuizController.state == SentenceQuizState.won,
+    SessionStatus.sentenceComposer =>
+      _sentenceComposerController.state == SentenceComposerState.won,
+    SessionStatus.spellingQuiz =>
+      _spellingQuizController?.state == SpellingQuizState.won,
+    SessionStatus.crossword =>
+      _crosswordController?.state == CrosswordState.won,
+    SessionStatus.menu || SessionStatus.rating => false,
+  };
+
+  PlayOutcome _terminalOutcome(SessionStatus value) => switch (value) {
+    SessionStatus.letterDragging ||
+    SessionStatus.memory => PlayOutcome.completed,
+    SessionStatus.letterCatching =>
+      _letterCatchingController?.state == LetterCatchingState.lost
+          ? PlayOutcome.lost
+          : PlayOutcome.won,
+    SessionStatus.conveyor =>
+      _conveyorController?.state == ConveyorState.lost
+          ? PlayOutcome.lost
+          : PlayOutcome.won,
+    SessionStatus.menu || SessionStatus.rating => throw StateError(
+      'A non-gameplay status cannot finish.',
+    ),
+    _ => PlayOutcome.won,
+  };
+
+  ActivityId _activityFor(SessionStatus value) => switch (value) {
+    SessionStatus.letterLearning => ActivityId.letterLearning,
+    SessionStatus.letterPractice => ActivityId.letterPractice,
+    SessionStatus.phraseBuilding => ActivityId.phraseBuilding,
+    SessionStatus.letterDragging => ActivityId.letterDragging,
+    SessionStatus.missingLetters => ActivityId.missingLetters,
+    SessionStatus.letterShooting => ActivityId.letterShooting,
+    SessionStatus.memory => ActivityId.memoryCards,
+    SessionStatus.letterCatching => ActivityId.letterCatching,
+    SessionStatus.conveyor => ActivityId.wordConveyor,
+    SessionStatus.sentenceQuiz => ActivityId.sentenceQuiz,
+    SessionStatus.sentenceComposer => ActivityId.sentenceComposer,
+    SessionStatus.spellingQuiz => ActivityId.spellingQuiz,
+    SessionStatus.crossword => ActivityId.crossword,
+    SessionStatus.menu || SessionStatus.rating => throw StateError(
+      'A non-gameplay status has no activity.',
+    ),
+  };
+
+  int? _scoreFor(SessionStatus value) => switch (value) {
+    SessionStatus.letterLearning => _letterLearningController?.score ?? 0,
+    SessionStatus.letterPractice => _letterPracticeController?.score ?? 0,
+    SessionStatus.phraseBuilding => _phraseBuildingController?.score ?? 0,
+    SessionStatus.letterDragging => _letterDraggingController?.score ?? 0,
+    SessionStatus.missingLetters => _missingLettersController?.score ?? 0,
+    SessionStatus.letterShooting => _letterShootingController?.world.score ?? 0,
+    SessionStatus.memory => null,
+    SessionStatus.letterCatching => _letterCatchingController?.world.score ?? 0,
+    SessionStatus.conveyor => _conveyorController?.world.score ?? 0,
+    SessionStatus.sentenceQuiz => _sentenceQuizController.score,
+    SessionStatus.sentenceComposer => _sentenceComposerController.score,
+    SessionStatus.spellingQuiz => _spellingQuizController?.score ?? 0,
+    SessionStatus.crossword => _crosswordController?.score ?? 0,
+    SessionStatus.menu || SessionStatus.rating => null,
+  };
+
+  FeatureMetrics _metricsFor(SessionStatus value) => switch (value) {
+    SessionStatus.letterDragging => TimedWordMetrics(
+      correctAnswers: _letterDraggingController?.score ?? 0,
+      passedItems: _letterDraggingController?.passedItems ?? 0,
+    ),
+    SessionStatus.memory => MemoryMetrics(
+      pairCount: _memoryController?.config.pairCount ?? memoryConfig.pairCount,
+      pairAttempts: _memoryController?.pairAttempts ?? 0,
+      mismatches: _memoryController?.mismatches ?? 0,
+    ),
+    SessionStatus.letterCatching => LivesMetrics(
+      correctAnswers: _letterCatchingController?.world.score ?? 0,
+      incorrectAttempts:
+          (_letterCatchingController?.world.config.startingLives ??
+              letterCatchingConfig.startingLives) -
+          (_letterCatchingController?.world.lives ??
+              letterCatchingConfig.startingLives),
+      startingLives:
+          _letterCatchingController?.world.config.startingLives ??
+          letterCatchingConfig.startingLives,
+      remainingLives:
+          _letterCatchingController?.world.lives ??
+          letterCatchingConfig.startingLives,
+    ),
+    SessionStatus.conveyor => LivesMetrics(
+      correctAnswers: _conveyorController?.world.score ?? 0,
+      incorrectAttempts:
+          (_conveyorController?.world.config.startingLives ??
+              conveyorConfig.startingLives) -
+          (_conveyorController?.world.lives ?? conveyorConfig.startingLives),
+      startingLives:
+          _conveyorController?.world.config.startingLives ??
+          conveyorConfig.startingLives,
+      remainingLives:
+          _conveyorController?.world.lives ?? conveyorConfig.startingLives,
+    ),
+    SessionStatus.letterLearning => AttemptMetrics(
+      correctAnswers: _letterLearningController?.score ?? 0,
+      incorrectAttempts: _letterLearningController?.incorrectAttempts ?? 0,
+    ),
+    SessionStatus.letterPractice => AttemptMetrics(
+      correctAnswers: _letterPracticeController?.score ?? 0,
+      incorrectAttempts: _letterPracticeController?.incorrectAttempts ?? 0,
+    ),
+    SessionStatus.phraseBuilding => AttemptMetrics(
+      correctAnswers: _phraseBuildingController?.score ?? 0,
+      incorrectAttempts: _phraseBuildingController?.incorrectAttempts ?? 0,
+    ),
+    SessionStatus.missingLetters => AttemptMetrics(
+      correctAnswers: _missingLettersController?.score ?? 0,
+      incorrectAttempts: _missingLettersController?.incorrectAttempts ?? 0,
+    ),
+    SessionStatus.letterShooting => AttemptMetrics(
+      correctAnswers: _letterShootingController?.world.score ?? 0,
+      incorrectAttempts:
+          _letterShootingController?.world.incorrectAttempts ?? 0,
+    ),
+    SessionStatus.sentenceQuiz => AttemptMetrics(
+      correctAnswers: _sentenceQuizController.score,
+      incorrectAttempts: _sentenceQuizController.incorrectAttempts,
+    ),
+    SessionStatus.sentenceComposer => AttemptMetrics(
+      correctAnswers: _sentenceComposerController.score,
+      incorrectAttempts: _sentenceComposerController.incorrectAttempts,
+    ),
+    SessionStatus.spellingQuiz => AttemptMetrics(
+      correctAnswers: _spellingQuizController?.score ?? 0,
+      incorrectAttempts: _spellingQuizController?.incorrectAttempts ?? 0,
+    ),
+    SessionStatus.crossword => AttemptMetrics(
+      correctAnswers: _crosswordController?.score ?? 0,
+      incorrectAttempts: _crosswordController?.incorrectAttempts ?? 0,
+    ),
+    SessionStatus.menu || SessionStatus.rating => throw StateError(
+      'A non-gameplay status has no metrics.',
+    ),
+  };
+
+  PendingCompletion _buildCompletion(
+    SessionStatus activity,
+    PlayOutcome outcome,
+  ) {
+    final startedAt = _activityStartedAt;
+    if (startedAt == null) throw StateError('No activity is being tracked.');
+    final completedAt = _now();
+    return PendingCompletion(
+      area: _activityFor(activity).area,
+      feature: _activityFor(activity),
+      outcome: outcome,
+      score: _scoreFor(activity),
+      metrics: _metricsFor(activity),
+      startedAt: startedAt,
+      completedAt: completedAt,
+      elapsedMilliseconds: completedAt.difference(startedAt).inMilliseconds,
+      appVersion: _appVersion,
+      contentVersion: _contentVersion,
+    );
   }
 
   void _open(SessionStatus nextStatus) {
@@ -745,7 +988,8 @@ class SessionController extends ChangeNotifier {
       ];
       if (_disposed) return;
 
-      _conveyorController = ConveyorController(words: words);
+      _conveyorController = ConveyorController(words: words)
+        ..addListener(_forwardFeatureNotification);
       if (status == SessionStatus.conveyor) {
         _conveyorController!.start();
       }
@@ -875,7 +1119,21 @@ class SessionController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _forwardFeatureNotification() => notifyListeners();
+  void _forwardFeatureNotification() {
+    final currentStatus = status;
+    if (_activityStartedAt != null &&
+        _pendingRating == null &&
+        _isTerminal(currentStatus)) {
+      final activity = _activityFor(currentStatus);
+      _pendingRating = _buildCompletion(
+        currentStatus,
+        _terminalOutcome(currentStatus),
+      );
+      _ratingActivity = activity;
+      status = SessionStatus.rating;
+    }
+    notifyListeners();
+  }
 
   @override
   void dispose() {
@@ -889,6 +1147,7 @@ class SessionController extends ChangeNotifier {
     _letterShootingController?.dispose();
     _letterCatchingController?.removeListener(_forwardFeatureNotification);
     _letterCatchingController?.dispose();
+    _conveyorController?.removeListener(_forwardFeatureNotification);
     _conveyorController?.dispose();
     _missingLettersController?.removeListener(_forwardFeatureNotification);
     _missingLettersController?.dispose();

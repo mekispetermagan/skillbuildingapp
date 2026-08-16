@@ -27,6 +27,7 @@ class LetterDraggingController extends ChangeNotifier {
   LetterDraggingWord? _currentWord;
   int _deckIndex = 0;
   int _score = 0;
+  int _passedItems = 0;
   bool _showImages = true;
   bool _disposed = false;
   int _sessionGeneration = 0;
@@ -55,6 +56,7 @@ class LetterDraggingController extends ChangeNotifier {
   List<LetterDraggingTile> get tiles => List.unmodifiable(_tiles);
   LetterDraggingState get state => _state;
   int get score => _score;
+  int get passedItems => _passedItems;
   String? get imagePath => _currentWord?.imagePath;
   bool get showImages => _showImages;
   bool get canReorder => _state == LetterDraggingState.playing;
@@ -63,6 +65,7 @@ class LetterDraggingController extends ChangeNotifier {
   void start() {
     _sessionGeneration++;
     _score = 0;
+    _passedItems = 0;
     _showImages = true;
     _state = LetterDraggingState.playing;
     _deck = _words.shuffled(_random);
@@ -101,6 +104,7 @@ class LetterDraggingController extends ChangeNotifier {
 
   void pass() {
     if (!canPass) return;
+    _passedItems++;
     unawaited(_play(_popPath));
     _nextWord();
     notifyListeners();

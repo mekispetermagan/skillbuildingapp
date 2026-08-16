@@ -18,6 +18,8 @@ class MemoryController extends ChangeNotifier {
   List<MemoryCardData> _cards = const [];
   int? _firstCardId;
   int _revealCounter = 0;
+  int _pairAttempts = 0;
+  int _mismatches = 0;
   bool _isEvaluating = false;
   bool _disposed = false;
   int _gameGeneration = 0;
@@ -35,6 +37,9 @@ class MemoryController extends ChangeNotifier {
   List<MemoryCardData> get cards => List.unmodifiable(_cards);
   bool get canPlay => _cards.length == config.cardCount;
   bool get isComplete => canPlay && _cards.every((card) => card.isMatched);
+  int get pairAttempts => _pairAttempts;
+  int get mismatches => _mismatches;
+  int get matchedPairs => _cards.where((card) => card.isMatched).length ~/ 2;
 
   void stop() => _gameGeneration++;
 
@@ -64,6 +69,8 @@ class MemoryController extends ChangeNotifier {
     _cards = cards;
     _firstCardId = null;
     _revealCounter = 0;
+    _pairAttempts = 0;
+    _mismatches = 0;
     _isEvaluating = false;
     if (notify) notifyListeners();
   }
@@ -90,6 +97,8 @@ class MemoryController extends ChangeNotifier {
 
     final first = _cardById(firstCardId);
     final second = _cardById(cardId);
+    _pairAttempts++;
+    if (first.pairId != second.pairId) _mismatches++;
     final nextState = first.pairId == second.pairId
         ? MemoryCardState.matched
         : MemoryCardState.hidden;

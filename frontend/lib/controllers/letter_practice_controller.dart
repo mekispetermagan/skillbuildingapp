@@ -35,6 +35,7 @@ class LetterPracticeController extends ChangeNotifier {
   bool _useColors = true;
   String? _selectedLetter;
   int _score = 0;
+  int _incorrectAttempts = 0;
   LetterPracticeState _state = LetterPracticeState.playing;
   bool _disposed = false;
   int _sessionGeneration = 0;
@@ -68,6 +69,7 @@ class LetterPracticeController extends ChangeNotifier {
   bool get useColors => _useColors;
   String? get selectedLetter => _selectedLetter;
   int get score => _score;
+  int get incorrectAttempts => _incorrectAttempts;
   LetterPracticeState get state => _state;
   bool get canPlay => _state == LetterPracticeState.playing;
   int get sourceColumnCount => switch (_difficulties.length) {
@@ -79,6 +81,7 @@ class LetterPracticeController extends ChangeNotifier {
   void start() {
     _sessionGeneration++;
     _score = 0;
+    _incorrectAttempts = 0;
     _state = LetterPracticeState.playing;
     _selectedLetter = null;
     _previousWord = null;
@@ -136,6 +139,7 @@ class LetterPracticeController extends ChangeNotifier {
   Future<void> place({required int slotId, required String letter}) async {
     if (!canPlay) return;
     if (!canPlace(slotId: slotId, letter: letter)) {
+      _incorrectAttempts++;
       unawaited(_play(_wrongPath));
       return;
     }

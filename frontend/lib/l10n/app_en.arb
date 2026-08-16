@@ -16,6 +16,11 @@
   "congratulations": "Congratulations!",
   "sorry": "Sorry!",
   "playAgain": "Play again",
+  "rateActivity": "How much did you like this game?",
+  "ratingStar": "{rating} out of 5 stars",
+  "@ratingStar": {
+    "placeholders": {"rating": {"type": "int"}}
+  },
   "check": "Check",
   "submit": "Submit",
   "pass": "Pass",

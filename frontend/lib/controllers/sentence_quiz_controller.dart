@@ -18,6 +18,7 @@ class SentenceQuizController extends ChangeNotifier {
   late SentenceQuizQuestion question;
   SentenceQuizState state = SentenceQuizState.guessing;
   int score = 0;
+  int incorrectAttempts = 0;
   int? correctHighlightIndex;
   int? wrongHighlightIndex;
   bool _disposed = false;
@@ -35,6 +36,7 @@ class SentenceQuizController extends ChangeNotifier {
   void start() {
     _sessionGeneration++;
     score = 0;
+    incorrectAttempts = 0;
     state = SentenceQuizState.guessing;
     correctHighlightIndex = null;
     wrongHighlightIndex = null;
@@ -54,6 +56,7 @@ class SentenceQuizController extends ChangeNotifier {
     if (guessIndex == question.correctIndex) {
       score++;
     } else {
+      incorrectAttempts++;
       wrongHighlightIndex = guessIndex;
     }
     notifyListeners();

@@ -1,17 +1,31 @@
 import 'package:flutter/material.dart';
 
+import 'api/gameplay_api_client.dart';
+import 'config/gameplay_api_config.dart';
 import 'controllers/session_controller.dart';
 import 'l10n/l10n.dart';
 import 'models/letter_dragging_state.dart';
 import 'models/interface_language.dart';
 import 'screens/screens.dart';
+import 'services/gameplay_recorder.dart';
+import 'storage/gameplay_record_store.dart';
 
 void main() {
-  runApp(const LiteracyApp());
+  final config = GameplayApiConfig.fromEnvironment();
+  final recorder = SyncedGameplayRecorder(
+    SharedPreferencesGameplayRecordStore(),
+    GameplayApiClient(config: config),
+  );
+  runApp(LiteracyApp(gameplayRecorder: recorder));
 }
 
 class LiteracyApp extends StatefulWidget {
-  const LiteracyApp({super.key});
+  final GameplayRecorder gameplayRecorder;
+
+  const LiteracyApp({
+    this.gameplayRecorder = const NoopGameplayRecorder(),
+    super.key,
+  });
 
   @override
   State<LiteracyApp> createState() => _LiteracyAppState();
@@ -37,161 +51,180 @@ class _LiteracyAppState extends State<LiteracyApp> {
         null => LanguageSelectionScreen(
           onSelect: (language) => setState(() => _language = language),
         ),
-        _ => const AppRoot(),
+        _ => AppRoot(gameplayRecorder: widget.gameplayRecorder),
       },
     );
   }
 }
 
 class AppRoot extends StatefulWidget {
-  const AppRoot({super.key});
+  final GameplayRecorder gameplayRecorder;
+
+  const AppRoot({
+    this.gameplayRecorder = const NoopGameplayRecorder(),
+    super.key,
+  });
 
   @override
   State<AppRoot> createState() => AppRootState();
 }
 
 class AppRootState extends State<AppRoot> {
-  final SessionController _sessionController = SessionController();
+  late final SessionController _sessionController = SessionController(
+    gameplayRecorder: widget.gameplayRecorder,
+  );
 
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: _sessionController,
-      builder: (_, _) => switch (_sessionController.status) {
-        SessionStatus.menu => MenuScreen(
-          menuItems: _sessionController.menuItems,
-        ),
-        SessionStatus.letterLearning => LetterLearningScreen(
-          viewData: _sessionController.letterLearningViewData,
-          onBack: _sessionController.openMenu,
-          onRestart: _sessionController.restartLetterLearning,
-          onSetDifficulties: _sessionController.letterLearningSetDifficulties,
-          onSetMode: _sessionController.letterLearningSetMode,
-          onGuess: _sessionController.letterLearningGuess,
-          onSelectLetter: _sessionController.letterLearningSelectLetter,
-          onGuessSelected: _sessionController.letterLearningGuessSelected,
-          onPlayAudio: _sessionController.letterLearningPlayAudio,
-        ),
-        SessionStatus.letterPractice => LetterPracticeScreen(
-          viewData: _sessionController.letterPracticeViewData,
-          onBack: _sessionController.openMenu,
-          onRestart: _sessionController.restartLetterPractice,
-          onSetDifficulties: _sessionController.letterPracticeSetDifficulties,
-          onSetUseColors: _sessionController.letterPracticeSetUseColors,
-          onSelectLetter: _sessionController.letterPracticeSelectLetter,
-          canPlace: _sessionController.letterPracticeCanPlace,
-          onPlaceSelected: _sessionController.letterPracticePlaceSelected,
-          onPlace: _sessionController.letterPracticePlace,
-          onPlayAudio: _sessionController.letterPracticePlayAudio,
-        ),
-        SessionStatus.phraseBuilding => PhraseBuildingScreen(
-          viewData: _sessionController.phraseBuildingViewData,
-          onBack: _sessionController.openMenu,
-          onMove: _sessionController.phraseBuildingMove,
-          canMoveToTarget: _sessionController.phraseBuildingCanMoveToTarget,
-          canMoveToSource: _sessionController.phraseBuildingCanMoveToSource,
-          onMoveToTarget: _sessionController.phraseBuildingMoveToTarget,
-          onMoveToSource: _sessionController.phraseBuildingMoveToSource,
-          onSubmit: _sessionController.phraseBuildingSubmit,
-          onPlayAudio: _sessionController.phraseBuildingPlayAudio,
-          onRestart: _sessionController.restartPhraseBuilding,
-        ),
-        SessionStatus.letterDragging =>
-          _sessionController.letterDraggingViewData.state ==
-                  LetterDraggingState.result
-              ? LetterDraggingResultScreen(
-                  score: _sessionController.letterDraggingViewData.score,
-                  onBack: _sessionController.openMenu,
-                  onRestart: _sessionController.restartLetterDragging,
-                )
-              : LetterDraggingScreen(
-                  viewData: _sessionController.letterDraggingViewData,
-                  onBack: _sessionController.openMenu,
-                  onReorder: _sessionController.letterDraggingReorder,
-                  onPass: _sessionController.letterDraggingPass,
-                  onShowImagesChanged:
-                      _sessionController.letterDraggingSetShowImages,
-                ),
-        SessionStatus.missingLetters => MissingLettersScreen(
-          viewData: _sessionController.missingLettersViewData,
-          onBack: _sessionController.openMenu,
-          canDrop: _sessionController.missingLettersCanDrop,
-          onDrop: _sessionController.missingLettersDrop,
-          onSelectTile: _sessionController.missingLettersSelectTile,
-          onPlaceSelected: _sessionController.missingLettersPlaceSelected,
-          onShowImagesChanged: _sessionController.missingLettersSetShowImages,
-          onRestart: _sessionController.restartMissingLetters,
-        ),
-        SessionStatus.letterShooting => LetterShootingScreen(
-          viewData: _sessionController.letterShootingViewData,
-          onResize: _sessionController.letterShootingResize,
-          onTick: _sessionController.letterShootingTick,
-          onTap: _sessionController.letterShootingTap,
-          onBeginAim: _sessionController.letterShootingBeginAim,
-          onUpdateAim: _sessionController.letterShootingUpdateAim,
-          onReleaseAim: _sessionController.letterShootingReleaseAim,
-          onBack: _sessionController.openMenu,
-          onRestart: _sessionController.restartLetterShooting,
-        ),
-        SessionStatus.memory => MemoryScreen(
-          viewData: _sessionController.memoryViewData,
-          onBack: _sessionController.openMenu,
-          onSelect: _sessionController.memorySelect,
-          onNewGame: _sessionController.memoryStartNewGame,
-        ),
-        SessionStatus.letterCatching => LetterCatchingScreen(
-          viewData: _sessionController.letterCatchingViewData,
-          onResize: _sessionController.letterCatchingResize,
-          onTick: _sessionController.letterCatchingTick,
-          onMovePaddleBy: _sessionController.letterCatchingMovePaddleBy,
-          onBack: _sessionController.openMenu,
-          onRestart: _sessionController.restartLetterCatching,
-        ),
-        SessionStatus.conveyor => ConveyorScreen(
-          viewData: _sessionController.conveyorViewData,
-          onResize: _sessionController.conveyorResize,
-          onTick: _sessionController.conveyorTick,
-          canAccept: _sessionController.conveyorCanAccept,
-          onStartDragging: _sessionController.conveyorStartDragging,
-          onSelectLetter: _sessionController.conveyorSelectLetter,
-          onPlaceSelected: _sessionController.conveyorPlaceSelected,
-          onCancelDragging: _sessionController.conveyorCancelDragging,
-          onDrop: _sessionController.conveyorDrop,
-          onBack: _sessionController.openMenu,
-          onRestart: _sessionController.restartConveyor,
-        ),
-        SessionStatus.sentenceQuiz => SentenceQuizScreen(
-          viewData: _sessionController.sentenceQuizViewData,
-          onSubmit: _sessionController.sentenceQuizSubmit,
-          onBack: _sessionController.openMenu,
-          onRestart: _sessionController.restartSentenceQuiz,
-        ),
-        SessionStatus.sentenceComposer => SentenceComposerScreen(
-          viewData: _sessionController.sentenceComposerViewData,
-          onSelectPerson: _sessionController.sentenceComposerSelectPerson,
-          onSelectColor: _sessionController.sentenceComposerSelectColor,
-          onSelectPiece: _sessionController.sentenceComposerSelectPiece,
-          onSubmit: _sessionController.sentenceComposerSubmit,
-          onBack: _sessionController.openMenu,
-          onRestart: _sessionController.restartSentenceComposer,
-        ),
-        SessionStatus.spellingQuiz => SpellingQuizScreen(
-          viewData: _sessionController.spellingQuizViewData,
-          onSubmit: _sessionController.spellingQuizSubmit,
-          onPlayAudio: _sessionController.spellingQuizPlayAudio,
-          onBack: _sessionController.openMenu,
-          onRestart: _sessionController.restartSpellingQuiz,
-        ),
-        SessionStatus.crossword => CrosswordScreen(
-          viewData: _sessionController.crosswordViewData,
-          onBack: _sessionController.openMenu,
-          onRestart: _sessionController.restartCrossword,
-          onSelectLetter: _sessionController.crosswordSelectLetter,
-          canPlace: _sessionController.crosswordCanPlace,
-          onPlaceSelected: _sessionController.crosswordPlaceSelected,
-          onPlace: _sessionController.crosswordPlace,
-        ),
-      },
+      builder: (_, _) => PopScope(
+        canPop: _sessionController.status == SessionStatus.menu,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop && _sessionController.status != SessionStatus.rating) {
+            _sessionController.openMenu();
+          }
+        },
+        child: switch (_sessionController.status) {
+          SessionStatus.menu => MenuScreen(
+            menuItems: _sessionController.menuItems,
+          ),
+          SessionStatus.letterLearning => LetterLearningScreen(
+            viewData: _sessionController.letterLearningViewData,
+            onBack: _sessionController.openMenu,
+            onRestart: _sessionController.restartLetterLearning,
+            onSetDifficulties: _sessionController.letterLearningSetDifficulties,
+            onSetMode: _sessionController.letterLearningSetMode,
+            onGuess: _sessionController.letterLearningGuess,
+            onSelectLetter: _sessionController.letterLearningSelectLetter,
+            onGuessSelected: _sessionController.letterLearningGuessSelected,
+            onPlayAudio: _sessionController.letterLearningPlayAudio,
+          ),
+          SessionStatus.letterPractice => LetterPracticeScreen(
+            viewData: _sessionController.letterPracticeViewData,
+            onBack: _sessionController.openMenu,
+            onRestart: _sessionController.restartLetterPractice,
+            onSetDifficulties: _sessionController.letterPracticeSetDifficulties,
+            onSetUseColors: _sessionController.letterPracticeSetUseColors,
+            onSelectLetter: _sessionController.letterPracticeSelectLetter,
+            canPlace: _sessionController.letterPracticeCanPlace,
+            onPlaceSelected: _sessionController.letterPracticePlaceSelected,
+            onPlace: _sessionController.letterPracticePlace,
+            onPlayAudio: _sessionController.letterPracticePlayAudio,
+          ),
+          SessionStatus.phraseBuilding => PhraseBuildingScreen(
+            viewData: _sessionController.phraseBuildingViewData,
+            onBack: _sessionController.openMenu,
+            onMove: _sessionController.phraseBuildingMove,
+            canMoveToTarget: _sessionController.phraseBuildingCanMoveToTarget,
+            canMoveToSource: _sessionController.phraseBuildingCanMoveToSource,
+            onMoveToTarget: _sessionController.phraseBuildingMoveToTarget,
+            onMoveToSource: _sessionController.phraseBuildingMoveToSource,
+            onSubmit: _sessionController.phraseBuildingSubmit,
+            onPlayAudio: _sessionController.phraseBuildingPlayAudio,
+            onRestart: _sessionController.restartPhraseBuilding,
+          ),
+          SessionStatus.letterDragging =>
+            _sessionController.letterDraggingViewData.state ==
+                    LetterDraggingState.result
+                ? LetterDraggingResultScreen(
+                    score: _sessionController.letterDraggingViewData.score,
+                    onBack: _sessionController.openMenu,
+                    onRestart: _sessionController.restartLetterDragging,
+                  )
+                : LetterDraggingScreen(
+                    viewData: _sessionController.letterDraggingViewData,
+                    onBack: _sessionController.openMenu,
+                    onReorder: _sessionController.letterDraggingReorder,
+                    onPass: _sessionController.letterDraggingPass,
+                    onShowImagesChanged:
+                        _sessionController.letterDraggingSetShowImages,
+                  ),
+          SessionStatus.missingLetters => MissingLettersScreen(
+            viewData: _sessionController.missingLettersViewData,
+            onBack: _sessionController.openMenu,
+            canDrop: _sessionController.missingLettersCanDrop,
+            onDrop: _sessionController.missingLettersDrop,
+            onSelectTile: _sessionController.missingLettersSelectTile,
+            onPlaceSelected: _sessionController.missingLettersPlaceSelected,
+            onShowImagesChanged: _sessionController.missingLettersSetShowImages,
+            onRestart: _sessionController.restartMissingLetters,
+          ),
+          SessionStatus.letterShooting => LetterShootingScreen(
+            viewData: _sessionController.letterShootingViewData,
+            onResize: _sessionController.letterShootingResize,
+            onTick: _sessionController.letterShootingTick,
+            onTap: _sessionController.letterShootingTap,
+            onBeginAim: _sessionController.letterShootingBeginAim,
+            onUpdateAim: _sessionController.letterShootingUpdateAim,
+            onReleaseAim: _sessionController.letterShootingReleaseAim,
+            onBack: _sessionController.openMenu,
+            onRestart: _sessionController.restartLetterShooting,
+          ),
+          SessionStatus.memory => MemoryScreen(
+            viewData: _sessionController.memoryViewData,
+            onBack: _sessionController.openMenu,
+            onSelect: _sessionController.memorySelect,
+            onNewGame: _sessionController.memoryStartNewGame,
+          ),
+          SessionStatus.letterCatching => LetterCatchingScreen(
+            viewData: _sessionController.letterCatchingViewData,
+            onResize: _sessionController.letterCatchingResize,
+            onTick: _sessionController.letterCatchingTick,
+            onMovePaddleBy: _sessionController.letterCatchingMovePaddleBy,
+            onBack: _sessionController.openMenu,
+            onRestart: _sessionController.restartLetterCatching,
+          ),
+          SessionStatus.conveyor => ConveyorScreen(
+            viewData: _sessionController.conveyorViewData,
+            onResize: _sessionController.conveyorResize,
+            onTick: _sessionController.conveyorTick,
+            canAccept: _sessionController.conveyorCanAccept,
+            onStartDragging: _sessionController.conveyorStartDragging,
+            onSelectLetter: _sessionController.conveyorSelectLetter,
+            onPlaceSelected: _sessionController.conveyorPlaceSelected,
+            onCancelDragging: _sessionController.conveyorCancelDragging,
+            onDrop: _sessionController.conveyorDrop,
+            onBack: _sessionController.openMenu,
+            onRestart: _sessionController.restartConveyor,
+          ),
+          SessionStatus.sentenceQuiz => SentenceQuizScreen(
+            viewData: _sessionController.sentenceQuizViewData,
+            onSubmit: _sessionController.sentenceQuizSubmit,
+            onBack: _sessionController.openMenu,
+            onRestart: _sessionController.restartSentenceQuiz,
+          ),
+          SessionStatus.sentenceComposer => SentenceComposerScreen(
+            viewData: _sessionController.sentenceComposerViewData,
+            onSelectPerson: _sessionController.sentenceComposerSelectPerson,
+            onSelectColor: _sessionController.sentenceComposerSelectColor,
+            onSelectPiece: _sessionController.sentenceComposerSelectPiece,
+            onSubmit: _sessionController.sentenceComposerSubmit,
+            onBack: _sessionController.openMenu,
+            onRestart: _sessionController.restartSentenceComposer,
+          ),
+          SessionStatus.spellingQuiz => SpellingQuizScreen(
+            viewData: _sessionController.spellingQuizViewData,
+            onSubmit: _sessionController.spellingQuizSubmit,
+            onPlayAudio: _sessionController.spellingQuizPlayAudio,
+            onBack: _sessionController.openMenu,
+            onRestart: _sessionController.restartSpellingQuiz,
+          ),
+          SessionStatus.crossword => CrosswordScreen(
+            viewData: _sessionController.crosswordViewData,
+            onBack: _sessionController.openMenu,
+            onRestart: _sessionController.restartCrossword,
+            onSelectLetter: _sessionController.crosswordSelectLetter,
+            canPlace: _sessionController.crosswordCanPlace,
+            onPlaceSelected: _sessionController.crosswordPlaceSelected,
+            onPlace: _sessionController.crosswordPlace,
+          ),
+          SessionStatus.rating => RatingScreen(
+            activity: _sessionController.ratingActivity,
+            onRate: _sessionController.submitRating,
+          ),
+        },
+      ),
     );
   }
 

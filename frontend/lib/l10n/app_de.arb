@@ -16,6 +16,8 @@
   "congratulations": "Herzlichen Glückwunsch!",
   "sorry": "Schade!",
   "playAgain": "Noch einmal spielen?",
+  "rateActivity": "Wie gut hat dir dieses Spiel gefallen?",
+  "ratingStar": "{rating} von 5 Sternen",
   "check": "Prüfen",
   "submit": "Absenden",
   "pass": "Überspringen",

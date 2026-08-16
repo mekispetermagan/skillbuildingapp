@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 
 import '../models/crossword_puzzle.dart';
 
@@ -122,15 +123,19 @@ class CrosswordGridCell extends StatelessWidget {
 
     if (cell.isRevealed || !isEnabled) return buildCard(false);
     return DragTarget<String>(
-      onWillAcceptWithDetails: (details) =>
-          canPlace(cellId: cell.id, letter: details.data),
+      onWillAcceptWithDetails: (_) => true,
       onAcceptWithDetails: (details) =>
           onPlace(cellId: cell.id, letter: details.data),
-      builder: (_, candidateData, _) => GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: selectedLetter == null ? null : () => onPlaceSelected(cell.id),
-        child: buildCard(candidateData.isNotEmpty),
-      ),
+      builder: (_, candidateData, _) {
+        final candidate = candidateData.firstOrNull;
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: selectedLetter == null ? null : () => onPlaceSelected(cell.id),
+          child: buildCard(
+            candidate != null && canPlace(cellId: cell.id, letter: candidate),
+          ),
+        );
+      },
     );
   }
 }

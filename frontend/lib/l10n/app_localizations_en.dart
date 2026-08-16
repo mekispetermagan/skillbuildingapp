@@ -60,6 +60,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get playAgain => 'Play again';
 
   @override
+  String get rateActivity => 'How much did you like this game?';
+
+  @override
+  String ratingStar(int rating) {
+    return '$rating out of 5 stars';
+  }
+
+  @override
   String get check => 'Check';
 
   @override

@@ -14,3 +14,4 @@ export 'letter_dragging_result_screen.dart';
 export 'letter_dragging_screen.dart';
 export 'missing_letters_screen.dart';
 export 'phrase_building_screen.dart';
+export 'rating_screen.dart';

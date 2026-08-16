@@ -16,6 +16,8 @@
   "congratulations": "Gratulálok!",
   "sorry": "Sajna...",
   "playAgain": "Még egy játék?",
+  "rateActivity": "Mennyire tetszett ez a játék?",
+  "ratingStar": "{rating} csillag az 5-ből",
   "check": "Ellenőrzés",
   "submit": "Beküldés",
   "pass": "Passz",

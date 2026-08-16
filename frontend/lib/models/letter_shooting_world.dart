@@ -102,6 +102,7 @@ class LetterShootingWorld {
   double cannonAngle = 0;
   String? loadedLetter;
   int score = 0;
+  int incorrectAttempts = 0;
   int _nextEntityId = 0;
   double _spawnElapsed = 0;
 
@@ -162,6 +163,7 @@ class LetterShootingWorld {
     loadedLetter = null;
     cannonAngle = 0;
     score = 0;
+    incorrectAttempts = 0;
     elapsedSeconds = 0;
     _spawnElapsed = 0;
     _nextEntityId = 0;
@@ -291,6 +293,7 @@ class LetterShootingWorld {
           target.isSolved = true;
           if (score < config.winningScore) score++;
         } else {
+          incorrectAttempts++;
           removedTargets.add(target.entityId);
         }
         break;

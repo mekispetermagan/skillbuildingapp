@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:collection/collection.dart';
 
 import '../models/crossword_config.dart';
 import '../models/crossword_entry.dart';
@@ -26,6 +27,7 @@ class CrosswordController extends ChangeNotifier {
   late CrosswordPuzzle puzzle;
   CrosswordState state = CrosswordState.playing;
   int score = 0;
+  int incorrectAttempts = 0;
   String? selectedLetter;
   bool _disposed = false;
   int _sessionGeneration = 0;
@@ -48,6 +50,7 @@ class CrosswordController extends ChangeNotifier {
   void start() {
     _sessionGeneration++;
     score = 0;
+    incorrectAttempts = 0;
     state = CrosswordState.playing;
     selectedLetter = null;
     _mainWordHistory.clear();
@@ -78,7 +81,16 @@ class CrosswordController extends ChangeNotifier {
   }
 
   Future<void> place({required int cellId, required String letter}) async {
-    if (!canPlace(cellId: cellId, letter: letter)) return;
+    if (!canPlace(cellId: cellId, letter: letter)) {
+      final cell = puzzle.cells.where((item) => item.id == cellId).firstOrNull;
+      if (canPlay &&
+          puzzle.alphabet.contains(letter) &&
+          cell != null &&
+          !cell.isRevealed) {
+        incorrectAttempts++;
+      }
+      return;
+    }
     final cells = puzzle.cells.toList();
     final index = cells.indexWhere((cell) => cell.id == cellId);
     cells[index] = cells[index].reveal();

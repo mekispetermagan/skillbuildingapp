@@ -103,6 +103,26 @@ class PlayRecord {
     schemaVersion: schemaVersion,
   );
 
+  PlayRecord withIdentity({
+    required int installationId,
+    required int recordNumber,
+  }) => PlayRecord(
+    installationId: installationId,
+    recordNumber: recordNumber,
+    area: area,
+    feature: feature,
+    outcome: outcome,
+    score: score,
+    rating: rating,
+    metrics: metrics,
+    startedAt: startedAt,
+    completedAt: completedAt,
+    elapsedMilliseconds: elapsedMilliseconds,
+    appVersion: appVersion,
+    contentVersion: contentVersion,
+    schemaVersion: schemaVersion,
+  );
+
   Map<String, Object?> toJson() => {
     'schema_version': schemaVersion,
     'installation_id': installationId,

@@ -3,6 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:literacy_game/audio/asset_audio_player.dart';
 import 'package:literacy_game/controllers/session_controller.dart';
 import 'package:literacy_game/models/activity_id.dart';
+import 'package:literacy_game/models/pending_completion.dart';
+import 'package:literacy_game/models/play_outcome.dart';
+import 'package:literacy_game/services/gameplay_recorder.dart';
 
 class _FakeAudioPlayer implements AssetAudioPlayer {
   final playedPaths = <String>[];
@@ -12,6 +15,25 @@ class _FakeAudioPlayer implements AssetAudioPlayer {
 
   @override
   Future<void> stop() async {}
+}
+
+class _FakeGameplayRecorder implements GameplayRecorder {
+  final abandoned = <PendingCompletion>[];
+  final completed = <(PendingCompletion, int)>[];
+  int synchronizationCount = 0;
+
+  @override
+  Future<void> synchronize() async => synchronizationCount++;
+
+  @override
+  Future<void> recordAbandoned(PendingCompletion completion) async {
+    abandoned.add(completion);
+  }
+
+  @override
+  Future<void> recordCompleted(PendingCompletion completion, int rating) async {
+    completed.add((completion, rating));
+  }
 }
 
 class _SentenceAssetBundle extends CachingAssetBundle {
@@ -240,4 +262,56 @@ void main() {
     );
     controller.dispose();
   });
+
+  test('back records an abandoned activity before returning to menu', () async {
+    final recorder = _FakeGameplayRecorder();
+    var now = DateTime.utc(2026, 8, 16, 10);
+    final controller = SessionController(
+      assetBundle: _SentenceAssetBundle(),
+      audioPlayer: _FakeAudioPlayer(),
+      gameplayRecorder: recorder,
+      now: () => now,
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    controller.openPhraseBuilding();
+    now = now.add(const Duration(seconds: 12));
+    controller.openMenu();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(controller.status, SessionStatus.menu);
+    expect(recorder.abandoned, hasLength(1));
+    expect(recorder.abandoned.single.feature, ActivityId.phraseBuilding);
+    expect(recorder.abandoned.single.outcome, PlayOutcome.abandoned);
+    expect(recorder.abandoned.single.elapsedMilliseconds, 12000);
+    controller.dispose();
+  });
+
+  test(
+    'finished gameplay requires a rating before returning to menu',
+    () async {
+      final recorder = _FakeGameplayRecorder();
+      final controller = SessionController(
+        assetBundle: _SentenceAssetBundle(),
+        audioPlayer: _FakeAudioPlayer(),
+        gameplayRecorder: recorder,
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      controller.openLetterShooting();
+      controller.letterShootingViewData.world!.score = 10;
+      controller.letterShootingTick(0);
+
+      expect(controller.status, SessionStatus.rating);
+      expect(controller.ratingActivity, ActivityId.letterShooting);
+
+      await controller.submitRating(5);
+
+      expect(controller.status, SessionStatus.menu);
+      expect(recorder.completed, hasLength(1));
+      expect(recorder.completed.single.$1.outcome, PlayOutcome.won);
+      expect(recorder.completed.single.$2, 5);
+      controller.dispose();
+    },
+  );
 }

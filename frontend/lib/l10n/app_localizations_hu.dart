@@ -60,6 +60,14 @@ class AppLocalizationsHu extends AppLocalizations {
   String get playAgain => 'Még egy játék?';
 
   @override
+  String get rateActivity => 'Mennyire tetszett ez a játék?';
+
+  @override
+  String ratingStar(int rating) {
+    return '$rating csillag az 5-ből';
+  }
+
+  @override
   String get check => 'Ellenőrzés';
 
   @override

@@ -63,6 +63,7 @@ class ConveyorController extends ChangeNotifier {
 
   ConveyorState tick(double deltaSeconds) {
     if (!_isRunning) return state;
+    final wasPlaying = state == ConveyorState.playing;
     world.update(deltaSeconds);
     if (world.score >= world.config.winningScore) {
       state = ConveyorState.won;
@@ -71,6 +72,7 @@ class ConveyorController extends ChangeNotifier {
       state = ConveyorState.lost;
       _isRunning = false;
     }
+    if (wasPlaying && state != ConveyorState.playing) notifyListeners();
     return state;
   }
 

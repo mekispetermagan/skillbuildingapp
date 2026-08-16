@@ -202,6 +202,18 @@ abstract class AppLocalizations {
   /// **'Play again'**
   String get playAgain;
 
+  /// No description provided for @rateActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'How much did you like this game?'**
+  String get rateActivity;
+
+  /// No description provided for @ratingStar.
+  ///
+  /// In en, this message translates to:
+  /// **'{rating} out of 5 stars'**
+  String ratingStar(int rating);
+
   /// No description provided for @check.
   ///
   /// In en, this message translates to:

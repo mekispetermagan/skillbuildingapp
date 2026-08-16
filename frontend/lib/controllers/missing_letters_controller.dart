@@ -25,6 +25,7 @@ class MissingLettersController extends ChangeNotifier {
   List<MissingLettersWord> _deck = [];
   int _deckIndex = 0;
   int _score = 0;
+  int _incorrectAttempts = 0;
   bool _showImages = true;
   MissingLettersWord? _currentWord;
   MissingLettersState _state = MissingLettersState.solving;
@@ -48,6 +49,7 @@ class MissingLettersController extends ChangeNotifier {
   List<MissingLetterTile> get pool => List.unmodifiable(_pool);
   MissingLettersState get state => _state;
   int get score => _score;
+  int get incorrectAttempts => _incorrectAttempts;
   String? get imagePath => _currentWord?.imagePath;
   bool get showImages => _showImages;
   int? get selectedTileId => _selectedTileId;
@@ -81,6 +83,7 @@ class MissingLettersController extends ChangeNotifier {
   void start() {
     _sessionGeneration++;
     _score = 0;
+    _incorrectAttempts = 0;
     _showImages = true;
     _deck = _words.shuffled(_random);
     _deckIndex = 0;
@@ -99,7 +102,14 @@ class MissingLettersController extends ChangeNotifier {
   void drop({required int targetId, required int tileId}) {
     final slotIndex = _slots.indexWhere((slot) => slot.id == targetId);
     final tileIndex = _pool.indexWhere((tile) => tile.id == tileId);
-    if (!canDrop(targetId: targetId, tileId: tileId)) return;
+    if (!canDrop(targetId: targetId, tileId: tileId)) {
+      if (_state == MissingLettersState.solving &&
+          slotIndex >= 0 &&
+          tileIndex >= 0) {
+        _incorrectAttempts++;
+      }
+      return;
+    }
 
     final slot = _slots[slotIndex];
     final tile = _pool[tileIndex];

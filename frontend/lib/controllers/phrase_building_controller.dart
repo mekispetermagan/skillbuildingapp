@@ -20,6 +20,7 @@ class PhraseBuildingController extends ChangeNotifier {
   final List<PhraseBuildingTile> _targetPool = [];
   int _sentenceIndex = 0;
   int _score = 0;
+  int _incorrectAttempts = 0;
   PhraseBuildingState _state = PhraseBuildingState.guessing;
   bool _disposed = false;
   int _sessionGeneration = 0;
@@ -41,6 +42,7 @@ class PhraseBuildingController extends ChangeNotifier {
   List<PhraseBuildingTile> get targetPool => List.unmodifiable(_targetPool);
   PhraseBuildingState get state => _state;
   int get score => _score;
+  int get incorrectAttempts => _incorrectAttempts;
   bool get canMove => _state == PhraseBuildingState.guessing;
   bool get canSubmit => canMove && _targetPool.isNotEmpty;
 
@@ -48,6 +50,7 @@ class PhraseBuildingController extends ChangeNotifier {
     _sessionGeneration++;
     _sentenceIndex = 0;
     _score = 0;
+    _incorrectAttempts = 0;
     _state = PhraseBuildingState.guessing;
     _generateExercise();
   }
@@ -91,6 +94,7 @@ class PhraseBuildingController extends ChangeNotifier {
     final expected = toWords(_sentences[_sentenceIndex].text);
     final submitted = _targetPool.map((tile) => tile.word).toList();
     final isCorrect = listEquals(expected, submitted);
+    if (!isCorrect) _incorrectAttempts++;
     _state = isCorrect
         ? PhraseBuildingState.successFeedback
         : PhraseBuildingState.failureFeedback;

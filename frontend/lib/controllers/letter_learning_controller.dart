@@ -33,6 +33,7 @@ class LetterLearningController extends ChangeNotifier {
   LetterLearningMode _mode = LetterLearningMode.masked;
   LetterLearningState _state = LetterLearningState.playing;
   int _score = 0;
+  int _incorrectAttempts = 0;
   int _generation = 0;
   bool _disposed = false;
   AlphabetObject? _previousObject;
@@ -60,6 +61,7 @@ class LetterLearningController extends ChangeNotifier {
   LetterLearningMode get mode => _mode;
   LetterLearningState get state => _state;
   int get score => _score;
+  int get incorrectAttempts => _incorrectAttempts;
   bool get canGuess => _state == LetterLearningState.playing;
   String? get selectedLetter => _selectedLetter;
   bool get isTargetRevealed =>
@@ -84,6 +86,7 @@ class LetterLearningController extends ChangeNotifier {
   void start() {
     _generation++;
     _score = 0;
+    _incorrectAttempts = 0;
     _state = LetterLearningState.playing;
     _previousObject = null;
     _selectedLetter = null;
@@ -131,6 +134,7 @@ class LetterLearningController extends ChangeNotifier {
       return;
     }
     if (letter != currentLetter.letter) {
+      _incorrectAttempts++;
       unawaited(_play(_wrongPath));
       return;
     }

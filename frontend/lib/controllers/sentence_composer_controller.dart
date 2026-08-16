@@ -20,6 +20,7 @@ class SentenceComposerController extends ChangeNotifier {
   ClothingPiece? selectedPiece;
   SentenceComposerState state = SentenceComposerState.composing;
   int score = 0;
+  int incorrectAttempts = 0;
   bool _disposed = false;
   int _sessionGeneration = 0;
 
@@ -51,6 +52,7 @@ class SentenceComposerController extends ChangeNotifier {
   void start() {
     _sessionGeneration++;
     score = 0;
+    incorrectAttempts = 0;
     state = SentenceComposerState.composing;
     _nextExercise();
     notifyListeners();
@@ -80,7 +82,11 @@ class SentenceComposerController extends ChangeNotifier {
     if (!canSubmit) return;
     final generation = _sessionGeneration;
     state = SentenceComposerState.feedback;
-    if (_isCorrect) score++;
+    if (_isCorrect) {
+      score++;
+    } else {
+      incorrectAttempts++;
+    }
     notifyListeners();
 
     await Future<void>.delayed(feedbackDuration);

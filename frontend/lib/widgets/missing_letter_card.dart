@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 
 import '../models/missing_letter_slot.dart';
 import '../models/missing_letter_tile.dart';
@@ -100,23 +101,28 @@ class MissingLetterTargetCard extends StatelessWidget {
     }
 
     return DragTarget<MissingLetterTile>(
-      onWillAcceptWithDetails: (details) =>
-          canDrop(targetId: slot.id, tileId: details.data.id),
+      onWillAcceptWithDetails: (_) => true,
       onAcceptWithDetails: (details) =>
           onDrop(targetId: slot.id, tileId: details.data.id),
-      builder: (_, candidateData, _) => GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: selectedTileId == null ? null : () => onPlaceSelected(slot.id),
-        child: MissingLetterCard(
-          letter: '?',
-          backgroundColor: candidateData.isEmpty
-              ? scheme.errorContainer
-              : scheme.secondaryContainer,
-          foregroundColor: candidateData.isEmpty
-              ? scheme.onErrorContainer
-              : scheme.onSecondaryContainer,
-        ),
-      ),
+      builder: (_, candidateData, _) {
+        final candidate = candidateData.firstOrNull;
+        final isCorrect =
+            candidate != null &&
+            canDrop(targetId: slot.id, tileId: candidate.id);
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: selectedTileId == null ? null : () => onPlaceSelected(slot.id),
+          child: MissingLetterCard(
+            letter: '?',
+            backgroundColor: candidate == null || !isCorrect
+                ? scheme.errorContainer
+                : scheme.secondaryContainer,
+            foregroundColor: candidate == null || !isCorrect
+                ? scheme.onErrorContainer
+                : scheme.onSecondaryContainer,
+          ),
+        );
+      },
     );
   }
 }
