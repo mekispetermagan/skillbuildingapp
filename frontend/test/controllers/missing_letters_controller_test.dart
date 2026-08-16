@@ -194,4 +194,29 @@ void main() {
     expect(seen, {'LION', 'ZEBRA', 'CRANE'});
     controller.dispose();
   });
+
+  test('wins after ten completed words and restart resets the score', () async {
+    final controller = _controller();
+
+    for (var answer = 0; answer < missingLettersWinningScore; answer++) {
+      for (final target
+          in controller.slots.where((slot) => slot.isMissing).toList()) {
+        final tile = controller.pool.firstWhere(
+          (item) => item.letter == target.letter,
+        );
+        controller.drop(targetId: target.id, tileId: tile.id);
+      }
+      await Future<void>.delayed(Duration.zero);
+    }
+
+    expect(controller.score, missingLettersWinningScore);
+    expect(controller.state, MissingLettersState.won);
+    expect(controller.pool, hasLength(5));
+
+    controller.start();
+
+    expect(controller.score, 0);
+    expect(controller.state, MissingLettersState.solving);
+    controller.dispose();
+  });
 }

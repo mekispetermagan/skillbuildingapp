@@ -137,6 +137,7 @@ class SessionController extends ChangeNotifier {
     sourcePool: _phraseBuildingController?.sourcePool ?? const [],
     targetPool: _phraseBuildingController?.targetPool ?? const [],
     state: _phraseBuildingController?.state ?? PhraseBuildingState.guessing,
+    score: _phraseBuildingController?.score ?? 0,
   );
 
   void Function(PhraseBuildingTile)? get phraseBuildingMove {
@@ -166,6 +167,11 @@ class SessionController extends ChangeNotifier {
   void openPhraseBuilding() {
     _phraseBuildingController?.start();
     _open(SessionStatus.phraseBuilding);
+    unawaited(_phraseBuildingController?.playAudio());
+  }
+
+  void restartPhraseBuilding() {
+    _phraseBuildingController?.start();
     unawaited(_phraseBuildingController?.playAudio());
   }
 
@@ -533,6 +539,8 @@ class SessionController extends ChangeNotifier {
     _missingLettersController?.start();
     _open(SessionStatus.missingLetters);
   }
+
+  void restartMissingLetters() => _missingLettersController?.start();
 
   MemoryViewData get memoryViewData => MemoryViewData(
     isLoading: _memoryController == null && _memoryError == null,

@@ -8,6 +8,8 @@ import '../models/phrase_building_tile.dart';
 import '../models/sentence.dart';
 import '../utils/string_utils.dart';
 
+const phraseBuildingWinningScore = 10;
+
 class PhraseBuildingController extends ChangeNotifier {
   final List<Sentence> _sentences;
   final AssetAudioPlayer _audioPlayer;
@@ -17,6 +19,7 @@ class PhraseBuildingController extends ChangeNotifier {
   final List<PhraseBuildingTile> _sourcePool = [];
   final List<PhraseBuildingTile> _targetPool = [];
   int _sentenceIndex = 0;
+  int _score = 0;
   PhraseBuildingState _state = PhraseBuildingState.guessing;
   bool _disposed = false;
   int _sessionGeneration = 0;
@@ -37,12 +40,14 @@ class PhraseBuildingController extends ChangeNotifier {
   List<PhraseBuildingTile> get sourcePool => List.unmodifiable(_sourcePool);
   List<PhraseBuildingTile> get targetPool => List.unmodifiable(_targetPool);
   PhraseBuildingState get state => _state;
+  int get score => _score;
   bool get canMove => _state == PhraseBuildingState.guessing;
   bool get canSubmit => canMove && _targetPool.isNotEmpty;
 
   void start() {
     _sessionGeneration++;
     _sentenceIndex = 0;
+    _score = 0;
     _state = PhraseBuildingState.guessing;
     _generateExercise();
   }
@@ -96,6 +101,12 @@ class PhraseBuildingController extends ChangeNotifier {
 
     _state = PhraseBuildingState.guessing;
     if (isCorrect) {
+      _score++;
+      if (_score >= phraseBuildingWinningScore) {
+        _state = PhraseBuildingState.won;
+        notifyListeners();
+        return;
+      }
       _sentenceIndex = (_sentenceIndex + 1) % _sentences.length;
       _generateExercise();
       await playAudio();

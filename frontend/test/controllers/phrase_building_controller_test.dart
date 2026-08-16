@@ -119,4 +119,38 @@ void main() {
     expect(controller.targetPool, isEmpty);
     expect(controller.sourcePool, hasLength(2));
   });
+
+  test(
+    'wins after ten correct sentences and restart resets the score',
+    () async {
+      final controller = PhraseBuildingController(
+        _FakeAudioPlayer(),
+        sentences: const [
+          Sentence(id: 1, text: 'red bird', audioPath: 'first.mp3'),
+        ],
+        random: Random(1),
+        feedbackDuration: Duration.zero,
+      );
+
+      for (var answer = 0; answer < phraseBuildingWinningScore; answer++) {
+        for (final word in const ['red', 'bird']) {
+          controller.move(
+            controller.sourcePool.singleWhere((tile) => tile.word == word),
+          );
+        }
+        await controller.submit();
+      }
+
+      expect(controller.score, phraseBuildingWinningScore);
+      expect(controller.state, PhraseBuildingState.won);
+      expect(controller.canMove, isFalse);
+      expect(controller.canSubmit, isFalse);
+
+      controller.start();
+
+      expect(controller.score, 0);
+      expect(controller.state, PhraseBuildingState.guessing);
+      controller.dispose();
+    },
+  );
 }

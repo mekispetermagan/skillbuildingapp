@@ -23,6 +23,7 @@ void main() {
             sourcePool: [sourceTile],
             targetPool: [],
             state: PhraseBuildingState.guessing,
+            score: 0,
           ),
           onBack: () {},
           onMove: (_) {},
@@ -32,6 +33,7 @@ void main() {
           onMoveToSource: (_) {},
           onSubmit: null,
           onPlayAudio: () async {},
+          onRestart: () {},
         ),
       ),
     );

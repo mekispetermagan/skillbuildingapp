@@ -19,7 +19,7 @@ class PhraseBuildingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final baseScheme = Theme.of(context).colorScheme;
     final colorScheme = switch (state) {
-      PhraseBuildingState.guessing => baseScheme,
+      PhraseBuildingState.guessing || PhraseBuildingState.won => baseScheme,
       PhraseBuildingState.successFeedback => ColorScheme.fromSeed(
         seedColor: Colors.green,
         brightness: baseScheme.brightness,

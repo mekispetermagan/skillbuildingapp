@@ -42,6 +42,7 @@ class PhraseBuildingViewData {
   final List<PhraseBuildingTile> sourcePool;
   final List<PhraseBuildingTile> targetPool;
   final PhraseBuildingState state;
+  final int score;
 
   const PhraseBuildingViewData({
     required this.isLoading,
@@ -49,6 +50,7 @@ class PhraseBuildingViewData {
     required this.sourcePool,
     required this.targetPool,
     required this.state,
+    required this.score,
   });
 }
 

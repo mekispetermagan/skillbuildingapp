@@ -49,6 +49,7 @@ void main() {
           onSelectTile: (_) {},
           onPlaceSelected: (_) {},
           onShowImagesChanged: (_) {},
+          onRestart: () {},
         ),
       ),
     );

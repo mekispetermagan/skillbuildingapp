@@ -1,1 +1,1 @@
-enum MissingLettersState { solving, solved }
+enum MissingLettersState { solving, solved, won }

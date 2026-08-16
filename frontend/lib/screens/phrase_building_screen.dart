@@ -6,7 +6,9 @@ import '../models/phrase_building_state.dart';
 import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/feature_load_state.dart';
+import '../widgets/game_end_overlay.dart';
 import '../widgets/phrase_building_card.dart';
+import '../widgets/reward_gem_row.dart';
 
 class PhraseBuildingScreen extends StatelessWidget {
   final PhraseBuildingViewData viewData;
@@ -18,6 +20,7 @@ class PhraseBuildingScreen extends StatelessWidget {
   final ValueChanged<PhraseBuildingTile> onMoveToSource;
   final Future<void> Function()? onSubmit;
   final Future<void> Function() onPlayAudio;
+  final VoidCallback onRestart;
 
   const PhraseBuildingScreen({
     required this.viewData,
@@ -29,6 +32,7 @@ class PhraseBuildingScreen extends StatelessWidget {
     required this.onMoveToSource,
     required this.onSubmit,
     required this.onPlayAudio,
+    required this.onRestart,
     super.key,
   });
 
@@ -42,7 +46,18 @@ class PhraseBuildingScreen extends StatelessWidget {
       body: FeatureLoadState(
         isLoading: viewData.isLoading,
         loadError: viewData.loadError,
-        child: _buildExercise(context),
+        child: Stack(
+          children: [
+            Positioned.fill(child: _buildExercise(context)),
+            if (viewData.state == PhraseBuildingState.won)
+              Positioned.fill(
+                child: GameEndOverlay(
+                  message: context.l10n.congratulations,
+                  onRestart: onRestart,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -92,6 +107,7 @@ class PhraseBuildingScreen extends StatelessWidget {
                 ),
               ],
             ),
+            RewardGemRow(count: viewData.score),
           ],
         ),
       ),

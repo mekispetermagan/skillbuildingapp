@@ -94,6 +94,7 @@ class AppRootState extends State<AppRoot> {
           onMoveToSource: _sessionController.phraseBuildingMoveToSource,
           onSubmit: _sessionController.phraseBuildingSubmit,
           onPlayAudio: _sessionController.phraseBuildingPlayAudio,
+          onRestart: _sessionController.restartPhraseBuilding,
         ),
         SessionStatus.letterDragging =>
           _sessionController.letterDraggingViewData.state ==
@@ -119,6 +120,7 @@ class AppRootState extends State<AppRoot> {
           onSelectTile: _sessionController.missingLettersSelectTile,
           onPlaceSelected: _sessionController.missingLettersPlaceSelected,
           onShowImagesChanged: _sessionController.missingLettersSetShowImages,
+          onRestart: _sessionController.restartMissingLetters,
         ),
         SessionStatus.letterShooting => LetterShootingScreen(
           viewData: _sessionController.letterShootingViewData,

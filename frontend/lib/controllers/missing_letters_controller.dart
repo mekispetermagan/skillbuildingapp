@@ -10,6 +10,8 @@ import '../models/missing_letter_tile.dart';
 import '../models/missing_letters_state.dart';
 import '../models/missing_letters_word.dart';
 
+const missingLettersWinningScore = 10;
+
 class MissingLettersController extends ChangeNotifier {
   static final List<String> _alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.characters
       .toList();
@@ -118,6 +120,11 @@ class MissingLettersController extends ChangeNotifier {
     final generation = _sessionGeneration;
     await Future<void>.delayed(completionFeedbackDuration);
     if (_disposed || generation != _sessionGeneration) return;
+    if (_score >= missingLettersWinningScore) {
+      _state = MissingLettersState.won;
+      notifyListeners();
+      return;
+    }
     _generateExercise();
     notifyListeners();
   }

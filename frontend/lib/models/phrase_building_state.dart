@@ -1,1 +1,1 @@
-enum PhraseBuildingState { guessing, successFeedback, failureFeedback }
+enum PhraseBuildingState { guessing, successFeedback, failureFeedback, won }
