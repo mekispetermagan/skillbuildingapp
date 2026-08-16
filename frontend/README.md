@@ -4,9 +4,9 @@ The app records completed and explicitly abandoned gameplay locally, then
 attempts to synchronize the durable queue at startup and after every new
 record. Network failures do not interrupt gameplay.
 
-The development API defaults to `http://10.0.2.2:8000` (the Android emulator's
-route to the host machine) with `dev-key`. For a physical tablet, supply the
-backend computer's LAN address when running or building:
+The development API defaults to `http://localhost:8000` with `dev-key`, matching
+the normal Linux debug workflow. For a physical tablet, supply the backend
+computer's LAN address when running or building:
 
 ```sh
 flutter run \

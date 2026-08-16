@@ -7,7 +7,7 @@ class GameplayApiConfig {
   factory GameplayApiConfig.fromEnvironment() {
     const baseUrl = String.fromEnvironment(
       'GAMEPLAY_API_BASE_URL',
-      defaultValue: 'http://10.0.2.2:8000',
+      defaultValue: 'http://localhost:8000',
     );
     const apiKey = String.fromEnvironment(
       'GAMEPLAY_API_KEY',

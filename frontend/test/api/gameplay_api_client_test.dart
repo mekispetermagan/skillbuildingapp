@@ -18,6 +18,13 @@ void main() {
     apiKey: 'test-key',
   );
 
+  test('uses localhost by default for development', () {
+    final environmentConfig = GameplayApiConfig.fromEnvironment();
+
+    expect(environmentConfig.baseUri.toString(), 'http://localhost:8000');
+    expect(environmentConfig.apiKey, 'dev-key');
+  });
+
   test(
     'resolves a nullable installation with the configured API key',
     () async {
