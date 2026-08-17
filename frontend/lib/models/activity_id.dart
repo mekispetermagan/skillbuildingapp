@@ -16,7 +16,8 @@ enum ActivityId {
   crossword('crossword'),
   numberLearning('number_learning'),
   numberComparison('number_comparison'),
-  operatorConveyor('operator_conveyor');
+  operatorConveyor('operator_conveyor'),
+  evenOdd('even_odd');
 
   final String wireName;
 
@@ -25,7 +26,8 @@ enum ActivityId {
   LearningArea get area => switch (this) {
     ActivityId.numberLearning ||
     ActivityId.numberComparison ||
-    ActivityId.operatorConveyor => LearningArea.math,
+    ActivityId.operatorConveyor ||
+    ActivityId.evenOdd => LearningArea.math,
     _ => LearningArea.literacy,
   };
 

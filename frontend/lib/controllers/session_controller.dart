@@ -43,6 +43,7 @@ import '../models/view_data.dart';
 import '../services/gameplay_recorder.dart';
 import 'conveyor_controller.dart';
 import 'crossword_controller.dart';
+import 'even_odd_controller.dart';
 import 'letter_catching_controller.dart';
 import 'letter_dragging_controller.dart';
 import 'letter_learning_controller.dart';
@@ -66,6 +67,7 @@ enum SessionStatus {
   numberLearning,
   numberComparison,
   operatorConveyor,
+  evenOdd,
   letterLearning,
   letterPractice,
   phraseBuilding,
@@ -121,6 +123,7 @@ class SessionController extends ChangeNotifier {
   late final NumberLearningController _numberLearningController;
   late final NumberComparisonController _numberComparisonController;
   late final OperatorConveyorController _operatorConveyorController;
+  late final EvenOddController _evenOddController;
   SessionStatus status = SessionStatus.areaMenu;
   int? mathPlaceholderNumber;
 
@@ -150,6 +153,8 @@ class SessionController extends ChangeNotifier {
     _numberComparisonController = NumberComparisonController(_audioPlayer)
       ..addListener(_forwardFeatureNotification);
     _operatorConveyorController = OperatorConveyorController()
+      ..addListener(_forwardFeatureNotification);
+    _evenOddController = EvenOddController()
       ..addListener(_forwardFeatureNotification);
     unawaited(_gameplayRecorder.synchronize());
     unawaited(_initializePhraseBuilding());
@@ -202,8 +207,9 @@ class SessionController extends ChangeNotifier {
   late final List<(int, VoidCallback)> mathMenuItems = [
     (1, openNumberLearning),
     (2, openNumberComparison),
-    for (var number = 3; number <= 7; number++)
+    for (var number = 3; number <= 6; number++)
       (number, () => openMathPlaceholder(number)),
+    (7, openEvenOdd),
     (8, openOperatorConveyor),
   ];
 
@@ -388,6 +394,25 @@ class SessionController extends ChangeNotifier {
   }
 
   void restartLetterCatching() => _letterCatchingController?.start();
+
+  EvenOddViewData get evenOddViewData => EvenOddViewData(
+    world: _evenOddController.world,
+    state: _evenOddController.state,
+  );
+  void evenOddResize(double width, double height) =>
+      _evenOddController.resize(width, height);
+  void evenOddTick(double deltaSeconds) =>
+      _evenOddController.tick(deltaSeconds);
+  void evenOddMovePaddleBy(double deltaX) =>
+      _evenOddController.movePaddleBy(deltaX);
+  void evenOddToggleParity() => _evenOddController.toggleParity();
+
+  void openEvenOdd() {
+    _evenOddController.start();
+    _beginActivity(SessionStatus.evenOdd);
+  }
+
+  void restartEvenOdd() => _evenOddController.start();
 
   ConveyorViewData get conveyorViewData => ConveyorViewData(
     isLoading: _conveyorController == null && _conveyorError == null,
@@ -788,6 +813,7 @@ class SessionController extends ChangeNotifier {
     _numberLearningController.stop();
     _numberComparisonController.stop();
     _operatorConveyorController.stop();
+    _evenOddController.stop();
     _open(destination);
   }
 
@@ -832,6 +858,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.numberLearning => true,
     SessionStatus.numberComparison => true,
     SessionStatus.operatorConveyor => true,
+    SessionStatus.evenOdd => true,
     _ => false,
   };
 
@@ -867,6 +894,8 @@ class SessionController extends ChangeNotifier {
       _numberComparisonController.state == NumberComparisonState.won,
     SessionStatus.operatorConveyor =>
       _operatorConveyorController.state != ConveyorState.playing,
+    SessionStatus.evenOdd =>
+      _evenOddController.state != LetterCatchingState.playing,
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
     SessionStatus.mathMenu ||
@@ -887,6 +916,10 @@ class SessionController extends ChangeNotifier {
           : PlayOutcome.won,
     SessionStatus.operatorConveyor =>
       _operatorConveyorController.state == ConveyorState.lost
+          ? PlayOutcome.lost
+          : PlayOutcome.won,
+    SessionStatus.evenOdd =>
+      _evenOddController.state == LetterCatchingState.lost
           ? PlayOutcome.lost
           : PlayOutcome.won,
     SessionStatus.areaMenu ||
@@ -916,6 +949,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.numberLearning => ActivityId.numberLearning,
     SessionStatus.numberComparison => ActivityId.numberComparison,
     SessionStatus.operatorConveyor => ActivityId.operatorConveyor,
+    SessionStatus.evenOdd => ActivityId.evenOdd,
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
     SessionStatus.mathMenu ||
@@ -942,6 +976,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.numberLearning => _numberLearningController.score,
     SessionStatus.numberComparison => _numberComparisonController.score,
     SessionStatus.operatorConveyor => _operatorConveyorController.world.score,
+    SessionStatus.evenOdd => _evenOddController.world.score,
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
     SessionStatus.mathMenu ||
@@ -1037,6 +1072,14 @@ class SessionController extends ChangeNotifier {
           _operatorConveyorController.world.lives,
       startingLives: _operatorConveyorController.world.config.startingLives,
       remainingLives: _operatorConveyorController.world.lives,
+    ),
+    SessionStatus.evenOdd => LivesMetrics(
+      correctAnswers: _evenOddController.world.score,
+      incorrectAttempts:
+          _evenOddController.world.config.startingLives -
+          _evenOddController.world.lives,
+      startingLives: _evenOddController.world.config.startingLives,
+      remainingLives: _evenOddController.world.lives,
     ),
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
@@ -1414,6 +1457,8 @@ class SessionController extends ChangeNotifier {
     _numberComparisonController.dispose();
     _operatorConveyorController.removeListener(_forwardFeatureNotification);
     _operatorConveyorController.dispose();
+    _evenOddController.removeListener(_forwardFeatureNotification);
+    _evenOddController.dispose();
     super.dispose();
   }
 }

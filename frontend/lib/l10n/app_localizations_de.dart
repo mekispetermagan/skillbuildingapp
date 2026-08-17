@@ -60,6 +60,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get activityOperatorConveyor => 'Rechenzeichen-Förderband';
 
   @override
+  String get activityEvenOdd => 'Gerade oder ungerade';
+
+  @override
   String get numberPattern => 'Muster';
 
   @override

@@ -31,6 +31,7 @@ void main() {
       'Zahlen lernen',
       'Zahlen vergleichen',
       'Rechenzeichen-Förderband',
+      'Gerade oder ungerade',
     ]);
   });
 
@@ -54,6 +55,7 @@ void main() {
       'Number learning',
       'Compare numbers',
       'Operator conveyor',
+      'Even or odd',
     ]);
   });
 
@@ -77,6 +79,7 @@ void main() {
       'Számtanulás',
       'Számok összehasonlítása',
       'Műveleti futószalag',
+      'Páros vagy páratlan',
     ]);
   });
 }

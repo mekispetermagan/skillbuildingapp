@@ -60,6 +60,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activityOperatorConveyor => 'Operator conveyor';
 
   @override
+  String get activityEvenOdd => 'Even or odd';
+
+  @override
   String get numberPattern => 'Pattern';
 
   @override

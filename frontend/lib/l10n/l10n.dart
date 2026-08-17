@@ -27,5 +27,6 @@ extension ActivityIdLocalization on ActivityId {
     ActivityId.numberLearning => l10n.activityNumberLearning,
     ActivityId.numberComparison => l10n.activityNumberComparison,
     ActivityId.operatorConveyor => l10n.activityOperatorConveyor,
+    ActivityId.evenOdd => l10n.activityEvenOdd,
   };
 }

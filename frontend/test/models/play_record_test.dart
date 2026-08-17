@@ -39,6 +39,7 @@ void main() {
         ActivityId.numberLearning,
         ActivityId.numberComparison,
         ActivityId.operatorConveyor,
+        ActivityId.evenOdd,
       ],
     );
     expect(

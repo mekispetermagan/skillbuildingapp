@@ -202,6 +202,12 @@ abstract class AppLocalizations {
   /// **'Operator conveyor'**
   String get activityOperatorConveyor;
 
+  /// No description provided for @activityEvenOdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Even or odd'**
+  String get activityEvenOdd;
+
   /// No description provided for @numberPattern.
   ///
   /// In en, this message translates to:

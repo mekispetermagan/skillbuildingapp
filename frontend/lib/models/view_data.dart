@@ -9,6 +9,7 @@ import 'crossword_config.dart';
 import 'crossword_puzzle.dart';
 import 'crossword_state.dart';
 import 'feature_load_error.dart';
+import 'even_odd_world.dart';
 import 'image_word.dart';
 import 'layered_person_outfit.dart';
 import 'letter_catching_world.dart';
@@ -146,6 +147,13 @@ class LetterCatchingViewData {
     required this.world,
     required this.state,
   });
+}
+
+class EvenOddViewData {
+  final EvenOddWorld world;
+  final LetterCatchingState state;
+
+  const EvenOddViewData({required this.world, required this.state});
 }
 
 class ConveyorViewData {

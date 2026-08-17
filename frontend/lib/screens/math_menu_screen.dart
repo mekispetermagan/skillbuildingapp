@@ -28,6 +28,8 @@ class MathMenuScreen extends StatelessWidget {
                   ? context.l10n.activityNumberComparison
                   : number == 8
                   ? context.l10n.activityOperatorConveyor
+                  : number == 7
+                  ? context.l10n.activityEvenOdd
                   : context.l10n.mathFeature(number),
               onPressed,
             ),

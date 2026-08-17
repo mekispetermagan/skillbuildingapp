@@ -60,6 +60,9 @@ class AppLocalizationsHu extends AppLocalizations {
   String get activityOperatorConveyor => 'Műveleti futószalag';
 
   @override
+  String get activityEvenOdd => 'Páros vagy páratlan';
+
+  @override
   String get numberPattern => 'Minta';
 
   @override

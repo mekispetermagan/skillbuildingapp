@@ -117,6 +117,15 @@ class AppRootState extends State<AppRoot> {
             onRestart: _sessionController.restartOperatorConveyor,
             onSetDifficulty: _sessionController.operatorConveyorSetDifficulty,
           ),
+          SessionStatus.evenOdd => EvenOddScreen(
+            viewData: _sessionController.evenOddViewData,
+            onResize: _sessionController.evenOddResize,
+            onTick: _sessionController.evenOddTick,
+            onMovePaddleBy: _sessionController.evenOddMovePaddleBy,
+            onToggleParity: _sessionController.evenOddToggleParity,
+            onBack: _sessionController.handleBack,
+            onRestart: _sessionController.restartEvenOdd,
+          ),
           SessionStatus.letterLearning => LetterLearningScreen(
             viewData: _sessionController.letterLearningViewData,
             onBack: _sessionController.handleBack,
