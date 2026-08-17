@@ -95,6 +95,7 @@ MATH_FEATURES = frozenset(
         "number_learning",
         "number_comparison",
         "operations_practice",
+        "number_dragging",
         "operator_conveyor",
         "even_odd",
     }

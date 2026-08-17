@@ -30,6 +30,7 @@ import '../models/missing_letters_state.dart';
 import '../models/missing_letters_word.dart';
 import '../models/number_learning.dart';
 import '../models/number_comparison.dart';
+import '../models/number_dragging.dart';
 import '../models/operations_practice.dart';
 import '../models/outfit_sentence.dart';
 import '../models/phrase_building_state.dart';
@@ -54,6 +55,7 @@ import 'memory_controller.dart';
 import 'missing_letters_controller.dart';
 import 'number_learning_controller.dart';
 import 'number_comparison_controller.dart';
+import 'number_dragging_controller.dart';
 import 'operator_conveyor_controller.dart';
 import 'operations_practice_controller.dart';
 import 'phrase_building_controller.dart';
@@ -69,6 +71,7 @@ enum SessionStatus {
   numberLearning,
   numberComparison,
   operationsPractice,
+  numberDragging,
   operatorConveyor,
   evenOdd,
   letterLearning,
@@ -126,6 +129,7 @@ class SessionController extends ChangeNotifier {
   late final NumberLearningController _numberLearningController;
   late final NumberComparisonController _numberComparisonController;
   late final OperationsPracticeController _operationsPracticeController;
+  late final NumberDraggingController _numberDraggingController;
   late final OperatorConveyorController _operatorConveyorController;
   late final EvenOddController _evenOddController;
   SessionStatus status = SessionStatus.areaMenu;
@@ -157,6 +161,8 @@ class SessionController extends ChangeNotifier {
     _numberComparisonController = NumberComparisonController(_audioPlayer)
       ..addListener(_forwardFeatureNotification);
     _operationsPracticeController = OperationsPracticeController(_audioPlayer)
+      ..addListener(_forwardFeatureNotification);
+    _numberDraggingController = NumberDraggingController(_audioPlayer)
       ..addListener(_forwardFeatureNotification);
     _operatorConveyorController = OperatorConveyorController()
       ..addListener(_forwardFeatureNotification);
@@ -214,7 +220,8 @@ class SessionController extends ChangeNotifier {
     (1, openNumberLearning),
     (2, openNumberComparison),
     (3, openOperationsPractice),
-    for (var number = 4; number <= 6; number++)
+    (4, openNumberDragging),
+    for (var number = 5; number <= 6; number++)
       (number, () => openMathPlaceholder(number)),
     (7, openEvenOdd),
     (8, openOperatorConveyor),
@@ -301,6 +308,30 @@ class SessionController extends ChangeNotifier {
     _operationsPracticeController.start();
     _beginActivity(SessionStatus.operationsPractice);
   }
+
+  NumberDraggingViewData get numberDraggingViewData => NumberDraggingViewData(
+    tiles: _numberDraggingController.tiles,
+    range: _numberDraggingController.range,
+    state: _numberDraggingController.state,
+    score: _numberDraggingController.score,
+    countdown: _numberDraggingController.countdown.status,
+  );
+
+  void Function(int, int)? get numberDraggingReorder =>
+      _numberDraggingController.canReorder
+      ? _numberDraggingController.reorder
+      : null;
+  VoidCallback? get numberDraggingPass =>
+      _numberDraggingController.canPass ? _numberDraggingController.pass : null;
+  void numberDraggingSetRange(NumberDraggingRange value) =>
+      _numberDraggingController.setRange(value);
+
+  void openNumberDragging() {
+    _numberDraggingController.start();
+    _beginActivity(SessionStatus.numberDragging);
+  }
+
+  void restartNumberDragging() => _numberDraggingController.start();
 
   PhraseBuildingViewData get phraseBuildingViewData => PhraseBuildingViewData(
     isLoading:
@@ -848,6 +879,7 @@ class SessionController extends ChangeNotifier {
     _numberLearningController.stop();
     _numberComparisonController.stop();
     _operationsPracticeController.stop();
+    _numberDraggingController.stop();
     _operatorConveyorController.stop();
     _evenOddController.stop();
     _open(destination);
@@ -894,6 +926,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.numberLearning => true,
     SessionStatus.numberComparison => true,
     SessionStatus.operationsPractice => true,
+    SessionStatus.numberDragging => true,
     SessionStatus.operatorConveyor => true,
     SessionStatus.evenOdd => true,
     _ => false,
@@ -931,6 +964,8 @@ class SessionController extends ChangeNotifier {
       _numberComparisonController.state == NumberComparisonState.won,
     SessionStatus.operationsPractice =>
       _operationsPracticeController.state == OperationsPracticeState.won,
+    SessionStatus.numberDragging =>
+      _numberDraggingController.state == LetterDraggingState.result,
     SessionStatus.operatorConveyor =>
       _operatorConveyorController.state != ConveyorState.playing,
     SessionStatus.evenOdd =>
@@ -944,6 +979,7 @@ class SessionController extends ChangeNotifier {
 
   PlayOutcome _terminalOutcome(SessionStatus value) => switch (value) {
     SessionStatus.letterDragging ||
+    SessionStatus.numberDragging ||
     SessionStatus.memory => PlayOutcome.completed,
     SessionStatus.letterCatching =>
       _letterCatchingController?.state == LetterCatchingState.lost
@@ -988,6 +1024,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.numberLearning => ActivityId.numberLearning,
     SessionStatus.numberComparison => ActivityId.numberComparison,
     SessionStatus.operationsPractice => ActivityId.operationsPractice,
+    SessionStatus.numberDragging => ActivityId.numberDragging,
     SessionStatus.operatorConveyor => ActivityId.operatorConveyor,
     SessionStatus.evenOdd => ActivityId.evenOdd,
     SessionStatus.areaMenu ||
@@ -1016,6 +1053,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.numberLearning => _numberLearningController.score,
     SessionStatus.numberComparison => _numberComparisonController.score,
     SessionStatus.operationsPractice => _operationsPracticeController.score,
+    SessionStatus.numberDragging => _numberDraggingController.score,
     SessionStatus.operatorConveyor => _operatorConveyorController.world.score,
     SessionStatus.evenOdd => _evenOddController.world.score,
     SessionStatus.areaMenu ||
@@ -1029,6 +1067,10 @@ class SessionController extends ChangeNotifier {
     SessionStatus.letterDragging => TimedWordMetrics(
       correctAnswers: _letterDraggingController?.score ?? 0,
       passedItems: _letterDraggingController?.passedItems ?? 0,
+    ),
+    SessionStatus.numberDragging => TimedWordMetrics(
+      correctAnswers: _numberDraggingController.score,
+      passedItems: _numberDraggingController.passedItems,
     ),
     SessionStatus.memory => MemoryMetrics(
       pairCount: _memoryController?.config.pairCount ?? memoryConfig.pairCount,
@@ -1502,6 +1544,8 @@ class SessionController extends ChangeNotifier {
     _numberComparisonController.dispose();
     _operationsPracticeController.removeListener(_forwardFeatureNotification);
     _operationsPracticeController.dispose();
+    _numberDraggingController.removeListener(_forwardFeatureNotification);
+    _numberDraggingController.dispose();
     _operatorConveyorController.removeListener(_forwardFeatureNotification);
     _operatorConveyorController.dispose();
     _evenOddController.removeListener(_forwardFeatureNotification);

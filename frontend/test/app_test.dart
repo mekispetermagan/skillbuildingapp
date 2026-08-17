@@ -67,6 +67,26 @@ void main() {
     expect(find.text('>'), findsOneWidget);
   });
 
+  testWidgets('opens number dragging from the math menu', (tester) async {
+    await tester.pumpWidget(const LiteracyApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Math'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Number dragging'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Number dragging'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Put the numbers from smallest to largest'),
+      findsOneWidget,
+    );
+    expect(find.text('1–12'), findsOneWidget);
+    expect(find.text('1–24'), findsOneWidget);
+    expect(find.text('1–60'), findsOneWidget);
+    expect(find.text('Pass'), findsOneWidget);
+  });
+
   testWidgets('system back follows the same math navigation hierarchy', (
     tester,
   ) async {

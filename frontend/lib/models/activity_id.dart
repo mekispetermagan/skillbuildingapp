@@ -17,6 +17,7 @@ enum ActivityId {
   numberLearning('number_learning'),
   numberComparison('number_comparison'),
   operationsPractice('operations_practice'),
+  numberDragging('number_dragging'),
   operatorConveyor('operator_conveyor'),
   evenOdd('even_odd');
 
@@ -28,6 +29,7 @@ enum ActivityId {
     ActivityId.numberLearning ||
     ActivityId.numberComparison ||
     ActivityId.operationsPractice ||
+    ActivityId.numberDragging ||
     ActivityId.operatorConveyor ||
     ActivityId.evenOdd => LearningArea.math,
     _ => LearningArea.literacy,

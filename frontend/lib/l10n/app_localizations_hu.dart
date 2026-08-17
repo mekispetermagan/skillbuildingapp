@@ -60,6 +60,9 @@ class AppLocalizationsHu extends AppLocalizations {
   String get activityOperationsPractice => 'Műveletek gyakorlása';
 
   @override
+  String get activityNumberDragging => 'Számrendező';
+
+  @override
   String get activityOperatorConveyor => 'Műveleti futószalag';
 
   @override
@@ -130,6 +133,10 @@ class AppLocalizationsHu extends AppLocalizations {
   String get instructionOrderLetters => 'Rakd sorrendbe a betűket!';
 
   @override
+  String get instructionOrderNumbers =>
+      'Rendezd a számokat a legkisebbtől a legnagyobbig!';
+
+  @override
   String get instructionMissingLetters => 'Illeszd be a hiányzó betűket!';
 
   @override
@@ -174,6 +181,11 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String letterDraggingResult(int score) {
+    return 'Szép volt!\n$score drágakövet gyűjtöttél.';
+  }
+
+  @override
+  String numberDraggingResult(int score) {
     return 'Szép volt!\n$score drágakövet gyűjtöttél.';
   }
 

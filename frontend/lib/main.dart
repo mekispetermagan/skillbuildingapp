@@ -111,6 +111,21 @@ class AppRootState extends State<AppRoot> {
             onSetUseColors: _sessionController.operationsPracticeSetUseColors,
             onGuess: _sessionController.operationsPracticeGuess,
           ),
+          SessionStatus.numberDragging =>
+            _sessionController.numberDraggingViewData.state ==
+                    LetterDraggingState.result
+                ? NumberDraggingResultScreen(
+                    score: _sessionController.numberDraggingViewData.score,
+                    onBack: _sessionController.handleBack,
+                    onRestart: _sessionController.restartNumberDragging,
+                  )
+                : NumberDraggingScreen(
+                    viewData: _sessionController.numberDraggingViewData,
+                    onBack: _sessionController.handleBack,
+                    onReorder: _sessionController.numberDraggingReorder,
+                    onPass: _sessionController.numberDraggingPass,
+                    onSetRange: _sessionController.numberDraggingSetRange,
+                  ),
           SessionStatus.operatorConveyor => OperatorConveyorScreen(
             viewData: _sessionController.operatorConveyorViewData,
             onResize: _sessionController.operatorConveyorResize,

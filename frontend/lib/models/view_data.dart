@@ -32,6 +32,7 @@ import 'missing_letters_state.dart';
 import 'number_learning.dart';
 import 'operations_practice.dart';
 import 'number_comparison.dart';
+import 'number_dragging.dart';
 import 'outfit_sentence.dart';
 import 'operator_conveyor_world.dart';
 import 'phrase_building_state.dart';
@@ -422,5 +423,21 @@ class OperationsPracticeViewData {
     required this.choices,
     required this.canGuess,
     required this.config,
+  });
+}
+
+class NumberDraggingViewData {
+  final List<NumberDraggingTile> tiles;
+  final NumberDraggingRange range;
+  final LetterDraggingState state;
+  final int score;
+  final CountdownStatus countdown;
+
+  const NumberDraggingViewData({
+    required this.tiles,
+    required this.range,
+    required this.state,
+    required this.score,
+    required this.countdown,
   });
 }

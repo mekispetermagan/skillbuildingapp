@@ -15,6 +15,8 @@ export 'math_menu_screen.dart';
 export 'math_placeholder_screen.dart';
 export 'number_learning_screen.dart';
 export 'number_comparison_screen.dart';
+export 'number_dragging_screen.dart';
+export 'number_dragging_result_screen.dart';
 export 'operations_practice_screen.dart';
 export 'operator_conveyor_screen.dart';
 export 'even_odd_screen.dart';

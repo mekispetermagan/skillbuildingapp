@@ -39,6 +39,7 @@ void main() {
         ActivityId.numberLearning,
         ActivityId.numberComparison,
         ActivityId.operationsPractice,
+        ActivityId.numberDragging,
         ActivityId.operatorConveyor,
         ActivityId.evenOdd,
       ],

@@ -202,6 +202,12 @@ abstract class AppLocalizations {
   /// **'Operations practice'**
   String get activityOperationsPractice;
 
+  /// No description provided for @activityNumberDragging.
+  ///
+  /// In en, this message translates to:
+  /// **'Number dragging'**
+  String get activityNumberDragging;
+
   /// No description provided for @activityOperatorConveyor.
   ///
   /// In en, this message translates to:
@@ -334,6 +340,12 @@ abstract class AppLocalizations {
   /// **'Put the letters in the right order'**
   String get instructionOrderLetters;
 
+  /// No description provided for @instructionOrderNumbers.
+  ///
+  /// In en, this message translates to:
+  /// **'Put the numbers from smallest to largest'**
+  String get instructionOrderNumbers;
+
   /// No description provided for @instructionMissingLetters.
   ///
   /// In en, this message translates to:
@@ -423,6 +435,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Great work!\nYou collected {score} gems.'**
   String letterDraggingResult(int score);
+
+  /// No description provided for @numberDraggingResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Great work!\nYou collected {score} gems.'**
+  String numberDraggingResult(int score);
 
   /// No description provided for @livesRemaining.
   ///

@@ -16,6 +16,7 @@
   "activityNumberLearning": "Number learning",
   "activityNumberComparison": "Compare numbers",
   "activityOperationsPractice": "Operations practice",
+  "activityNumberDragging": "Number dragging",
   "activityOperatorConveyor": "Operator conveyor",
   "activityEvenOdd": "Even or odd",
   "numberPattern": "Pattern",
@@ -44,6 +45,7 @@
   "playSentence": "Play sentence",
   "playLetterAndWord": "Play letter and word",
   "instructionOrderLetters": "Put the letters in the right order",
+  "instructionOrderNumbers": "Put the numbers from smallest to largest",
   "instructionMissingLetters": "Drag the missing letters into the word",
   "instructionCrossword": "Choose or drag a letter into an empty square",
   "memoryNotEnoughPairs": "Not enough word and image pairs.",
@@ -60,6 +62,10 @@
   "unmasked": "Unmasked",
   "letterDraggingResult": "Great work!\nYou collected {score} gems.",
   "@letterDraggingResult": {
+    "placeholders": {"score": {"type": "int"}}
+  },
+  "numberDraggingResult": "Great work!\nYou collected {score} gems.",
+  "@numberDraggingResult": {
     "placeholders": {"score": {"type": "int"}}
   },
   "livesRemaining": "{lives} of {maximumLives} lives remaining",

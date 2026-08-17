@@ -60,6 +60,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activityOperationsPractice => 'Operations practice';
 
   @override
+  String get activityNumberDragging => 'Number dragging';
+
+  @override
   String get activityOperatorConveyor => 'Operator conveyor';
 
   @override
@@ -130,6 +133,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get instructionOrderLetters => 'Put the letters in the right order';
 
   @override
+  String get instructionOrderNumbers =>
+      'Put the numbers from smallest to largest';
+
+  @override
   String get instructionMissingLetters =>
       'Drag the missing letters into the word';
 
@@ -175,6 +182,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String letterDraggingResult(int score) {
+    return 'Great work!\nYou collected $score gems.';
+  }
+
+  @override
+  String numberDraggingResult(int score) {
     return 'Great work!\nYou collected $score gems.';
   }
 

@@ -60,6 +60,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get activityOperationsPractice => 'Rechenübungen';
 
   @override
+  String get activityNumberDragging => 'Zahlen ordnen';
+
+  @override
   String get activityOperatorConveyor => 'Rechenzeichen-Förderband';
 
   @override
@@ -131,6 +134,9 @@ class AppLocalizationsDe extends AppLocalizations {
       'Bringe die Buchstaben in die richtige Reihenfolge';
 
   @override
+  String get instructionOrderNumbers => 'Ordne die Zahlen von klein nach groß';
+
+  @override
   String get instructionMissingLetters =>
       'Setze die fehlenden Buchstaben in das Wort ein';
 
@@ -176,6 +182,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String letterDraggingResult(int score) {
+    return 'Gut gemacht!\nDu hast $score Edelsteine gesammelt.';
+  }
+
+  @override
+  String numberDraggingResult(int score) {
     return 'Gut gemacht!\nDu hast $score Edelsteine gesammelt.';
   }
 

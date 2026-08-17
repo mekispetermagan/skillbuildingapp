@@ -31,6 +31,7 @@ void main() {
       'Zahlen lernen',
       'Zahlen vergleichen',
       'Rechenübungen',
+      'Zahlen ordnen',
       'Rechenzeichen-Förderband',
       'Gerade oder ungerade',
     ]);
@@ -56,6 +57,7 @@ void main() {
       'Number learning',
       'Compare numbers',
       'Operations practice',
+      'Number dragging',
       'Operator conveyor',
       'Even or odd',
     ]);
@@ -81,6 +83,7 @@ void main() {
       'Számtanulás',
       'Számok összehasonlítása',
       'Műveletek gyakorlása',
+      'Számrendező',
       'Műveleti futószalag',
       'Páros vagy páratlan',
     ]);
