@@ -42,6 +42,8 @@
   "difficultyBeginner": "Anfänger",
   "difficultyIntermediate": "Mittel",
   "difficultyAdvanced": "Fortgeschritten",
+  "difficultyEasy": "Leicht",
+  "difficultyHard": "Schwer",
   "colorsOn": "Farben an",
   "colorsOff": "Farben aus",
   "imagesOn": "Bilder an",

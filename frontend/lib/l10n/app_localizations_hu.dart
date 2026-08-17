@@ -143,6 +143,12 @@ class AppLocalizationsHu extends AppLocalizations {
   String get difficultyAdvanced => 'Haladó';
 
   @override
+  String get difficultyEasy => 'Könnyű';
+
+  @override
+  String get difficultyHard => 'Nehéz';
+
+  @override
   String get colorsOn => 'Színek be';
 
   @override

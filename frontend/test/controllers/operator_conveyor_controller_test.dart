@@ -45,18 +45,41 @@ void main() {
     }
   });
 
-  test('right belt alternates plus, minus, multiply, and divide', () {
+  test('easy right belt alternates three operators without division', () {
     final controller = _controller();
-    expect(controller.world.operators.take(8).map((tile) => tile.operator), [
+    expect(controller.world.operators.take(6).map((tile) => tile.operator), [
       ArithmeticOperator.add,
       ArithmeticOperator.subtract,
       ArithmeticOperator.multiply,
-      ArithmeticOperator.divide,
+      ArithmeticOperator.add,
+      ArithmeticOperator.subtract,
+      ArithmeticOperator.multiply,
+    ]);
+  });
+
+  test('hard mode adds division, raises ceiling, and preserves progress', () {
+    final controller = _controller();
+    final shelf = controller.world.shelves.first;
+    final tile = controller.world.operators.first
+      ..operator = ArithmeticOperator.values.firstWhere(shelf.equation.accepts);
+    controller.drop(operatorId: tile.id, shelfId: shelf.id);
+    final lives = controller.world.lives;
+
+    controller.setDifficulty(ConveyorDifficulty.hard);
+
+    expect(controller.world.score, 1);
+    expect(controller.world.lives, lives);
+    expect(controller.world.operators.take(4).map((tile) => tile.operator), [
       ArithmeticOperator.add,
       ArithmeticOperator.subtract,
       ArithmeticOperator.multiply,
       ArithmeticOperator.divide,
     ]);
+    for (final generatedShelf in controller.world.shelves) {
+      expect(generatedShelf.equation.left, inInclusiveRange(1, 30));
+      expect(generatedShelf.equation.right, inInclusiveRange(1, 30));
+      expect(generatedShelf.equation.result, inInclusiveRange(1, 30));
+    }
   });
 
   test('equation correctness allows ambiguous operators', () {

@@ -358,6 +358,18 @@ abstract class AppLocalizations {
   /// **'Advanced'**
   String get difficultyAdvanced;
 
+  /// No description provided for @difficultyEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy'**
+  String get difficultyEasy;
+
+  /// No description provided for @difficultyHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard'**
+  String get difficultyHard;
+
   /// No description provided for @colorsOn.
   ///
   /// In en, this message translates to:

@@ -1,3 +1,5 @@
+enum ConveyorDifficulty { easy, hard }
+
 class ConveyorConfig {
   final double leftBeltWidth;
   final double rightBeltWidth;

@@ -115,6 +115,7 @@ class AppRootState extends State<AppRoot> {
             onDrop: _sessionController.operatorConveyorDrop,
             onBack: _sessionController.openMathMenu,
             onRestart: _sessionController.restartOperatorConveyor,
+            onSetDifficulty: _sessionController.operatorConveyorSetDifficulty,
           ),
           SessionStatus.letterLearning => LetterLearningScreen(
             viewData: _sessionController.letterLearningViewData,
@@ -214,6 +215,7 @@ class AppRootState extends State<AppRoot> {
             onDrop: _sessionController.conveyorDrop,
             onBack: _sessionController.openLiteracyMenu,
             onRestart: _sessionController.restartConveyor,
+            onSetDifficulty: _sessionController.conveyorSetDifficulty,
           ),
           SessionStatus.sentenceQuiz => SentenceQuizScreen(
             viewData: _sessionController.sentenceQuizViewData,

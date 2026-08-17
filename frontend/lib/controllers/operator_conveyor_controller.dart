@@ -19,6 +19,14 @@ class OperatorConveyorController extends ChangeNotifier {
   }) : world = OperatorConveyorWorld(config: config, random: random);
 
   int? get selectedOperatorId => _selectedOperatorId;
+  ConveyorDifficulty get difficulty => world.difficulty;
+
+  void setDifficulty(ConveyorDifficulty value) {
+    if (world.difficulty == value) return;
+    world.setDifficulty(value);
+    _selectedOperatorId = null;
+    notifyListeners();
+  }
 
   void start() {
     world.reset();

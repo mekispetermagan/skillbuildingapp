@@ -82,6 +82,7 @@ class OperatorConveyorWorld implements ConveyorGeometry {
   double height = 0;
   int score = 0;
   late int lives;
+  ConveyorDifficulty difficulty = ConveyorDifficulty.easy;
   int _nextId = 0;
   int _nextOperatorIndex = 0;
 
@@ -118,6 +119,12 @@ class OperatorConveyorWorld implements ConveyorGeometry {
     _nextId = 0;
     _nextOperatorIndex = 0;
     if (width > 0 && height > 0) _populate();
+  }
+
+  void setDifficulty(ConveyorDifficulty value) {
+    if (difficulty == value) return;
+    difficulty = value;
+    _regenerateBelts();
   }
 
   void update(double deltaSeconds) {
@@ -197,17 +204,18 @@ class OperatorConveyorWorld implements ConveyorGeometry {
       OperatorConveyorShelf(id: _nextId++, equation: _newEquation(), y: y);
 
   OperatorEquation _newEquation() {
-    final operator = ArithmeticOperator
-        .values[random.nextInt(ArithmeticOperator.values.length)];
+    final operators = _activeOperators;
+    final operator = operators[random.nextInt(operators.length)];
+    final maximum = difficulty == ConveyorDifficulty.easy ? 20 : 30;
     return switch (operator) {
       ArithmeticOperator.add => () {
-        final left = random.nextInt(19) + 1;
-        final right = random.nextInt(20 - left) + 1;
+        final left = random.nextInt(maximum - 1) + 1;
+        final right = random.nextInt(maximum - left) + 1;
         return OperatorEquation(left: left, right: right, result: left + right);
       }(),
       ArithmeticOperator.subtract => () {
-        final result = random.nextInt(19) + 1;
-        final right = random.nextInt(20 - result) + 1;
+        final result = random.nextInt(maximum - 1) + 1;
+        final right = random.nextInt(maximum - result) + 1;
         return OperatorEquation(
           left: result + right,
           right: right,
@@ -215,13 +223,13 @@ class OperatorConveyorWorld implements ConveyorGeometry {
         );
       }(),
       ArithmeticOperator.multiply => () {
-        final left = random.nextInt(10) + 1;
-        final right = random.nextInt(20 ~/ left) + 1;
+        final left = random.nextInt(maximum ~/ 2) + 1;
+        final right = random.nextInt(maximum ~/ left) + 1;
         return OperatorEquation(left: left, right: right, result: left * right);
       }(),
       ArithmeticOperator.divide => () {
-        final right = random.nextInt(10) + 1;
-        final result = random.nextInt(20 ~/ right) + 1;
+        final right = random.nextInt(maximum ~/ 2) + 1;
+        final result = random.nextInt(maximum ~/ right) + 1;
         return OperatorEquation(
           left: right * result,
           right: right,
@@ -239,10 +247,22 @@ class OperatorConveyorWorld implements ConveyorGeometry {
   }
 
   ArithmeticOperator _nextOperator() {
-    final result = ArithmeticOperator
-        .values[_nextOperatorIndex % ArithmeticOperator.values.length];
+    final operators = _activeOperators;
+    final result = operators[_nextOperatorIndex % operators.length];
     _nextOperatorIndex++;
     return result;
+  }
+
+  List<ArithmeticOperator> get _activeOperators =>
+      difficulty == ConveyorDifficulty.easy
+      ? ArithmeticOperator.values.take(3).toList(growable: false)
+      : ArithmeticOperator.values;
+
+  void _regenerateBelts() {
+    shelves.clear();
+    operators.clear();
+    _nextOperatorIndex = 0;
+    if (width > 0 && height > 0) _populate();
   }
 
   void _recycleOperator(OperatorConveyorTile tile) {

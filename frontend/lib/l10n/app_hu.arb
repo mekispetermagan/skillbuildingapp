@@ -42,6 +42,8 @@
   "difficultyBeginner": "Kezdő",
   "difficultyIntermediate": "Középhaladó",
   "difficultyAdvanced": "Haladó",
+  "difficultyEasy": "Könnyű",
+  "difficultyHard": "Nehéz",
   "colorsOn": "Színek be",
   "colorsOff": "Színek ki",
   "imagesOn": "Képek be",

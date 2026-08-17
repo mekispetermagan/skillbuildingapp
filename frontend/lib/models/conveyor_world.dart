@@ -67,6 +67,7 @@ class ConveyorWorld implements ConveyorGeometry {
   double height = 0;
   int score = 0;
   late int lives;
+  ConveyorDifficulty difficulty = ConveyorDifficulty.easy;
 
   int _nextId = 0;
   int _nextLetterIndex = 0;
@@ -115,6 +116,12 @@ class ConveyorWorld implements ConveyorGeometry {
     _deck = [...words]..shuffle(random);
     _deckIndex = 0;
     if (width > 0 && height > 0) _populate();
+  }
+
+  void setDifficulty(ConveyorDifficulty value) {
+    if (difficulty == value) return;
+    difficulty = value;
+    _regenerateBelts();
   }
 
   void update(double deltaSeconds) {
@@ -204,9 +211,20 @@ class ConveyorWorld implements ConveyorGeometry {
     return ConveyorShelf(
       id: _nextId++,
       word: word,
-      missingIndices: indices.take(2).toList()..sort(),
+      missingIndices:
+          indices.take(difficulty == ConveyorDifficulty.easy ? 1 : 2).toList()
+            ..sort(),
       y: y,
     );
+  }
+
+  void _regenerateBelts() {
+    shelves.clear();
+    letters.clear();
+    _nextLetterIndex = 0;
+    _deck = [...words]..shuffle(random);
+    _deckIndex = 0;
+    if (width > 0 && height > 0) _populate();
   }
 
   void _replaceShelf(ConveyorShelf shelf) {

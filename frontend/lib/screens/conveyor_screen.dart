@@ -4,9 +4,11 @@ import '../l10n/l10n.dart';
 
 import '../games/conveyor_game.dart';
 import '../models/conveyor_state.dart';
+import '../models/conveyor_config.dart';
 import '../models/conveyor_world.dart';
 import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
+import '../widgets/conveyor_difficulty_segments.dart';
 import '../widgets/feature_load_state.dart';
 import '../widgets/game_end_overlay.dart';
 import '../widgets/lives_display.dart';
@@ -24,6 +26,7 @@ class ConveyorScreen extends StatelessWidget {
   final void Function({required int letterId, required int shelfId}) onDrop;
   final VoidCallback onBack;
   final VoidCallback onRestart;
+  final ValueChanged<ConveyorDifficulty> onSetDifficulty;
 
   const ConveyorScreen({
     required this.viewData,
@@ -37,6 +40,7 @@ class ConveyorScreen extends StatelessWidget {
     required this.onDrop,
     required this.onBack,
     required this.onRestart,
+    required this.onSetDifficulty,
     super.key,
   });
 
@@ -51,19 +55,32 @@ class ConveyorScreen extends StatelessWidget {
       loadError: viewData.loadError,
       child: switch (viewData.world) {
         final ConveyorWorld world => SafeArea(
-          child: _ConveyorPlayArea(
-            initialState: viewData.state,
-            world: world,
-            onResize: onResize,
-            onTick: onTick,
-            canAccept: canAccept,
-            onStartDragging: onStartDragging,
-            onSelectLetter: onSelectLetter,
-            onPlaceSelected: onPlaceSelected,
-            selectedLetterId: viewData.selectedLetterId,
-            onCancelDragging: onCancelDragging,
-            onDrop: onDrop,
-            onRestart: onRestart,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: ConveyorDifficultySegments(
+                  value: viewData.difficulty,
+                  onChanged: onSetDifficulty,
+                ),
+              ),
+              Expanded(
+                child: _ConveyorPlayArea(
+                  initialState: viewData.state,
+                  world: world,
+                  onResize: onResize,
+                  onTick: onTick,
+                  canAccept: canAccept,
+                  onStartDragging: onStartDragging,
+                  onSelectLetter: onSelectLetter,
+                  onPlaceSelected: onPlaceSelected,
+                  selectedLetterId: viewData.selectedLetterId,
+                  onCancelDragging: onCancelDragging,
+                  onDrop: onDrop,
+                  onRestart: onRestart,
+                ),
+              ),
+            ],
           ),
         ),
         null => const SizedBox.shrink(),

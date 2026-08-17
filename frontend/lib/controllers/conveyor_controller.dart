@@ -43,6 +43,14 @@ class ConveyorController extends ChangeNotifier {
   }
 
   int? get selectedLetterId => _selectedLetterId;
+  ConveyorDifficulty get difficulty => world.difficulty;
+
+  void setDifficulty(ConveyorDifficulty value) {
+    if (world.difficulty == value) return;
+    world.setDifficulty(value);
+    _selectedLetterId = null;
+    notifyListeners();
+  }
 
   void selectLetter(int letterId) {
     if (!_isRunning || !world.letters.any((letter) => letter.id == letterId)) {

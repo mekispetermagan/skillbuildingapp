@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import '../games/conveyor_game.dart';
 import '../l10n/l10n.dart';
 import '../models/conveyor_state.dart';
+import '../models/conveyor_config.dart';
 import '../models/operator_conveyor_world.dart';
 import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
+import '../widgets/conveyor_difficulty_segments.dart';
 import '../widgets/game_end_overlay.dart';
 import '../widgets/lives_display.dart';
 import '../widgets/reward_gem_row.dart';
@@ -24,6 +26,7 @@ class OperatorConveyorScreen extends StatelessWidget {
   final void Function({required int operatorId, required int shelfId}) onDrop;
   final VoidCallback onBack;
   final VoidCallback onRestart;
+  final ValueChanged<ConveyorDifficulty> onSetDifficulty;
 
   const OperatorConveyorScreen({
     required this.viewData,
@@ -37,6 +40,7 @@ class OperatorConveyorScreen extends StatelessWidget {
     required this.onDrop,
     required this.onBack,
     required this.onRestart,
+    required this.onSetDifficulty,
     super.key,
   });
 
@@ -47,19 +51,32 @@ class OperatorConveyorScreen extends StatelessWidget {
       onBack: onBack,
     ),
     body: SafeArea(
-      child: _OperatorConveyorPlayArea(
-        initialState: viewData.state,
-        world: viewData.world,
-        onResize: onResize,
-        onTick: onTick,
-        canAccept: canAccept,
-        onStartDragging: onStartDragging,
-        onSelectOperator: onSelectOperator,
-        onPlaceSelected: onPlaceSelected,
-        selectedOperatorId: viewData.selectedOperatorId,
-        onCancelDragging: onCancelDragging,
-        onDrop: onDrop,
-        onRestart: onRestart,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: ConveyorDifficultySegments(
+              value: viewData.difficulty,
+              onChanged: onSetDifficulty,
+            ),
+          ),
+          Expanded(
+            child: _OperatorConveyorPlayArea(
+              initialState: viewData.state,
+              world: viewData.world,
+              onResize: onResize,
+              onTick: onTick,
+              canAccept: canAccept,
+              onStartDragging: onStartDragging,
+              onSelectOperator: onSelectOperator,
+              onPlaceSelected: onPlaceSelected,
+              selectedOperatorId: viewData.selectedOperatorId,
+              onCancelDragging: onCancelDragging,
+              onDrop: onDrop,
+              onRestart: onRestart,
+            ),
+          ),
+        ],
       ),
     ),
   );

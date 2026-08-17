@@ -9,6 +9,7 @@ import '../models/answer_feedback.dart';
 import '../models/alphabet_letter.dart';
 import '../models/alphabet_object.dart';
 import '../models/conveyor_state.dart';
+import '../models/conveyor_config.dart';
 import '../models/crossword_entry.dart';
 import '../models/crossword_state.dart';
 import '../models/activity_id.dart';
@@ -394,7 +395,11 @@ class SessionController extends ChangeNotifier {
     world: _conveyorController?.world,
     state: _conveyorController?.state ?? ConveyorState.playing,
     selectedLetterId: _conveyorController?.selectedLetterId,
+    difficulty: _conveyorController?.difficulty ?? ConveyorDifficulty.easy,
   );
+
+  void conveyorSetDifficulty(ConveyorDifficulty value) =>
+      _conveyorController?.setDifficulty(value);
 
   void conveyorResize(double width, double height) =>
       _conveyorController?.resize(width, height);
@@ -426,7 +431,10 @@ class SessionController extends ChangeNotifier {
         world: _operatorConveyorController.world,
         state: _operatorConveyorController.state,
         selectedOperatorId: _operatorConveyorController.selectedOperatorId,
+        difficulty: _operatorConveyorController.difficulty,
       );
+  void operatorConveyorSetDifficulty(ConveyorDifficulty value) =>
+      _operatorConveyorController.setDifficulty(value);
   void operatorConveyorResize(double width, double height) =>
       _operatorConveyorController.resize(width, height);
   ConveyorState operatorConveyorTick(double deltaSeconds) =>

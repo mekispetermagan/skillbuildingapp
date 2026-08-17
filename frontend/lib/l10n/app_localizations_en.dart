@@ -144,6 +144,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get difficultyAdvanced => 'Advanced';
 
   @override
+  String get difficultyEasy => 'Easy';
+
+  @override
+  String get difficultyHard => 'Hard';
+
+  @override
   String get colorsOn => 'Colors on';
 
   @override

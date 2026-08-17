@@ -48,6 +48,8 @@
   "difficultyBeginner": "Beginner",
   "difficultyIntermediate": "Intermediate",
   "difficultyAdvanced": "Advanced",
+  "difficultyEasy": "Easy",
+  "difficultyHard": "Hard",
   "colorsOn": "Colors on",
   "colorsOff": "Colors off",
   "imagesOn": "Images on",

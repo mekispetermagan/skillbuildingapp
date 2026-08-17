@@ -60,13 +60,12 @@ ConveyorDropResult _dropMatching(
 }
 
 void main() {
-  test('creates shelves with exactly two hidden letters', () {
+  test('easy mode creates shelves with exactly one hidden letter', () {
     final controller = _controller();
 
     expect(controller.world.shelves, isNotEmpty);
     for (final shelf in controller.world.shelves) {
-      expect(shelf.missingIndices, hasLength(2));
-      expect(shelf.missingIndices.toSet(), hasLength(2));
+      expect(shelf.missingIndices, hasLength(1));
     }
   });
 
@@ -110,18 +109,33 @@ void main() {
       shelf.recoveredIndices.addAll(shelf.missingIndices);
     }
 
-    expect(_dropMatching(controller, lastShelf), ConveyorDropResult.matched);
-    expect(() => _dropMatching(controller, lastShelf), returnsNormally);
+    expect(_dropMatching(controller, lastShelf), ConveyorDropResult.completed);
   });
 
-  test('rewards a completed word rather than each recovered gap', () {
+  test('easy mode rewards its single recovered letter', () {
     final controller = _controller();
     final shelf = controller.world.shelves.first;
 
-    expect(_dropMatching(controller, shelf), ConveyorDropResult.matched);
-    expect(controller.world.score, 0);
     expect(_dropMatching(controller, shelf), ConveyorDropResult.completed);
     expect(controller.world.score, 1);
+  });
+
+  test('hard mode regenerates two-gap shelves and preserves progress', () {
+    final controller = _controller();
+    _dropMatching(controller, controller.world.shelves.first);
+    final lives = controller.world.lives;
+
+    controller.setDifficulty(ConveyorDifficulty.hard);
+
+    expect(controller.world.score, 1);
+    expect(controller.world.lives, lives);
+    expect(controller.world.shelves, isNotEmpty);
+    expect(
+      controller.world.shelves.every(
+        (shelf) => shelf.missingIndices.length == 2,
+      ),
+      isTrue,
+    );
   });
 
   test('identical missing letters recover leftmost first', () {
@@ -182,7 +196,6 @@ void main() {
     final controller = _controller(config: quickConfig);
 
     for (final shelf in controller.world.shelves.take(2)) {
-      _dropMatching(controller, shelf);
       _dropMatching(controller, shelf);
     }
 

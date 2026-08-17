@@ -3,6 +3,7 @@ import 'alphabet_letter.dart';
 import 'alphabet_object.dart';
 import 'countdown_status.dart';
 import 'conveyor_state.dart';
+import 'conveyor_config.dart';
 import 'conveyor_world.dart';
 import 'crossword_config.dart';
 import 'crossword_puzzle.dart';
@@ -153,6 +154,7 @@ class ConveyorViewData {
   final ConveyorWorld? world;
   final ConveyorState state;
   final int? selectedLetterId;
+  final ConveyorDifficulty difficulty;
 
   const ConveyorViewData({
     required this.isLoading,
@@ -160,6 +162,7 @@ class ConveyorViewData {
     required this.world,
     required this.state,
     required this.selectedLetterId,
+    required this.difficulty,
   });
 }
 
@@ -167,11 +170,13 @@ class OperatorConveyorViewData {
   final OperatorConveyorWorld world;
   final ConveyorState state;
   final int? selectedOperatorId;
+  final ConveyorDifficulty difficulty;
 
   const OperatorConveyorViewData({
     required this.world,
     required this.state,
     required this.selectedOperatorId,
+    required this.difficulty,
   });
 }
 
