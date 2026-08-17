@@ -2,24 +2,24 @@ import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:literacy_game/controllers/even_odd_controller.dart';
+import 'package:literacy_game/models/even_odd_config.dart';
 import 'package:literacy_game/models/even_odd_world.dart';
-import 'package:literacy_game/models/letter_catching_config.dart';
 import 'package:literacy_game/models/letter_catching_state.dart';
 
-const _config = LetterCatchingConfig(
+const _config = EvenOddConfig(
   fallingSpeed: 0,
   spawnIntervalSeconds: 1000,
-  fallingLetterSize: 42,
+  fallingNumberSize: 42,
   paddleWidth: 90,
   paddleHeight: 20,
   paddleBottomPadding: 18,
-  poolSize: 10,
+  maximumNumber: 30,
   startingLives: 5,
   winningScore: 10,
   maximumUpdateStep: 0.01,
 );
 
-EvenOddController _controller({LetterCatchingConfig config = _config}) {
+EvenOddController _controller({EvenOddConfig config = _config}) {
   final controller = EvenOddController(config: config, random: Random(3));
   controller
     ..resize(400, 700)
@@ -100,16 +100,16 @@ void main() {
   });
 }
 
-extension on LetterCatchingConfig {
-  LetterCatchingConfig copyWith({int? startingLives, int? winningScore}) =>
-      LetterCatchingConfig(
+extension on EvenOddConfig {
+  EvenOddConfig copyWith({int? startingLives, int? winningScore}) =>
+      EvenOddConfig(
         fallingSpeed: fallingSpeed,
         spawnIntervalSeconds: spawnIntervalSeconds,
-        fallingLetterSize: fallingLetterSize,
+        fallingNumberSize: fallingNumberSize,
         paddleWidth: paddleWidth,
         paddleHeight: paddleHeight,
         paddleBottomPadding: paddleBottomPadding,
-        poolSize: poolSize,
+        maximumNumber: maximumNumber,
         startingLives: startingLives ?? this.startingLives,
         winningScore: winningScore ?? this.winningScore,
         maximumUpdateStep: maximumUpdateStep,

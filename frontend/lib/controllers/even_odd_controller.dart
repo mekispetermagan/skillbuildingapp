@@ -2,20 +2,30 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import '../models/even_odd_config.dart';
 import '../models/even_odd_world.dart';
-import '../models/letter_catching_config.dart';
 import '../models/letter_catching_state.dart';
-import 'letter_catching_controller.dart';
+
+const evenOddConfig = EvenOddConfig(
+  fallingSpeed: 75,
+  spawnIntervalSeconds: 3,
+  fallingNumberSize: 42,
+  paddleWidth: 120,
+  paddleHeight: 45,
+  paddleBottomPadding: 18,
+  maximumNumber: 30,
+  startingLives: 5,
+  winningScore: 10,
+  maximumUpdateStep: 1 / 120,
+);
 
 class EvenOddController extends ChangeNotifier {
   final EvenOddWorld world;
   bool _isRunning = false;
   LetterCatchingState state = LetterCatchingState.playing;
 
-  EvenOddController({
-    LetterCatchingConfig config = letterCatchingConfig,
-    Random? random,
-  }) : world = EvenOddWorld(config: config, random: random);
+  EvenOddController({EvenOddConfig config = evenOddConfig, Random? random})
+    : world = EvenOddWorld(config: config, random: random);
 
   void start() {
     world.reset();

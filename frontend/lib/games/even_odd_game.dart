@@ -43,7 +43,7 @@ class EvenOddGame extends FlameGame {
   }
 
   void _renderFallingNumbers(Canvas canvas, ColorScheme scheme) {
-    final size = gameWorld.config.fallingLetterSize;
+    final size = gameWorld.config.fallingNumberSize;
     for (final falling in gameWorld.fallingNumbers) {
       final bounds = Rect.fromLTWH(falling.x, falling.y, size, size);
       canvas.drawRRect(
@@ -76,7 +76,7 @@ class EvenOddGame extends FlameGame {
       gameWorld.parity == NumberParity.even ? 'EVEN' : 'ODD',
       bounds,
       color: scheme.primary,
-      fontSize: 12,
+      fontSize: 18,
     );
   }
 

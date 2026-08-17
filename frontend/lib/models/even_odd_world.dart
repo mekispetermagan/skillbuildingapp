@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'letter_catching_config.dart';
+import 'even_odd_config.dart';
 
 enum NumberParity {
   even,
@@ -24,7 +24,7 @@ class FallingNumber {
 }
 
 class EvenOddWorld {
-  final LetterCatchingConfig config;
+  final EvenOddConfig config;
   final Random random;
   final List<FallingNumber> fallingNumbers = [];
 
@@ -96,13 +96,13 @@ class EvenOddWorld {
   }
 
   void _spawnNumber() {
-    if (width <= config.fallingLetterSize || height <= 0) return;
+    if (width <= config.fallingNumberSize || height <= 0) return;
     fallingNumbers.add(
       FallingNumber(
         id: _nextEntityId++,
-        number: random.nextInt(30) + 1,
-        x: random.nextDouble() * (width - config.fallingLetterSize),
-        y: -config.fallingLetterSize,
+        number: random.nextInt(config.maximumNumber) + 1,
+        x: random.nextDouble() * (width - config.fallingNumberSize),
+        y: -config.fallingNumberSize,
       ),
     );
   }
@@ -113,9 +113,9 @@ class EvenOddWorld {
     for (final falling in fallingNumbers) {
       final overlaps =
           falling.x < paddleRight &&
-          falling.x + config.fallingLetterSize > paddleX &&
+          falling.x + config.fallingNumberSize > paddleX &&
           falling.y < paddleY + config.paddleHeight &&
-          falling.y + config.fallingLetterSize > paddleY;
+          falling.y + config.fallingNumberSize > paddleY;
       if (!overlaps) continue;
       hitIds.add(falling.id);
       if (parity.accepts(falling.number)) {
