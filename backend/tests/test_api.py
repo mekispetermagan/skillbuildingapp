@@ -262,7 +262,13 @@ def test_rejects_unknown_installations_and_invalid_contracts(client: TestClient)
 
 @pytest.mark.parametrize(
     "feature_id",
-    ["number_learning", "number_comparison", "operator_conveyor", "even_odd"],
+    [
+        "number_learning",
+        "number_comparison",
+        "operations_practice",
+        "operator_conveyor",
+        "even_odd",
+    ],
 )
 def test_accepts_math_records(client: TestClient, feature_id: str):
     installation_id = register(client)

@@ -81,7 +81,7 @@ void main() {
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     expect(find.text('Number learning'), findsOneWidget);
-    expect(find.text('Feature 3'), findsOneWidget);
+    expect(find.text('Operations practice'), findsOneWidget);
 
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();

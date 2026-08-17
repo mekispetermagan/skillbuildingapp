@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../models/number_learning.dart';
 import '../models/view_data.dart';
+import '../theme/number_palette.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/reward_gem_row.dart';
 import '../widgets/single_select_segments.dart';
@@ -90,9 +91,9 @@ class NumberLearningScreen extends StatelessWidget {
                       style: FilledButton.styleFrom(
                         padding: EdgeInsets.zero,
                         backgroundColor: numberColor(number),
-                        foregroundColor: _foreground(number),
+                        foregroundColor: numberForeground(number),
                         disabledBackgroundColor: numberColor(number),
-                        disabledForegroundColor: _foreground(number),
+                        disabledForegroundColor: numberForeground(number),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -113,18 +114,6 @@ class NumberLearningScreen extends StatelessWidget {
     ),
   );
 }
-
-Color numberColor(int number) => switch ((number - 1) % 6) {
-  0 => Colors.blue.shade500,
-  1 => Colors.green.shade500,
-  2 => Colors.yellow.shade500,
-  3 => Colors.orange.shade500,
-  4 => Colors.red.shade500,
-  _ => Colors.purple.shade500,
-};
-
-Color _foreground(int number) =>
-    (number - 1) % 6 == 2 ? Colors.black87 : Colors.white;
 
 class _NumberPattern extends StatelessWidget {
   final int number;

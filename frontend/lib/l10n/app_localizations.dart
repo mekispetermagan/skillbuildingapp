@@ -196,6 +196,12 @@ abstract class AppLocalizations {
   /// **'Compare numbers'**
   String get activityNumberComparison;
 
+  /// No description provided for @activityOperationsPractice.
+  ///
+  /// In en, this message translates to:
+  /// **'Operations practice'**
+  String get activityOperationsPractice;
+
   /// No description provided for @activityOperatorConveyor.
   ///
   /// In en, this message translates to:

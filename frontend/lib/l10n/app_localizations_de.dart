@@ -57,6 +57,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get activityNumberComparison => 'Zahlen vergleichen';
 
   @override
+  String get activityOperationsPractice => 'Rechenübungen';
+
+  @override
   String get activityOperatorConveyor => 'Rechenzeichen-Förderband';
 
   @override

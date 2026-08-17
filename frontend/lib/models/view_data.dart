@@ -30,6 +30,7 @@ import 'missing_letter_slot.dart';
 import 'missing_letter_tile.dart';
 import 'missing_letters_state.dart';
 import 'number_learning.dart';
+import 'operations_practice.dart';
 import 'number_comparison.dart';
 import 'outfit_sentence.dart';
 import 'operator_conveyor_world.dart';
@@ -395,6 +396,30 @@ class NumberComparisonViewData {
     required this.rightEmoji,
     required this.leftPositions,
     required this.rightPositions,
+    required this.canGuess,
+    required this.config,
+  });
+}
+
+class OperationsPracticeViewData {
+  final Set<ElementaryOperator> operators;
+  final OperationsRange range;
+  final bool useColors;
+  final OperationsPracticeState state;
+  final int score;
+  final ElementaryEquation equation;
+  final List<int> choices;
+  final bool canGuess;
+  final OperationsPracticeConfig config;
+
+  const OperationsPracticeViewData({
+    required this.operators,
+    required this.range,
+    required this.useColors,
+    required this.state,
+    required this.score,
+    required this.equation,
+    required this.choices,
     required this.canGuess,
     required this.config,
   });

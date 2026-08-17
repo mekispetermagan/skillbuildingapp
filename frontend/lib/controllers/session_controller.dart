@@ -30,6 +30,7 @@ import '../models/missing_letters_state.dart';
 import '../models/missing_letters_word.dart';
 import '../models/number_learning.dart';
 import '../models/number_comparison.dart';
+import '../models/operations_practice.dart';
 import '../models/outfit_sentence.dart';
 import '../models/phrase_building_state.dart';
 import '../models/phrase_building_tile.dart';
@@ -54,6 +55,7 @@ import 'missing_letters_controller.dart';
 import 'number_learning_controller.dart';
 import 'number_comparison_controller.dart';
 import 'operator_conveyor_controller.dart';
+import 'operations_practice_controller.dart';
 import 'phrase_building_controller.dart';
 import 'sentence_composer_controller.dart';
 import 'sentence_quiz_controller.dart';
@@ -66,6 +68,7 @@ enum SessionStatus {
   mathPlaceholder,
   numberLearning,
   numberComparison,
+  operationsPractice,
   operatorConveyor,
   evenOdd,
   letterLearning,
@@ -122,6 +125,7 @@ class SessionController extends ChangeNotifier {
   late final SentenceComposerController _sentenceComposerController;
   late final NumberLearningController _numberLearningController;
   late final NumberComparisonController _numberComparisonController;
+  late final OperationsPracticeController _operationsPracticeController;
   late final OperatorConveyorController _operatorConveyorController;
   late final EvenOddController _evenOddController;
   SessionStatus status = SessionStatus.areaMenu;
@@ -151,6 +155,8 @@ class SessionController extends ChangeNotifier {
     _numberLearningController = NumberLearningController(_audioPlayer)
       ..addListener(_forwardFeatureNotification);
     _numberComparisonController = NumberComparisonController(_audioPlayer)
+      ..addListener(_forwardFeatureNotification);
+    _operationsPracticeController = OperationsPracticeController(_audioPlayer)
       ..addListener(_forwardFeatureNotification);
     _operatorConveyorController = OperatorConveyorController()
       ..addListener(_forwardFeatureNotification);
@@ -207,7 +213,8 @@ class SessionController extends ChangeNotifier {
   late final List<(int, VoidCallback)> mathMenuItems = [
     (1, openNumberLearning),
     (2, openNumberComparison),
-    for (var number = 3; number <= 6; number++)
+    (3, openOperationsPractice),
+    for (var number = 4; number <= 6; number++)
       (number, () => openMathPlaceholder(number)),
     (7, openEvenOdd),
     (8, openOperatorConveyor),
@@ -265,6 +272,34 @@ class SessionController extends ChangeNotifier {
   void openNumberComparison() {
     _numberComparisonController.start();
     _beginActivity(SessionStatus.numberComparison);
+  }
+
+  OperationsPracticeViewData get operationsPracticeViewData =>
+      OperationsPracticeViewData(
+        operators: _operationsPracticeController.operators,
+        range: _operationsPracticeController.range,
+        useColors: _operationsPracticeController.useColors,
+        state: _operationsPracticeController.state,
+        score: _operationsPracticeController.score,
+        equation: _operationsPracticeController.equation,
+        choices: _operationsPracticeController.choices,
+        canGuess: _operationsPracticeController.canGuess,
+        config: _operationsPracticeController.config,
+      );
+
+  void operationsPracticeSetOperators(Set<ElementaryOperator> values) =>
+      _operationsPracticeController.setOperators(values);
+  void operationsPracticeSetRange(OperationsRange value) =>
+      _operationsPracticeController.setRange(value);
+  void operationsPracticeSetUseColors(bool value) =>
+      _operationsPracticeController.setUseColors(value);
+  void operationsPracticeGuess(int number) {
+    unawaited(_operationsPracticeController.guess(number));
+  }
+
+  void openOperationsPractice() {
+    _operationsPracticeController.start();
+    _beginActivity(SessionStatus.operationsPractice);
   }
 
   PhraseBuildingViewData get phraseBuildingViewData => PhraseBuildingViewData(
@@ -812,6 +847,7 @@ class SessionController extends ChangeNotifier {
     _letterPracticeController?.stop();
     _numberLearningController.stop();
     _numberComparisonController.stop();
+    _operationsPracticeController.stop();
     _operatorConveyorController.stop();
     _evenOddController.stop();
     _open(destination);
@@ -857,6 +893,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.crossword => true,
     SessionStatus.numberLearning => true,
     SessionStatus.numberComparison => true,
+    SessionStatus.operationsPractice => true,
     SessionStatus.operatorConveyor => true,
     SessionStatus.evenOdd => true,
     _ => false,
@@ -892,6 +929,8 @@ class SessionController extends ChangeNotifier {
       _numberLearningController.state == NumberLearningState.won,
     SessionStatus.numberComparison =>
       _numberComparisonController.state == NumberComparisonState.won,
+    SessionStatus.operationsPractice =>
+      _operationsPracticeController.state == OperationsPracticeState.won,
     SessionStatus.operatorConveyor =>
       _operatorConveyorController.state != ConveyorState.playing,
     SessionStatus.evenOdd =>
@@ -948,6 +987,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.crossword => ActivityId.crossword,
     SessionStatus.numberLearning => ActivityId.numberLearning,
     SessionStatus.numberComparison => ActivityId.numberComparison,
+    SessionStatus.operationsPractice => ActivityId.operationsPractice,
     SessionStatus.operatorConveyor => ActivityId.operatorConveyor,
     SessionStatus.evenOdd => ActivityId.evenOdd,
     SessionStatus.areaMenu ||
@@ -975,6 +1015,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.crossword => _crosswordController?.score ?? 0,
     SessionStatus.numberLearning => _numberLearningController.score,
     SessionStatus.numberComparison => _numberComparisonController.score,
+    SessionStatus.operationsPractice => _operationsPracticeController.score,
     SessionStatus.operatorConveyor => _operatorConveyorController.world.score,
     SessionStatus.evenOdd => _evenOddController.world.score,
     SessionStatus.areaMenu ||
@@ -1064,6 +1105,10 @@ class SessionController extends ChangeNotifier {
     SessionStatus.numberComparison => AttemptMetrics(
       correctAnswers: _numberComparisonController.score,
       incorrectAttempts: _numberComparisonController.incorrectAttempts,
+    ),
+    SessionStatus.operationsPractice => AttemptMetrics(
+      correctAnswers: _operationsPracticeController.score,
+      incorrectAttempts: _operationsPracticeController.incorrectAttempts,
     ),
     SessionStatus.operatorConveyor => LivesMetrics(
       correctAnswers: _operatorConveyorController.world.score,
@@ -1455,6 +1500,8 @@ class SessionController extends ChangeNotifier {
     _numberLearningController.dispose();
     _numberComparisonController.removeListener(_forwardFeatureNotification);
     _numberComparisonController.dispose();
+    _operationsPracticeController.removeListener(_forwardFeatureNotification);
+    _operationsPracticeController.dispose();
     _operatorConveyorController.removeListener(_forwardFeatureNotification);
     _operatorConveyorController.dispose();
     _evenOddController.removeListener(_forwardFeatureNotification);

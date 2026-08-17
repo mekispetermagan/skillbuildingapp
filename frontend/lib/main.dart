@@ -103,6 +103,14 @@ class AppRootState extends State<AppRoot> {
             onSetArrangement: _sessionController.numberComparisonSetArrangement,
             onGuess: _sessionController.numberComparisonGuess,
           ),
+          SessionStatus.operationsPractice => OperationsPracticeScreen(
+            viewData: _sessionController.operationsPracticeViewData,
+            onBack: _sessionController.handleBack,
+            onSetOperators: _sessionController.operationsPracticeSetOperators,
+            onSetRange: _sessionController.operationsPracticeSetRange,
+            onSetUseColors: _sessionController.operationsPracticeSetUseColors,
+            onGuess: _sessionController.operationsPracticeGuess,
+          ),
           SessionStatus.operatorConveyor => OperatorConveyorScreen(
             viewData: _sessionController.operatorConveyorViewData,
             onResize: _sessionController.operatorConveyorResize,

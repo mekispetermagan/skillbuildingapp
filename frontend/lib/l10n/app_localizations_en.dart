@@ -57,6 +57,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activityNumberComparison => 'Compare numbers';
 
   @override
+  String get activityOperationsPractice => 'Operations practice';
+
+  @override
   String get activityOperatorConveyor => 'Operator conveyor';
 
   @override

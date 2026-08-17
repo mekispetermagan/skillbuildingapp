@@ -91,7 +91,13 @@ LITERACY_FEATURES = frozenset(
     }
 )
 MATH_FEATURES = frozenset(
-    {"number_learning", "number_comparison", "operator_conveyor", "even_odd"}
+    {
+        "number_learning",
+        "number_comparison",
+        "operations_practice",
+        "operator_conveyor",
+        "even_odd",
+    }
 )
 
 

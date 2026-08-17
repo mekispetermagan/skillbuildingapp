@@ -30,6 +30,7 @@ void main() {
       'Kreuzworträtsel',
       'Zahlen lernen',
       'Zahlen vergleichen',
+      'Rechenübungen',
       'Rechenzeichen-Förderband',
       'Gerade oder ungerade',
     ]);
@@ -54,6 +55,7 @@ void main() {
       'Crossword',
       'Number learning',
       'Compare numbers',
+      'Operations practice',
       'Operator conveyor',
       'Even or odd',
     ]);
@@ -78,6 +80,7 @@ void main() {
       'Keresztrejtvény',
       'Számtanulás',
       'Számok összehasonlítása',
+      'Műveletek gyakorlása',
       'Műveleti futószalag',
       'Páros vagy páratlan',
     ]);
