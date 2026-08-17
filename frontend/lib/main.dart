@@ -126,6 +126,13 @@ class AppRootState extends State<AppRoot> {
                     onPass: _sessionController.numberDraggingPass,
                     onSetRange: _sessionController.numberDraggingSetRange,
                   ),
+          SessionStatus.numberMemory => NumberMemoryScreen(
+            viewData: _sessionController.numberMemoryViewData,
+            onBack: _sessionController.handleBack,
+            onSelect: _sessionController.numberMemorySelect,
+            onNewGame: _sessionController.numberMemoryStartNewGame,
+            onSetRange: _sessionController.numberMemorySetRange,
+          ),
           SessionStatus.operatorConveyor => OperatorConveyorScreen(
             viewData: _sessionController.operatorConveyorViewData,
             onResize: _sessionController.operatorConveyorResize,

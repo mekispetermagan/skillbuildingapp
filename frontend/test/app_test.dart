@@ -87,6 +87,26 @@ void main() {
     expect(find.text('Pass'), findsOneWidget);
   });
 
+  testWidgets('opens number memory from the math menu', (tester) async {
+    await tester.pumpWidget(const LiteracyApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Math'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Number memory'),
+      100,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.ensureVisible(find.text('Number memory'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Number memory'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('1–12'), findsOneWidget);
+    expect(find.text('1–24'), findsOneWidget);
+    expect(find.text('?'), findsNWidgets(18));
+  });
+
   testWidgets('system back follows the same math navigation hierarchy', (
     tester,
   ) async {

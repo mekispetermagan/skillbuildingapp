@@ -208,6 +208,12 @@ abstract class AppLocalizations {
   /// **'Number dragging'**
   String get activityNumberDragging;
 
+  /// No description provided for @activityNumberMemory.
+  ///
+  /// In en, this message translates to:
+  /// **'Number memory'**
+  String get activityNumberMemory;
+
   /// No description provided for @activityOperatorConveyor.
   ///
   /// In en, this message translates to:

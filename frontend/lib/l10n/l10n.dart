@@ -28,6 +28,7 @@ extension ActivityIdLocalization on ActivityId {
     ActivityId.numberComparison => l10n.activityNumberComparison,
     ActivityId.operationsPractice => l10n.activityOperationsPractice,
     ActivityId.numberDragging => l10n.activityNumberDragging,
+    ActivityId.numberMemory => l10n.activityNumberMemory,
     ActivityId.operatorConveyor => l10n.activityOperatorConveyor,
     ActivityId.evenOdd => l10n.activityEvenOdd,
   };

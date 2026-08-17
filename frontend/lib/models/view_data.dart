@@ -30,6 +30,7 @@ import 'missing_letter_slot.dart';
 import 'missing_letter_tile.dart';
 import 'missing_letters_state.dart';
 import 'number_learning.dart';
+import 'number_memory.dart';
 import 'operations_practice.dart';
 import 'number_comparison.dart';
 import 'number_dragging.dart';
@@ -118,6 +119,20 @@ class MemoryViewData {
     required this.isLoading,
     required this.loadError,
     required this.cards,
+    required this.isComplete,
+    required this.config,
+  });
+}
+
+class NumberMemoryViewData {
+  final List<NumberMemoryCardData> cards;
+  final NumberMemoryRange range;
+  final bool isComplete;
+  final MemoryConfig config;
+
+  const NumberMemoryViewData({
+    required this.cards,
+    required this.range,
     required this.isComplete,
     required this.config,
   });

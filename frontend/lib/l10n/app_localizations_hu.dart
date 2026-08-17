@@ -63,6 +63,9 @@ class AppLocalizationsHu extends AppLocalizations {
   String get activityNumberDragging => 'Számrendező';
 
   @override
+  String get activityNumberMemory => 'Számmemória';
+
+  @override
   String get activityOperatorConveyor => 'Műveleti futószalag';
 
   @override

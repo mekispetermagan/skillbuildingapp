@@ -14,6 +14,7 @@ export 'literacy_menu_screen.dart';
 export 'math_menu_screen.dart';
 export 'math_placeholder_screen.dart';
 export 'number_learning_screen.dart';
+export 'number_memory_screen.dart';
 export 'number_comparison_screen.dart';
 export 'number_dragging_screen.dart';
 export 'number_dragging_result_screen.dart';

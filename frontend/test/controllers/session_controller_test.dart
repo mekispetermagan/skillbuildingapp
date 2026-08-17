@@ -426,6 +426,28 @@ void main() {
     controller.dispose();
   });
 
+  test('number memory abandonment is recorded in the math area', () async {
+    final recorder = _FakeGameplayRecorder();
+    final controller = SessionController(
+      assetBundle: _SentenceAssetBundle(),
+      audioPlayer: _FakeAudioPlayer(),
+      gameplayRecorder: recorder,
+    );
+
+    controller.mathMenuItems[4].$2();
+    expect(controller.status, SessionStatus.numberMemory);
+    controller.openMathMenu();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(recorder.abandoned, hasLength(1));
+    expect(recorder.abandoned.single.area, LearningArea.math);
+    expect(recorder.abandoned.single.feature, ActivityId.numberMemory);
+    final metrics = recorder.abandoned.single.metrics as MemoryMetrics;
+    expect(metrics.pairCount, 9);
+    expect(controller.status, SessionStatus.mathMenu);
+    controller.dispose();
+  });
+
   test('operator conveyor abandonment is recorded in the math area', () async {
     final recorder = _FakeGameplayRecorder();
     final controller = SessionController(

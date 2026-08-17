@@ -63,6 +63,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get activityNumberDragging => 'Zahlen ordnen';
 
   @override
+  String get activityNumberMemory => 'Zahlen-Memory';
+
+  @override
   String get activityOperatorConveyor => 'Rechenzeichen-Förderband';
 
   @override

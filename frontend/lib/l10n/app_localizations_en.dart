@@ -63,6 +63,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activityNumberDragging => 'Number dragging';
 
   @override
+  String get activityNumberMemory => 'Number memory';
+
+  @override
   String get activityOperatorConveyor => 'Operator conveyor';
 
   @override

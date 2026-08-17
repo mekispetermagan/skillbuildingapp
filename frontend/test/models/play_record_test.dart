@@ -40,6 +40,7 @@ void main() {
         ActivityId.numberComparison,
         ActivityId.operationsPractice,
         ActivityId.numberDragging,
+        ActivityId.numberMemory,
         ActivityId.operatorConveyor,
         ActivityId.evenOdd,
       ],
