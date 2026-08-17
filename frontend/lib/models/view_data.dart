@@ -30,6 +30,7 @@ import 'missing_letters_state.dart';
 import 'number_learning.dart';
 import 'number_comparison.dart';
 import 'outfit_sentence.dart';
+import 'operator_conveyor_world.dart';
 import 'phrase_building_state.dart';
 import 'phrase_building_tile.dart';
 import 'sentence_quiz_question.dart';
@@ -159,6 +160,18 @@ class ConveyorViewData {
     required this.world,
     required this.state,
     required this.selectedLetterId,
+  });
+}
+
+class OperatorConveyorViewData {
+  final OperatorConveyorWorld world;
+  final ConveyorState state;
+  final int? selectedOperatorId;
+
+  const OperatorConveyorViewData({
+    required this.world,
+    required this.state,
+    required this.selectedOperatorId,
   });
 }
 

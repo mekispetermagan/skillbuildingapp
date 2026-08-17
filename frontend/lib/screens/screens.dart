@@ -15,6 +15,7 @@ export 'math_menu_screen.dart';
 export 'math_placeholder_screen.dart';
 export 'number_learning_screen.dart';
 export 'number_comparison_screen.dart';
+export 'operator_conveyor_screen.dart';
 export 'letter_dragging_result_screen.dart';
 export 'letter_dragging_screen.dart';
 export 'missing_letters_screen.dart';

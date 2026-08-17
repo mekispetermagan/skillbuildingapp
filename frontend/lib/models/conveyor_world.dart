@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'conveyor_config.dart';
+import 'conveyor_geometry.dart';
 import 'image_word.dart';
 
 class ConveyorShelf {
@@ -52,14 +53,17 @@ class ConveyorLetter {
 
 enum ConveyorDropResult { matched, completed, wrong, ignored }
 
-class ConveyorWorld {
+class ConveyorWorld implements ConveyorGeometry {
   final List<ImageWord> words;
+  @override
   final ConveyorConfig config;
   final Random random;
   final List<ConveyorShelf> shelves = [];
   final List<ConveyorLetter> letters = [];
 
+  @override
   double width = 0;
+  @override
   double height = 0;
   int score = 0;
   late int lives;
@@ -81,8 +85,11 @@ class ConveyorWorld {
     reset();
   }
 
+  @override
   double get leftBeltX => config.outerPadding;
+  @override
   double get rightBeltX => width - config.outerPadding - config.rightBeltWidth;
+  @override
   double get leftBeltWidth => min(
     config.leftBeltWidth,
     max(

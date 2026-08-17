@@ -51,6 +51,7 @@ import 'memory_controller.dart';
 import 'missing_letters_controller.dart';
 import 'number_learning_controller.dart';
 import 'number_comparison_controller.dart';
+import 'operator_conveyor_controller.dart';
 import 'phrase_building_controller.dart';
 import 'sentence_composer_controller.dart';
 import 'sentence_quiz_controller.dart';
@@ -63,6 +64,7 @@ enum SessionStatus {
   mathPlaceholder,
   numberLearning,
   numberComparison,
+  operatorConveyor,
   letterLearning,
   letterPractice,
   phraseBuilding,
@@ -117,6 +119,7 @@ class SessionController extends ChangeNotifier {
   late final SentenceComposerController _sentenceComposerController;
   late final NumberLearningController _numberLearningController;
   late final NumberComparisonController _numberComparisonController;
+  late final OperatorConveyorController _operatorConveyorController;
   SessionStatus status = SessionStatus.areaMenu;
   int? mathPlaceholderNumber;
 
@@ -144,6 +147,8 @@ class SessionController extends ChangeNotifier {
     _numberLearningController = NumberLearningController(_audioPlayer)
       ..addListener(_forwardFeatureNotification);
     _numberComparisonController = NumberComparisonController(_audioPlayer)
+      ..addListener(_forwardFeatureNotification);
+    _operatorConveyorController = OperatorConveyorController()
       ..addListener(_forwardFeatureNotification);
     unawaited(_gameplayRecorder.synchronize());
     unawaited(_initializePhraseBuilding());
@@ -196,8 +201,9 @@ class SessionController extends ChangeNotifier {
   late final List<(int, VoidCallback)> mathMenuItems = [
     (1, openNumberLearning),
     (2, openNumberComparison),
-    for (var number = 3; number <= 8; number++)
+    for (var number = 3; number <= 7; number++)
       (number, () => openMathPlaceholder(number)),
+    (8, openOperatorConveyor),
   ];
 
   NumberLearningViewData get numberLearningViewData => NumberLearningViewData(
@@ -414,6 +420,44 @@ class SessionController extends ChangeNotifier {
   }
 
   void restartConveyor() => _conveyorController?.start();
+
+  OperatorConveyorViewData get operatorConveyorViewData =>
+      OperatorConveyorViewData(
+        world: _operatorConveyorController.world,
+        state: _operatorConveyorController.state,
+        selectedOperatorId: _operatorConveyorController.selectedOperatorId,
+      );
+  void operatorConveyorResize(double width, double height) =>
+      _operatorConveyorController.resize(width, height);
+  ConveyorState operatorConveyorTick(double deltaSeconds) =>
+      _operatorConveyorController.tick(deltaSeconds);
+  bool operatorConveyorCanAccept({
+    required int operatorId,
+    required int shelfId,
+  }) => _operatorConveyorController.canAccept(
+    operatorId: operatorId,
+    shelfId: shelfId,
+  );
+  void operatorConveyorStartDragging(int operatorId) =>
+      _operatorConveyorController.startDragging(operatorId);
+  void operatorConveyorSelectOperator(int operatorId) =>
+      _operatorConveyorController.selectOperator(operatorId);
+  void operatorConveyorPlaceSelected(int shelfId) =>
+      _operatorConveyorController.placeSelected(shelfId);
+  void operatorConveyorCancelDragging(int operatorId) =>
+      _operatorConveyorController.cancelDragging(operatorId);
+  void operatorConveyorDrop({required int operatorId, required int shelfId}) =>
+      _operatorConveyorController.drop(
+        operatorId: operatorId,
+        shelfId: shelfId,
+      );
+
+  void openOperatorConveyor() {
+    _operatorConveyorController.start();
+    _beginActivity(SessionStatus.operatorConveyor);
+  }
+
+  void restartOperatorConveyor() => _operatorConveyorController.start();
 
   SentenceQuizViewData get sentenceQuizViewData => SentenceQuizViewData(
     question: _sentenceQuizController.question,
@@ -735,6 +779,7 @@ class SessionController extends ChangeNotifier {
     _letterPracticeController?.stop();
     _numberLearningController.stop();
     _numberComparisonController.stop();
+    _operatorConveyorController.stop();
     _open(destination);
   }
 
@@ -778,6 +823,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.crossword => true,
     SessionStatus.numberLearning => true,
     SessionStatus.numberComparison => true,
+    SessionStatus.operatorConveyor => true,
     _ => false,
   };
 
@@ -811,6 +857,8 @@ class SessionController extends ChangeNotifier {
       _numberLearningController.state == NumberLearningState.won,
     SessionStatus.numberComparison =>
       _numberComparisonController.state == NumberComparisonState.won,
+    SessionStatus.operatorConveyor =>
+      _operatorConveyorController.state != ConveyorState.playing,
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
     SessionStatus.mathMenu ||
@@ -827,6 +875,10 @@ class SessionController extends ChangeNotifier {
           : PlayOutcome.won,
     SessionStatus.conveyor =>
       _conveyorController?.state == ConveyorState.lost
+          ? PlayOutcome.lost
+          : PlayOutcome.won,
+    SessionStatus.operatorConveyor =>
+      _operatorConveyorController.state == ConveyorState.lost
           ? PlayOutcome.lost
           : PlayOutcome.won,
     SessionStatus.areaMenu ||
@@ -855,6 +907,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.crossword => ActivityId.crossword,
     SessionStatus.numberLearning => ActivityId.numberLearning,
     SessionStatus.numberComparison => ActivityId.numberComparison,
+    SessionStatus.operatorConveyor => ActivityId.operatorConveyor,
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
     SessionStatus.mathMenu ||
@@ -880,6 +933,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.crossword => _crosswordController?.score ?? 0,
     SessionStatus.numberLearning => _numberLearningController.score,
     SessionStatus.numberComparison => _numberComparisonController.score,
+    SessionStatus.operatorConveyor => _operatorConveyorController.world.score,
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
     SessionStatus.mathMenu ||
@@ -967,6 +1021,14 @@ class SessionController extends ChangeNotifier {
     SessionStatus.numberComparison => AttemptMetrics(
       correctAnswers: _numberComparisonController.score,
       incorrectAttempts: _numberComparisonController.incorrectAttempts,
+    ),
+    SessionStatus.operatorConveyor => LivesMetrics(
+      correctAnswers: _operatorConveyorController.world.score,
+      incorrectAttempts:
+          _operatorConveyorController.world.config.startingLives -
+          _operatorConveyorController.world.lives,
+      startingLives: _operatorConveyorController.world.config.startingLives,
+      remainingLives: _operatorConveyorController.world.lives,
     ),
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
@@ -1342,6 +1404,8 @@ class SessionController extends ChangeNotifier {
     _numberLearningController.dispose();
     _numberComparisonController.removeListener(_forwardFeatureNotification);
     _numberComparisonController.dispose();
+    _operatorConveyorController.removeListener(_forwardFeatureNotification);
+    _operatorConveyorController.dispose();
     super.dispose();
   }
 }

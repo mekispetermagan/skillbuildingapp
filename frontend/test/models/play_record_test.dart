@@ -35,7 +35,11 @@ void main() {
     );
     expect(
       ActivityId.values.where((feature) => feature.area == LearningArea.math),
-      [ActivityId.numberLearning, ActivityId.numberComparison],
+      [
+        ActivityId.numberLearning,
+        ActivityId.numberComparison,
+        ActivityId.operatorConveyor,
+      ],
     );
     expect(
       ActivityId.fromWireName(

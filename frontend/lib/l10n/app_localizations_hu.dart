@@ -57,6 +57,9 @@ class AppLocalizationsHu extends AppLocalizations {
   String get activityNumberComparison => 'Számok összehasonlítása';
 
   @override
+  String get activityOperatorConveyor => 'Műveleti futószalag';
+
+  @override
   String get numberPattern => 'Minta';
 
   @override

@@ -30,6 +30,7 @@ void main() {
       'Kreuzworträtsel',
       'Zahlen lernen',
       'Zahlen vergleichen',
+      'Rechenzeichen-Förderband',
     ]);
   });
 
@@ -52,6 +53,7 @@ void main() {
       'Crossword',
       'Number learning',
       'Compare numbers',
+      'Operator conveyor',
     ]);
   });
 
@@ -74,6 +76,7 @@ void main() {
       'Keresztrejtvény',
       'Számtanulás',
       'Számok összehasonlítása',
+      'Műveleti futószalag',
     ]);
   });
 }

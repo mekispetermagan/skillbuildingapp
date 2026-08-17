@@ -1,0 +1,130 @@
+import 'dart:math';
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:literacy_game/controllers/operator_conveyor_controller.dart';
+import 'package:literacy_game/models/conveyor_config.dart';
+import 'package:literacy_game/models/conveyor_state.dart';
+import 'package:literacy_game/models/operator_conveyor_world.dart';
+
+const _config = ConveyorConfig(
+  leftBeltWidth: 290,
+  rightBeltWidth: 70,
+  beltGap: 14,
+  outerPadding: 10,
+  shelfHeight: 126,
+  shelfGap: 16,
+  letterSize: 54,
+  letterGap: 18,
+  leftBeltSpeed: 15,
+  rightBeltSpeed: 30,
+  startingLives: 5,
+  winningScore: 10,
+  maximumUpdateStep: 1 / 120,
+);
+
+OperatorConveyorController _controller({ConveyorConfig config = _config}) {
+  final controller = OperatorConveyorController(
+    config: config,
+    random: Random(4),
+  );
+  controller
+    ..resize(420, 650)
+    ..start();
+  return controller;
+}
+
+void main() {
+  test('generates whole-number equations with all values at most twenty', () {
+    final controller = _controller();
+    for (final shelf in controller.world.shelves) {
+      final equation = shelf.equation;
+      expect(equation.left, inInclusiveRange(1, 20));
+      expect(equation.right, inInclusiveRange(1, 20));
+      expect(equation.result, inInclusiveRange(1, 20));
+      expect(ArithmeticOperator.values.any(equation.accepts), isTrue);
+    }
+  });
+
+  test('right belt alternates plus, minus, multiply, and divide', () {
+    final controller = _controller();
+    expect(controller.world.operators.take(8).map((tile) => tile.operator), [
+      ArithmeticOperator.add,
+      ArithmeticOperator.subtract,
+      ArithmeticOperator.multiply,
+      ArithmeticOperator.divide,
+      ArithmeticOperator.add,
+      ArithmeticOperator.subtract,
+      ArithmeticOperator.multiply,
+      ArithmeticOperator.divide,
+    ]);
+  });
+
+  test('equation correctness allows ambiguous operators', () {
+    const equation = OperatorEquation(left: 2, right: 2, result: 4);
+    expect(equation.accepts(ArithmeticOperator.add), isTrue);
+    expect(equation.accepts(ArithmeticOperator.multiply), isTrue);
+    expect(equation.accepts(ArithmeticOperator.subtract), isFalse);
+  });
+
+  test('wrong equation costs a life and remains incomplete', () {
+    final controller = _controller();
+    final shelf = controller.world.shelves.first;
+    final tile = controller.world.operators.firstWhere(
+      (candidate) => !shelf.equation.accepts(candidate.operator),
+    );
+    controller.drop(operatorId: tile.id, shelfId: shelf.id);
+    expect(controller.world.lives, 4);
+    expect(controller.world.score, 0);
+    expect(shelf.isComplete, isFalse);
+  });
+
+  test('valid equation adds a reward and fills the operator', () {
+    final controller = _controller();
+    final shelf = controller.world.shelves.first;
+    final tile = controller.world.operators.first;
+    tile.operator = ArithmeticOperator.values.firstWhere(
+      shelf.equation.accepts,
+    );
+    final accepted = tile.operator;
+    controller.drop(operatorId: tile.id, shelfId: shelf.id);
+    expect(controller.world.score, 1);
+    expect(shelf.isComplete, isTrue);
+    expect(shelf.placedOperator, accepted);
+  });
+
+  test('wide belt moves down slowly and thin belt moves up faster', () {
+    final controller = _controller();
+    final shelf = controller.world.shelves[1];
+    final tile = controller.world.operators.first;
+    final shelfY = shelf.y;
+    final tileY = tile.y;
+    controller.tick(0.1);
+    expect(shelf.y - shelfY, closeTo(1.5, 0.001));
+    expect(tileY - tile.y, closeTo(3, 0.001));
+  });
+
+  test('loses when the last life is used', () {
+    const quickConfig = ConveyorConfig(
+      leftBeltWidth: 290,
+      rightBeltWidth: 70,
+      beltGap: 14,
+      outerPadding: 10,
+      shelfHeight: 126,
+      shelfGap: 16,
+      letterSize: 54,
+      letterGap: 18,
+      leftBeltSpeed: 0,
+      rightBeltSpeed: 0,
+      startingLives: 1,
+      winningScore: 10,
+      maximumUpdateStep: 1 / 120,
+    );
+    final controller = _controller(config: quickConfig);
+    final shelf = controller.world.shelves.first;
+    final tile = controller.world.operators.firstWhere(
+      (candidate) => !shelf.equation.accepts(candidate.operator),
+    );
+    controller.drop(operatorId: tile.id, shelfId: shelf.id);
+    expect(controller.state, ConveyorState.lost);
+  });
+}

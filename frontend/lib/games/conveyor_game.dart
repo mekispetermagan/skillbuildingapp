@@ -2,10 +2,10 @@ import 'package:flame/game.dart';
 import 'package:flutter/painting.dart';
 
 import '../models/conveyor_state.dart';
-import '../models/conveyor_world.dart';
+import '../models/conveyor_geometry.dart';
 
 class ConveyorGame extends FlameGame {
-  final ConveyorWorld gameWorld;
+  final ConveyorGeometry gameWorld;
   final void Function(double width, double height) onResize;
   final ConveyorState Function(double deltaSeconds) onTick;
   final void Function(ConveyorState state) onFrame;
