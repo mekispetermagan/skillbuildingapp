@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/feature_palette.dart';
 import 'menu_button.dart';
 
 class FeatureMenuGrid extends StatelessWidget {
@@ -14,8 +15,12 @@ class FeatureMenuGrid extends StatelessWidget {
     crossAxisSpacing: 12,
     mainAxisSpacing: 12,
     children: [
-      for (final (label, onPressed) in items)
-        MenuButton(text: label, onPressed: onPressed),
+      for (final (index, item) in items.indexed)
+        MenuButton(
+          text: item.$1,
+          onPressed: item.$2,
+          colorScheme: FeaturePalette.schemeForIndex(index),
+        ),
     ],
   );
 }

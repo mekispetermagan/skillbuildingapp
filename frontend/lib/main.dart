@@ -8,6 +8,7 @@ import 'models/letter_dragging_state.dart';
 import 'screens/screens.dart';
 import 'services/gameplay_recorder.dart';
 import 'storage/gameplay_record_store.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   final config = GameplayApiConfig.fromEnvironment();
@@ -37,12 +38,7 @@ class LiteracyApp extends StatelessWidget {
       onGenerateTitle: (context) => context.l10n.appTitle,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.purple,
-          dynamicSchemeVariant: DynamicSchemeVariant.rainbow,
-        ),
-      ),
+      theme: AppTheme.light,
       home: AppRoot(gameplayRecorder: gameplayRecorder),
     );
   }
