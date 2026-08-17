@@ -307,6 +307,9 @@ void main() {
       expect(controller.status, SessionStatus.rating);
       expect(controller.ratingActivity, ActivityId.letterShooting);
 
+      controller.handleBack();
+      expect(controller.status, SessionStatus.rating);
+
       await controller.submitRating(5);
 
       expect(controller.status, SessionStatus.literacyMenu);

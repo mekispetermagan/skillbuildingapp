@@ -66,4 +66,26 @@ void main() {
     expect(find.text('='), findsOneWidget);
     expect(find.text('>'), findsOneWidget);
   });
+
+  testWidgets('system back follows the same math navigation hierarchy', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const LiteracyApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Math'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Number learning'));
+    await tester.pumpAndSettle();
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('Number learning'), findsOneWidget);
+    expect(find.text('Feature 3'), findsOneWidget);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('Literacy'), findsOneWidget);
+    expect(find.text('Math'), findsOneWidget);
+  });
 }

@@ -79,26 +79,26 @@ class AppRootState extends State<AppRoot> {
           ),
           SessionStatus.literacyMenu => LiteracyMenuScreen(
             menuItems: _sessionController.literacyMenuItems,
-            onBack: _sessionController.openAreaMenu,
+            onBack: _sessionController.handleBack,
           ),
           SessionStatus.mathMenu => MathMenuScreen(
             menuItems: _sessionController.mathMenuItems,
-            onBack: _sessionController.openAreaMenu,
+            onBack: _sessionController.handleBack,
           ),
           SessionStatus.mathPlaceholder => MathPlaceholderScreen(
             featureNumber: _sessionController.mathPlaceholderNumber!,
-            onBack: _sessionController.openMathMenu,
+            onBack: _sessionController.handleBack,
           ),
           SessionStatus.numberLearning => NumberLearningScreen(
             viewData: _sessionController.numberLearningViewData,
-            onBack: _sessionController.openMathMenu,
+            onBack: _sessionController.handleBack,
             onSetRange: _sessionController.numberLearningSetRange,
             onSetUseColors: _sessionController.numberLearningSetUseColors,
             onGuess: _sessionController.numberLearningGuess,
           ),
           SessionStatus.numberComparison => NumberComparisonScreen(
             viewData: _sessionController.numberComparisonViewData,
-            onBack: _sessionController.openMathMenu,
+            onBack: _sessionController.handleBack,
             onSetRange: _sessionController.numberComparisonSetRange,
             onSetArrangement: _sessionController.numberComparisonSetArrangement,
             onGuess: _sessionController.numberComparisonGuess,
@@ -113,13 +113,13 @@ class AppRootState extends State<AppRoot> {
             onPlaceSelected: _sessionController.operatorConveyorPlaceSelected,
             onCancelDragging: _sessionController.operatorConveyorCancelDragging,
             onDrop: _sessionController.operatorConveyorDrop,
-            onBack: _sessionController.openMathMenu,
+            onBack: _sessionController.handleBack,
             onRestart: _sessionController.restartOperatorConveyor,
             onSetDifficulty: _sessionController.operatorConveyorSetDifficulty,
           ),
           SessionStatus.letterLearning => LetterLearningScreen(
             viewData: _sessionController.letterLearningViewData,
-            onBack: _sessionController.openLiteracyMenu,
+            onBack: _sessionController.handleBack,
             onRestart: _sessionController.restartLetterLearning,
             onSetDifficulties: _sessionController.letterLearningSetDifficulties,
             onSetMode: _sessionController.letterLearningSetMode,
@@ -130,7 +130,7 @@ class AppRootState extends State<AppRoot> {
           ),
           SessionStatus.letterPractice => LetterPracticeScreen(
             viewData: _sessionController.letterPracticeViewData,
-            onBack: _sessionController.openLiteracyMenu,
+            onBack: _sessionController.handleBack,
             onRestart: _sessionController.restartLetterPractice,
             onSetDifficulties: _sessionController.letterPracticeSetDifficulties,
             onSetUseColors: _sessionController.letterPracticeSetUseColors,
@@ -142,7 +142,7 @@ class AppRootState extends State<AppRoot> {
           ),
           SessionStatus.phraseBuilding => PhraseBuildingScreen(
             viewData: _sessionController.phraseBuildingViewData,
-            onBack: _sessionController.openLiteracyMenu,
+            onBack: _sessionController.handleBack,
             onMove: _sessionController.phraseBuildingMove,
             canMoveToTarget: _sessionController.phraseBuildingCanMoveToTarget,
             canMoveToSource: _sessionController.phraseBuildingCanMoveToSource,
@@ -157,12 +157,12 @@ class AppRootState extends State<AppRoot> {
                     LetterDraggingState.result
                 ? LetterDraggingResultScreen(
                     score: _sessionController.letterDraggingViewData.score,
-                    onBack: _sessionController.openLiteracyMenu,
+                    onBack: _sessionController.handleBack,
                     onRestart: _sessionController.restartLetterDragging,
                   )
                 : LetterDraggingScreen(
                     viewData: _sessionController.letterDraggingViewData,
-                    onBack: _sessionController.openLiteracyMenu,
+                    onBack: _sessionController.handleBack,
                     onReorder: _sessionController.letterDraggingReorder,
                     onPass: _sessionController.letterDraggingPass,
                     onShowImagesChanged:
@@ -170,7 +170,7 @@ class AppRootState extends State<AppRoot> {
                   ),
           SessionStatus.missingLetters => MissingLettersScreen(
             viewData: _sessionController.missingLettersViewData,
-            onBack: _sessionController.openLiteracyMenu,
+            onBack: _sessionController.handleBack,
             canDrop: _sessionController.missingLettersCanDrop,
             onDrop: _sessionController.missingLettersDrop,
             onSelectTile: _sessionController.missingLettersSelectTile,
@@ -186,12 +186,12 @@ class AppRootState extends State<AppRoot> {
             onBeginAim: _sessionController.letterShootingBeginAim,
             onUpdateAim: _sessionController.letterShootingUpdateAim,
             onReleaseAim: _sessionController.letterShootingReleaseAim,
-            onBack: _sessionController.openLiteracyMenu,
+            onBack: _sessionController.handleBack,
             onRestart: _sessionController.restartLetterShooting,
           ),
           SessionStatus.memory => MemoryScreen(
             viewData: _sessionController.memoryViewData,
-            onBack: _sessionController.openLiteracyMenu,
+            onBack: _sessionController.handleBack,
             onSelect: _sessionController.memorySelect,
             onNewGame: _sessionController.memoryStartNewGame,
           ),
@@ -200,7 +200,7 @@ class AppRootState extends State<AppRoot> {
             onResize: _sessionController.letterCatchingResize,
             onTick: _sessionController.letterCatchingTick,
             onMovePaddleBy: _sessionController.letterCatchingMovePaddleBy,
-            onBack: _sessionController.openLiteracyMenu,
+            onBack: _sessionController.handleBack,
             onRestart: _sessionController.restartLetterCatching,
           ),
           SessionStatus.conveyor => ConveyorScreen(
@@ -213,14 +213,14 @@ class AppRootState extends State<AppRoot> {
             onPlaceSelected: _sessionController.conveyorPlaceSelected,
             onCancelDragging: _sessionController.conveyorCancelDragging,
             onDrop: _sessionController.conveyorDrop,
-            onBack: _sessionController.openLiteracyMenu,
+            onBack: _sessionController.handleBack,
             onRestart: _sessionController.restartConveyor,
             onSetDifficulty: _sessionController.conveyorSetDifficulty,
           ),
           SessionStatus.sentenceQuiz => SentenceQuizScreen(
             viewData: _sessionController.sentenceQuizViewData,
             onSubmit: _sessionController.sentenceQuizSubmit,
-            onBack: _sessionController.openLiteracyMenu,
+            onBack: _sessionController.handleBack,
             onRestart: _sessionController.restartSentenceQuiz,
           ),
           SessionStatus.sentenceComposer => SentenceComposerScreen(
@@ -229,19 +229,19 @@ class AppRootState extends State<AppRoot> {
             onSelectColor: _sessionController.sentenceComposerSelectColor,
             onSelectPiece: _sessionController.sentenceComposerSelectPiece,
             onSubmit: _sessionController.sentenceComposerSubmit,
-            onBack: _sessionController.openLiteracyMenu,
+            onBack: _sessionController.handleBack,
             onRestart: _sessionController.restartSentenceComposer,
           ),
           SessionStatus.spellingQuiz => SpellingQuizScreen(
             viewData: _sessionController.spellingQuizViewData,
             onSubmit: _sessionController.spellingQuizSubmit,
             onPlayAudio: _sessionController.spellingQuizPlayAudio,
-            onBack: _sessionController.openLiteracyMenu,
+            onBack: _sessionController.handleBack,
             onRestart: _sessionController.restartSpellingQuiz,
           ),
           SessionStatus.crossword => CrosswordScreen(
             viewData: _sessionController.crosswordViewData,
-            onBack: _sessionController.openLiteracyMenu,
+            onBack: _sessionController.handleBack,
             onRestart: _sessionController.restartCrossword,
             onSelectLetter: _sessionController.crosswordSelectLetter,
             canPlace: _sessionController.crosswordCanPlace,
