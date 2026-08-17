@@ -194,9 +194,10 @@ class OperatorConveyorWorld implements ConveyorGeometry {
       if (shelf.y > height) _replaceShelf(shelf);
     }
     for (final tile in operators) {
-      if (tile.isDragging) continue;
       tile.y -= config.rightBeltSpeed * deltaSeconds;
-      if (tile.y + config.letterSize < 0) _recycleOperator(tile);
+      if (!tile.isDragging && tile.y + config.letterSize < 0) {
+        _recycleOperator(tile);
+      }
     }
   }
 

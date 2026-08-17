@@ -177,6 +177,34 @@ void main() {
     expect(letter.y, lessThan(letterY));
   });
 
+  test('rejected drag returns to the belt position reached during drag', () {
+    final controller = _controller();
+    final letter = controller.world.letters.first;
+    final initialY = letter.y;
+
+    controller.startDragging(letter.id);
+    controller.tick(0.1);
+    controller.cancelDragging(letter.id);
+
+    expect(letter.y, closeTo(initialY - 8.2, 0.001));
+    expect(letter.isDragging, isFalse);
+  });
+
+  test('dragged letter waits to recycle until released', () {
+    final controller = _controller();
+    final letter = controller.world.letters.first
+      ..y = -controller.world.config.letterSize;
+    final originalLetter = letter.letter;
+
+    controller.startDragging(letter.id);
+    controller.tick(0.1);
+    expect(letter.letter, originalLetter);
+
+    controller.cancelDragging(letter.id);
+    controller.tick(0.01);
+    expect(letter.y, greaterThanOrEqualTo(controller.world.height));
+  });
+
   test('ends after ten completed words and restart resets progress', () {
     const quickConfig = ConveyorConfig(
       leftBeltWidth: 290,

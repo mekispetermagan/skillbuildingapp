@@ -126,6 +126,34 @@ void main() {
     expect(tileY - tile.y, closeTo(3, 0.001));
   });
 
+  test('rejected operator drag returns at its moving belt position', () {
+    final controller = _controller();
+    final tile = controller.world.operators.first;
+    final initialY = tile.y;
+
+    controller.startDragging(tile.id);
+    controller.tick(0.1);
+    controller.cancelDragging(tile.id);
+
+    expect(tile.y, closeTo(initialY - 3, 0.001));
+    expect(tile.isDragging, isFalse);
+  });
+
+  test('dragged operator waits to recycle until released', () {
+    final controller = _controller();
+    final tile = controller.world.operators.first
+      ..y = -controller.world.config.letterSize;
+    final originalOperator = tile.operator;
+
+    controller.startDragging(tile.id);
+    controller.tick(0.1);
+    expect(tile.operator, originalOperator);
+
+    controller.cancelDragging(tile.id);
+    controller.tick(0.01);
+    expect(tile.y, greaterThanOrEqualTo(controller.world.height));
+  });
+
   test('loses when the last life is used', () {
     const quickConfig = ConveyorConfig(
       leftBeltWidth: 290,

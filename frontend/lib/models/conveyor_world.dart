@@ -196,9 +196,10 @@ class ConveyorWorld implements ConveyorGeometry {
       if (shelf.y > height) _replaceShelf(shelf);
     }
     for (final letter in letters) {
-      if (letter.isDragging) continue;
       letter.y -= config.rightBeltSpeed * deltaSeconds;
-      if (letter.y + config.letterSize < 0) _recycleLetter(letter);
+      if (!letter.isDragging && letter.y + config.letterSize < 0) {
+        _recycleLetter(letter);
+      }
     }
   }
 
