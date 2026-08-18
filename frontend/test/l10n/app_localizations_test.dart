@@ -35,6 +35,7 @@ void main() {
       'Zahlen-Memory',
       'Waagenspiel',
       'Logikspiel',
+      'Einkaufsspiel',
       'Rechenzeichen-Förderband',
       'Gerade oder ungerade',
     ]);
@@ -64,6 +65,7 @@ void main() {
       'Number memory',
       'Balance game',
       'Logic game',
+      'Shopping game',
       'Operator conveyor',
       'Even or odd',
     ]);
@@ -93,6 +95,7 @@ void main() {
       'Számmemória',
       'Mérlegjáték',
       'Logikai játék',
+      'Bevásárlójáték',
       'Műveleti futószalag',
       'Páros vagy páratlan',
     ]);

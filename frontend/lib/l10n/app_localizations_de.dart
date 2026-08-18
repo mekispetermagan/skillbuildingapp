@@ -72,6 +72,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get activityLogicGame => 'Logikspiel';
 
   @override
+  String get activityShoppingGame => 'Einkaufsspiel';
+
+  @override
+  String get notEnough => 'Nicht genug!';
+
+  @override
+  String get takeTheBalance => 'Nimm das Rückgeld!';
+
+  @override
   String get activityOperatorConveyor => 'Rechenzeichen-Förderband';
 
   @override

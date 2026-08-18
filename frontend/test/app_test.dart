@@ -148,6 +148,26 @@ void main() {
     expect(find.byType(CustomPaint), findsWidgets);
   });
 
+  testWidgets('opens the clipped shopping game stage', (tester) async {
+    await tester.pumpWidget(const LiteracyApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Math'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Shopping game'),
+      100,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.ensureVisible(find.text('Shopping game'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Shopping game'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Shopping game'), findsOneWidget);
+    expect(find.byKey(const ValueKey('shopping-game-stage')), findsOneWidget);
+    expect(find.byType(ClipRect), findsWidgets);
+  });
+
   testWidgets('system back follows the same math navigation hierarchy', (
     tester,
   ) async {

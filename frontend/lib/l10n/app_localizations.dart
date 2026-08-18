@@ -226,6 +226,24 @@ abstract class AppLocalizations {
   /// **'Logic game'**
   String get activityLogicGame;
 
+  /// No description provided for @activityShoppingGame.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping game'**
+  String get activityShoppingGame;
+
+  /// No description provided for @notEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough!'**
+  String get notEnough;
+
+  /// No description provided for @takeTheBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Take the balance!'**
+  String get takeTheBalance;
+
   /// No description provided for @activityOperatorConveyor.
   ///
   /// In en, this message translates to:

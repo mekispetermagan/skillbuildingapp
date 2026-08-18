@@ -42,3 +42,7 @@ flutter:
     - assets/images/area_menu/
     - assets/images/balance_game/
     - assets/images/logic_game/
+    - assets/images/shopping_game/
+    - assets/images/shopping_game/balance/
+    - assets/images/shopping_game/goods/
+    - assets/images/shopping_game/paid/

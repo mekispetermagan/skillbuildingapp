@@ -99,6 +99,7 @@ MATH_FEATURES = frozenset(
         "number_memory",
         "balance_game",
         "logic_game",
+        "shopping_game",
         "operator_conveyor",
         "even_odd",
     }

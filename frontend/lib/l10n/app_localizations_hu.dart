@@ -72,6 +72,15 @@ class AppLocalizationsHu extends AppLocalizations {
   String get activityLogicGame => 'Logikai játék';
 
   @override
+  String get activityShoppingGame => 'Bevásárlójáték';
+
+  @override
+  String get notEnough => 'Nem elég!';
+
+  @override
+  String get takeTheBalance => 'Vedd el a visszajárót!';
+
+  @override
   String get activityOperatorConveyor => 'Műveleti futószalag';
 
   @override

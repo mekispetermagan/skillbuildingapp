@@ -72,6 +72,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activityLogicGame => 'Logic game';
 
   @override
+  String get activityShoppingGame => 'Shopping game';
+
+  @override
+  String get notEnough => 'Not enough!';
+
+  @override
+  String get takeTheBalance => 'Take the balance!';
+
+  @override
   String get activityOperatorConveyor => 'Operator conveyor';
 
   @override

@@ -43,6 +43,7 @@ void main() {
         ActivityId.numberMemory,
         ActivityId.balanceGame,
         ActivityId.logicGame,
+        ActivityId.shoppingGame,
         ActivityId.operatorConveyor,
         ActivityId.evenOdd,
       ],

@@ -144,6 +144,17 @@ class AppRootState extends State<AppRoot> {
             onSetDifficulty: _sessionController.logicGameSetDifficulty,
             onPlace: _sessionController.logicGamePlace,
           ),
+          SessionStatus.shoppingGame => ShoppingGameScreen(
+            viewData: _sessionController.shoppingGameViewData,
+            onBack: _sessionController.handleBack,
+            onToggleCashRegister:
+                _sessionController.shoppingGameToggleCashRegister,
+            onNotEnough: _sessionController.shoppingGameAnswerNotEnough,
+            onTakeBalance: _sessionController.shoppingGameAnswerTakeBalance,
+            onAddBalanceNote: _sessionController.shoppingGameAddBalanceNote,
+            onRemoveBalanceNote:
+                _sessionController.shoppingGameRemoveBalanceNote,
+          ),
           SessionStatus.operatorConveyor => OperatorConveyorScreen(
             viewData: _sessionController.operatorConveyorViewData,
             onResize: _sessionController.operatorConveyorResize,

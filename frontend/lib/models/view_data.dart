@@ -43,6 +43,7 @@ import 'phrase_building_tile.dart';
 import 'sentence_quiz_question.dart';
 import 'sentence_composer_state.dart';
 import 'sentence_quiz_state.dart';
+import 'shopping_game.dart';
 import 'spelling_quiz_question.dart';
 import 'spelling_quiz_state.dart';
 
@@ -469,6 +470,34 @@ class LogicGameViewData {
     required this.properties,
     required this.placements,
     required this.canPlace,
+    required this.config,
+  });
+}
+
+class ShoppingGameViewData {
+  final ShoppingGameState state;
+  final int score;
+  final int incorrectAttempts;
+  final CashRegisterState cashRegisterState;
+  final List<ShoppingGood> displayedGoods;
+  final ShoppingPayment payment;
+  final PaymentIntroState paymentIntroState;
+  final bool canAnswerPayment;
+  final List<ShoppingBalanceNote> balanceNotes;
+  final int balance;
+  final ShoppingGameConfig config;
+
+  const ShoppingGameViewData({
+    required this.state,
+    required this.score,
+    required this.incorrectAttempts,
+    required this.cashRegisterState,
+    required this.displayedGoods,
+    required this.payment,
+    required this.paymentIntroState,
+    required this.canAnswerPayment,
+    required this.balanceNotes,
+    required this.balance,
     required this.config,
   });
 }

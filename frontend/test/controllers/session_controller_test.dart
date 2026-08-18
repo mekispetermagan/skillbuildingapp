@@ -329,7 +329,7 @@ void main() {
 
     controller.openMathMenu();
     expect(controller.status, SessionStatus.mathMenu);
-    expect(controller.mathMenuItems, hasLength(9));
+    expect(controller.mathMenuItems, hasLength(10));
 
     controller.mathMenuItems[5].$2();
     expect(controller.status, SessionStatus.balanceGame);

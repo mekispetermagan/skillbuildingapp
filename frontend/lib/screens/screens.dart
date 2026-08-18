@@ -2,6 +2,7 @@ export 'letter_shooting_screen.dart';
 export 'area_menu_screen.dart';
 export 'balance_game_screen.dart';
 export 'logic_game_screen.dart';
+export 'shopping_game_screen.dart';
 export 'language_selection_screen.dart';
 export 'letter_learning_screen.dart';
 export 'letter_practice_screen.dart';
