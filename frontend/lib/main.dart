@@ -66,13 +66,16 @@ class AppRootState extends State<AppRoot> {
     return ListenableBuilder(
       listenable: _sessionController,
       builder: (_, _) => PopScope(
-        canPop: _sessionController.status == SessionStatus.areaMenu,
+        canPop: _sessionController.status == SessionStatus.opening,
         onPopInvokedWithResult: (didPop, _) {
           if (!didPop && _sessionController.status != SessionStatus.rating) {
             _sessionController.handleBack();
           }
         },
         child: switch (_sessionController.status) {
+          SessionStatus.opening => OpeningScreen(
+            onStart: _sessionController.openAreaMenu,
+          ),
           SessionStatus.areaMenu => AreaMenuScreen(
             onOpenLiteracy: _sessionController.openLiteracyMenu,
             onOpenMath: _sessionController.openMathMenu,

@@ -106,6 +106,12 @@ abstract class AppLocalizations {
   /// **'Literacy Game'**
   String get appTitle;
 
+  /// No description provided for @start.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get start;
+
   /// No description provided for @activityLetterLearning.
   ///
   /// In en, this message translates to:

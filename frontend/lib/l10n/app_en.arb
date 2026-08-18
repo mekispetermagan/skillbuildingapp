@@ -1,5 +1,6 @@
 {
   "appTitle": "Literacy Game",
+  "start": "Start",
   "activityLetterLearning": "Letter learning",
   "activityLetterPractice": "Letter practice",
   "activityPhraseBuilding": "Sentence building",

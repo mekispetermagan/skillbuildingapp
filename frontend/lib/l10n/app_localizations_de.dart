@@ -12,6 +12,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get appTitle => 'Lesespiel';
 
   @override
+  String get start => 'Starten';
+
+  @override
   String get activityLetterLearning => 'Buchstaben lernen';
 
   @override

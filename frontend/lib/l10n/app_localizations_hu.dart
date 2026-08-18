@@ -12,6 +12,9 @@ class AppLocalizationsHu extends AppLocalizations {
   String get appTitle => 'Olvasós játék';
 
   @override
+  String get start => 'Indítás';
+
+  @override
   String get activityLetterLearning => 'Betűtanuló';
 
   @override

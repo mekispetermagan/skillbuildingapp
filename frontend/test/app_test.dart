@@ -3,10 +3,23 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:literacy_game/main.dart';
 
+Future<void> pumpStartedApp(WidgetTester tester) async {
+  await tester.pumpWidget(const LiteracyApp());
+  await tester.pumpAndSettle();
+
+  expect(find.text('Start'), findsOneWidget);
+  expect(find.text('Literacy'), findsNothing);
+
+  await tester.tap(find.text('Start'));
+  await tester.pumpAndSettle();
+
+  expect(find.text('Literacy'), findsOneWidget);
+  expect(find.text('Math'), findsOneWidget);
+}
+
 void main() {
   testWidgets('opens letter dragging from the activity menu', (tester) async {
-    await tester.pumpWidget(const LiteracyApp());
-    await tester.pumpAndSettle();
+    await pumpStartedApp(tester);
 
     await tester.tap(find.text('Literacy'));
     await tester.pumpAndSettle();
@@ -27,8 +40,7 @@ void main() {
   testWidgets('temporarily skips language selection and defaults to English', (
     tester,
   ) async {
-    await tester.pumpWidget(const LiteracyApp());
-    await tester.pumpAndSettle();
+    await pumpStartedApp(tester);
 
     expect(find.text('English'), findsNothing);
     expect(find.text('Magyar'), findsNothing);
@@ -39,8 +51,7 @@ void main() {
   });
 
   testWidgets('opens number learning from the math menu', (tester) async {
-    await tester.pumpWidget(const LiteracyApp());
-    await tester.pumpAndSettle();
+    await pumpStartedApp(tester);
 
     await tester.tap(find.text('Math'));
     await tester.pumpAndSettle();
@@ -55,8 +66,7 @@ void main() {
   });
 
   testWidgets('opens compare numbers from the math menu', (tester) async {
-    await tester.pumpWidget(const LiteracyApp());
-    await tester.pumpAndSettle();
+    await pumpStartedApp(tester);
     await tester.tap(find.text('Math'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Compare numbers'));
@@ -69,8 +79,7 @@ void main() {
   });
 
   testWidgets('opens number dragging from the math menu', (tester) async {
-    await tester.pumpWidget(const LiteracyApp());
-    await tester.pumpAndSettle();
+    await pumpStartedApp(tester);
     await tester.tap(find.text('Math'));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Number dragging'));
@@ -89,8 +98,7 @@ void main() {
   });
 
   testWidgets('opens number memory from the math menu', (tester) async {
-    await tester.pumpWidget(const LiteracyApp());
-    await tester.pumpAndSettle();
+    await pumpStartedApp(tester);
     await tester.tap(find.text('Math'));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
@@ -109,8 +117,7 @@ void main() {
   });
 
   testWidgets('opens the balance game SVG playground', (tester) async {
-    await tester.pumpWidget(const LiteracyApp());
-    await tester.pumpAndSettle();
+    await pumpStartedApp(tester);
     await tester.tap(find.text('Math'));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
@@ -128,8 +135,7 @@ void main() {
   });
 
   testWidgets('opens the logic game from the math menu', (tester) async {
-    await tester.pumpWidget(const LiteracyApp());
-    await tester.pumpAndSettle();
+    await pumpStartedApp(tester);
     await tester.tap(find.text('Math'));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
@@ -149,8 +155,7 @@ void main() {
   });
 
   testWidgets('opens the clipped shopping game stage', (tester) async {
-    await tester.pumpWidget(const LiteracyApp());
-    await tester.pumpAndSettle();
+    await pumpStartedApp(tester);
     await tester.tap(find.text('Math'));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
@@ -171,8 +176,7 @@ void main() {
   testWidgets('system back follows the same math navigation hierarchy', (
     tester,
   ) async {
-    await tester.pumpWidget(const LiteracyApp());
-    await tester.pumpAndSettle();
+    await pumpStartedApp(tester);
 
     await tester.tap(find.text('Math'));
     await tester.pumpAndSettle();

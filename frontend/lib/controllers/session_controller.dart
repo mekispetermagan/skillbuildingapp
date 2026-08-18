@@ -72,6 +72,7 @@ import 'shopping_game_controller.dart';
 import 'spelling_quiz_controller.dart';
 
 enum SessionStatus {
+  opening,
   areaMenu,
   literacyMenu,
   mathMenu,
@@ -148,7 +149,7 @@ class SessionController extends ChangeNotifier {
   late final ShoppingGameController _shoppingGameController;
   late final OperatorConveyorController _operatorConveyorController;
   late final EvenOddController _evenOddController;
-  SessionStatus status = SessionStatus.areaMenu;
+  SessionStatus status = SessionStatus.opening;
   int? mathPlaceholderNumber;
 
   SessionController({
@@ -1028,9 +1029,11 @@ class SessionController extends ChangeNotifier {
 
   void handleBack() {
     switch (status) {
-      case SessionStatus.areaMenu:
+      case SessionStatus.opening:
       case SessionStatus.rating:
         return;
+      case SessionStatus.areaMenu:
+        _open(SessionStatus.opening);
       case SessionStatus.literacyMenu:
       case SessionStatus.mathMenu:
         openAreaMenu();
@@ -1121,6 +1124,7 @@ class SessionController extends ChangeNotifier {
       _operatorConveyorController.state != ConveyorState.playing,
     SessionStatus.evenOdd =>
       _evenOddController.state != LetterCatchingState.playing,
+    SessionStatus.opening ||
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
     SessionStatus.mathMenu ||
@@ -1149,6 +1153,7 @@ class SessionController extends ChangeNotifier {
       _evenOddController.state == LetterCatchingState.lost
           ? PlayOutcome.lost
           : PlayOutcome.won,
+    SessionStatus.opening ||
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
     SessionStatus.mathMenu ||
@@ -1183,6 +1188,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.shoppingGame => ActivityId.shoppingGame,
     SessionStatus.operatorConveyor => ActivityId.operatorConveyor,
     SessionStatus.evenOdd => ActivityId.evenOdd,
+    SessionStatus.opening ||
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
     SessionStatus.mathMenu ||
@@ -1216,6 +1222,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.shoppingGame => _shoppingGameController.score,
     SessionStatus.operatorConveyor => _operatorConveyorController.world.score,
     SessionStatus.evenOdd => _evenOddController.world.score,
+    SessionStatus.opening ||
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
     SessionStatus.mathMenu ||
@@ -1345,6 +1352,7 @@ class SessionController extends ChangeNotifier {
       startingLives: _evenOddController.world.config.startingLives,
       remainingLives: _evenOddController.world.lives,
     ),
+    SessionStatus.opening ||
     SessionStatus.areaMenu ||
     SessionStatus.literacyMenu ||
     SessionStatus.mathMenu ||

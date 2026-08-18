@@ -1,4 +1,5 @@
 export 'letter_shooting_screen.dart';
+export 'opening_screen.dart';
 export 'area_menu_screen.dart';
 export 'balance_game_screen.dart';
 export 'logic_game_screen.dart';

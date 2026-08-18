@@ -127,7 +127,7 @@ void main() {
     );
     await Future<void>.delayed(Duration.zero);
 
-    expect(controller.status, SessionStatus.areaMenu);
+    expect(controller.status, SessionStatus.opening);
     expect(controller.literacyMenuItems.map((item) => item.$1), [
       ActivityId.letterLearning,
       ActivityId.letterPractice,
