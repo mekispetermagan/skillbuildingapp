@@ -21,6 +21,7 @@ class BalanceGameController extends ChangeNotifier {
   int _generation = 0;
   int _exerciseId = 0;
   bool _disposed = false;
+  ScaleStatus _displayScaleStatus = ScaleStatus.left;
   late List<int> _goodsWeights;
   late List<BalanceStone> _shelfStones;
   final List<BalanceStone> _selectedStones = [];
@@ -44,7 +45,8 @@ class BalanceGameController extends ChangeNotifier {
   int get rightWeight =>
       _selectedStones.fold(0, (sum, stone) => sum + stone.weight);
   bool get canSelect => _state == BalanceGameState.playing;
-  ScaleStatus get scaleStatus => rightWeight == leftWeight
+  ScaleStatus get scaleStatus => _displayScaleStatus;
+  ScaleStatus get _weightScaleStatus => rightWeight == leftWeight
       ? ScaleStatus.balanced
       : rightWeight > leftWeight
       ? ScaleStatus.right
@@ -98,6 +100,10 @@ class BalanceGameController extends ChangeNotifier {
       notifyListeners();
       feedbackSound = _play(_wrongPath);
     }
+    await Future<void>.delayed(config.outroAnimationDelay);
+    if (_disposed || generation != _generation) return;
+    _displayScaleStatus = _weightScaleStatus;
+    notifyListeners();
     final outroDelay = config.feedbackDuration > config.outroAnimationDuration
         ? config.feedbackDuration
         : config.outroAnimationDuration;
@@ -114,6 +120,7 @@ class BalanceGameController extends ChangeNotifier {
 
   void _generateExercise() {
     _exerciseId++;
+    _displayScaleStatus = ScaleStatus.left;
     _goodsWeights = List.generate(
       config.goodsCount,
       (_) => _randomWeight(),

@@ -55,6 +55,7 @@ void main() {
       config: const BalanceGameConfig(
         winningScore: 1,
         feedbackDuration: Duration.zero,
+        outroAnimationDelay: Duration.zero,
         outroAnimationDuration: Duration.zero,
       ),
       random: Random(3),
@@ -82,6 +83,7 @@ void main() {
           audio,
           config: const BalanceGameConfig(
             feedbackDuration: Duration.zero,
+            outroAnimationDelay: Duration.zero,
             outroAnimationDuration: Duration.zero,
           ),
           random: Random(seed),

@@ -42,6 +42,7 @@ class BalanceGameConfig {
   final int maximumSelectedStones;
   final int winningScore;
   final Duration feedbackDuration;
+  final Duration outroAnimationDelay;
   final Duration outroAnimationDuration;
   final BalanceAnimationCurve outroAnimationCurve;
   final BalanceSize stageSize;
@@ -70,6 +71,7 @@ class BalanceGameConfig {
     this.maximumSelectedStones = 3,
     this.winningScore = 10,
     this.feedbackDuration = const Duration(seconds: 2),
+    this.outroAnimationDelay = const Duration(milliseconds: 100),
     this.outroAnimationDuration = const Duration(milliseconds: 600),
     this.outroAnimationCurve = const BalanceAnimationCurve(0.42, 0, 0.58, 1),
     this.stageSize = const BalanceSize(480, 360),
