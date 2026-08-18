@@ -127,6 +127,27 @@ void main() {
     expect(find.byType(SvgPicture), findsNWidgets(13));
   });
 
+  testWidgets('opens the logic game from the math menu', (tester) async {
+    await tester.pumpWidget(const LiteracyApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Math'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Logic game'),
+      100,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.ensureVisible(find.text('Logic game'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Logic game'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Easy'), findsOneWidget);
+    expect(find.text('Medium'), findsOneWidget);
+    expect(find.text('Hard'), findsOneWidget);
+    expect(find.byType(CustomPaint), findsWidgets);
+  });
+
   testWidgets('system back follows the same math navigation hierarchy', (
     tester,
   ) async {

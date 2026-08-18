@@ -25,6 +25,7 @@ import 'letter_practice_slot.dart';
 import 'letter_practice_state.dart';
 import 'letter_shooting_world.dart';
 import 'letter_shooting_state.dart';
+import 'logic_game.dart';
 import 'memory_card_data.dart';
 import 'memory_config.dart';
 import 'missing_letter_slot.dart';
@@ -444,6 +445,30 @@ class BalanceGameViewData {
     required this.leftTrayY,
     required this.rightTrayY,
     required this.handAngle,
+    required this.config,
+  });
+}
+
+class LogicGameViewData {
+  final LogicDifficulty difficulty;
+  final LogicGameState state;
+  final int score;
+  final int incorrectAttempts;
+  final List<LogicObject> objects;
+  final List<LogicProperty> properties;
+  final List<LogicPlacement> placements;
+  final bool canPlace;
+  final LogicGameConfig config;
+
+  const LogicGameViewData({
+    required this.difficulty,
+    required this.state,
+    required this.score,
+    required this.incorrectAttempts,
+    required this.objects,
+    required this.properties,
+    required this.placements,
+    required this.canPlace,
     required this.config,
   });
 }

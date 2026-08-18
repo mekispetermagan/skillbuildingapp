@@ -69,6 +69,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activityBalanceGame => 'Balance game';
 
   @override
+  String get activityLogicGame => 'Logic game';
+
+  @override
   String get activityOperatorConveyor => 'Operator conveyor';
 
   @override
@@ -164,6 +167,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get difficultyEasy => 'Easy';
+
+  @override
+  String get difficultyMedium => 'Medium';
 
   @override
   String get difficultyHard => 'Hard';

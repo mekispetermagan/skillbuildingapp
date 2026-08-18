@@ -329,7 +329,7 @@ void main() {
 
     controller.openMathMenu();
     expect(controller.status, SessionStatus.mathMenu);
-    expect(controller.mathMenuItems, hasLength(8));
+    expect(controller.mathMenuItems, hasLength(9));
 
     controller.mathMenuItems[5].$2();
     expect(controller.status, SessionStatus.balanceGame);
@@ -467,6 +467,26 @@ void main() {
     controller.dispose();
   });
 
+  test('logic game abandonment is recorded in the math area', () async {
+    final recorder = _FakeGameplayRecorder();
+    final controller = SessionController(
+      assetBundle: _SentenceAssetBundle(),
+      audioPlayer: _FakeAudioPlayer(),
+      gameplayRecorder: recorder,
+    );
+
+    controller.mathMenuItems[8].$2();
+    expect(controller.status, SessionStatus.logicGame);
+    controller.openMathMenu();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(recorder.abandoned, hasLength(1));
+    expect(recorder.abandoned.single.area, LearningArea.math);
+    expect(recorder.abandoned.single.feature, ActivityId.logicGame);
+    expect(controller.status, SessionStatus.mathMenu);
+    controller.dispose();
+  });
+
   test('operator conveyor abandonment is recorded in the math area', () async {
     final recorder = _FakeGameplayRecorder();
     final controller = SessionController(
@@ -475,7 +495,7 @@ void main() {
       gameplayRecorder: recorder,
     );
 
-    controller.mathMenuItems.last.$2();
+    controller.mathMenuItems[7].$2();
     expect(controller.status, SessionStatus.operatorConveyor);
     controller.openMathMenu();
     await Future<void>.delayed(Duration.zero);

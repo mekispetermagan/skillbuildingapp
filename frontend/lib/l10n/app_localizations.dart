@@ -220,6 +220,12 @@ abstract class AppLocalizations {
   /// **'Balance game'**
   String get activityBalanceGame;
 
+  /// No description provided for @activityLogicGame.
+  ///
+  /// In en, this message translates to:
+  /// **'Logic game'**
+  String get activityLogicGame;
+
   /// No description provided for @activityOperatorConveyor.
   ///
   /// In en, this message translates to:
@@ -399,6 +405,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Easy'**
   String get difficultyEasy;
+
+  /// No description provided for @difficultyMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get difficultyMedium;
 
   /// No description provided for @difficultyHard.
   ///

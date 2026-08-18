@@ -69,6 +69,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get activityBalanceGame => 'Waagenspiel';
 
   @override
+  String get activityLogicGame => 'Logikspiel';
+
+  @override
   String get activityOperatorConveyor => 'Rechenzeichen-Förderband';
 
   @override
@@ -164,6 +167,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get difficultyEasy => 'Leicht';
+
+  @override
+  String get difficultyMedium => 'Mittel';
 
   @override
   String get difficultyHard => 'Schwer';

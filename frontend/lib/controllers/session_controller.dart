@@ -26,6 +26,7 @@ import '../models/learning_area.dart';
 import '../models/letter_shooting_state.dart';
 import '../models/letter_shooting_word.dart';
 import '../models/letter_shooting_world.dart';
+import '../models/logic_game.dart';
 import '../models/letter_practice_state.dart';
 import '../models/missing_letters_state.dart';
 import '../models/missing_letters_word.dart';
@@ -54,6 +55,7 @@ import 'letter_dragging_controller.dart';
 import 'letter_learning_controller.dart';
 import 'letter_shooting_controller.dart';
 import 'letter_practice_controller.dart';
+import 'logic_game_controller.dart';
 import 'memory_controller.dart';
 import 'missing_letters_controller.dart';
 import 'number_learning_controller.dart';
@@ -78,6 +80,7 @@ enum SessionStatus {
   numberDragging,
   numberMemory,
   balanceGame,
+  logicGame,
   operatorConveyor,
   evenOdd,
   letterLearning,
@@ -138,6 +141,7 @@ class SessionController extends ChangeNotifier {
   late final NumberDraggingController _numberDraggingController;
   late final NumberMemoryController _numberMemoryController;
   late final BalanceGameController _balanceGameController;
+  late final LogicGameController _logicGameController;
   late final OperatorConveyorController _operatorConveyorController;
   late final EvenOddController _evenOddController;
   SessionStatus status = SessionStatus.areaMenu;
@@ -175,6 +179,8 @@ class SessionController extends ChangeNotifier {
     _numberMemoryController = NumberMemoryController()
       ..addListener(_forwardFeatureNotification);
     _balanceGameController = BalanceGameController(_audioPlayer)
+      ..addListener(_forwardFeatureNotification);
+    _logicGameController = LogicGameController(_audioPlayer)
       ..addListener(_forwardFeatureNotification);
     _operatorConveyorController = OperatorConveyorController()
       ..addListener(_forwardFeatureNotification);
@@ -237,6 +243,7 @@ class SessionController extends ChangeNotifier {
     (6, openBalanceGame),
     (7, openEvenOdd),
     (8, openOperatorConveyor),
+    (9, openLogicGame),
   ];
 
   NumberLearningViewData get numberLearningViewData => NumberLearningViewData(
@@ -312,6 +319,37 @@ class SessionController extends ChangeNotifier {
     unawaited(_balanceGameController.selectStone(stoneId));
   }
 
+  LogicGameViewData get logicGameViewData => LogicGameViewData(
+    difficulty: _logicGameController.difficulty,
+    state: _logicGameController.state,
+    score: _logicGameController.score,
+    incorrectAttempts: _logicGameController.incorrectAttempts,
+    objects: _logicGameController.objects,
+    properties: _logicGameController.properties,
+    placements: _logicGameController.placements,
+    canPlace: _logicGameController.canPlace,
+    config: _logicGameController.config,
+  );
+
+  void logicGameSetDifficulty(LogicDifficulty value) =>
+      _logicGameController.setDifficulty(value);
+
+  void logicGamePlace({
+    required int objectId,
+    required LogicPoint position,
+    required double diagramWidth,
+    required double diagramHeight,
+  }) {
+    unawaited(
+      _logicGameController.place(
+        objectId: objectId,
+        position: position,
+        diagramWidth: diagramWidth,
+        diagramHeight: diagramHeight,
+      ),
+    );
+  }
+
   OperationsPracticeViewData get operationsPracticeViewData =>
       OperationsPracticeViewData(
         operators: _operationsPracticeController.operators,
@@ -384,6 +422,11 @@ class SessionController extends ChangeNotifier {
   void openBalanceGame() {
     _balanceGameController.start();
     _beginActivity(SessionStatus.balanceGame);
+  }
+
+  void openLogicGame() {
+    _logicGameController.start();
+    _beginActivity(SessionStatus.logicGame);
   }
 
   PhraseBuildingViewData get phraseBuildingViewData => PhraseBuildingViewData(
@@ -935,6 +978,7 @@ class SessionController extends ChangeNotifier {
     _numberDraggingController.stop();
     _numberMemoryController.stop();
     _balanceGameController.stop();
+    _logicGameController.stop();
     _operatorConveyorController.stop();
     _evenOddController.stop();
     _open(destination);
@@ -984,6 +1028,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.numberDragging => true,
     SessionStatus.numberMemory => true,
     SessionStatus.balanceGame => true,
+    SessionStatus.logicGame => true,
     SessionStatus.operatorConveyor => true,
     SessionStatus.evenOdd => true,
     _ => false,
@@ -1026,6 +1071,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.numberMemory => _numberMemoryController.isComplete,
     SessionStatus.balanceGame =>
       _balanceGameController.state == BalanceGameState.won,
+    SessionStatus.logicGame => _logicGameController.state == LogicGameState.won,
     SessionStatus.operatorConveyor =>
       _operatorConveyorController.state != ConveyorState.playing,
     SessionStatus.evenOdd =>
@@ -1088,6 +1134,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.numberDragging => ActivityId.numberDragging,
     SessionStatus.numberMemory => ActivityId.numberMemory,
     SessionStatus.balanceGame => ActivityId.balanceGame,
+    SessionStatus.logicGame => ActivityId.logicGame,
     SessionStatus.operatorConveyor => ActivityId.operatorConveyor,
     SessionStatus.evenOdd => ActivityId.evenOdd,
     SessionStatus.areaMenu ||
@@ -1119,6 +1166,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.numberDragging => _numberDraggingController.score,
     SessionStatus.numberMemory => null,
     SessionStatus.balanceGame => _balanceGameController.score,
+    SessionStatus.logicGame => _logicGameController.score,
     SessionStatus.operatorConveyor => _operatorConveyorController.world.score,
     SessionStatus.evenOdd => _evenOddController.world.score,
     SessionStatus.areaMenu ||
@@ -1150,6 +1198,10 @@ class SessionController extends ChangeNotifier {
     SessionStatus.balanceGame => AttemptMetrics(
       correctAnswers: _balanceGameController.score,
       incorrectAttempts: _balanceGameController.incorrectAttempts,
+    ),
+    SessionStatus.logicGame => AttemptMetrics(
+      correctAnswers: _logicGameController.score,
+      incorrectAttempts: _logicGameController.incorrectAttempts,
     ),
     SessionStatus.letterCatching => LivesMetrics(
       correctAnswers: _letterCatchingController?.world.score ?? 0,
@@ -1624,6 +1676,8 @@ class SessionController extends ChangeNotifier {
     _numberMemoryController.dispose();
     _balanceGameController.removeListener(_forwardFeatureNotification);
     _balanceGameController.dispose();
+    _logicGameController.removeListener(_forwardFeatureNotification);
+    _logicGameController.dispose();
     _operatorConveyorController.removeListener(_forwardFeatureNotification);
     _operatorConveyorController.dispose();
     _evenOddController.removeListener(_forwardFeatureNotification);

@@ -69,6 +69,9 @@ class AppLocalizationsHu extends AppLocalizations {
   String get activityBalanceGame => 'Mérlegjáték';
 
   @override
+  String get activityLogicGame => 'Logikai játék';
+
+  @override
   String get activityOperatorConveyor => 'Műveleti futószalag';
 
   @override
@@ -163,6 +166,9 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get difficultyEasy => 'Könnyű';
+
+  @override
+  String get difficultyMedium => 'Közepes';
 
   @override
   String get difficultyHard => 'Nehéz';
