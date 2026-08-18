@@ -41,6 +41,7 @@ void main() {
         ActivityId.operationsPractice,
         ActivityId.numberDragging,
         ActivityId.numberMemory,
+        ActivityId.balanceGame,
         ActivityId.operatorConveyor,
         ActivityId.evenOdd,
       ],

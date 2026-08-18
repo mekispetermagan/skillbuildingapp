@@ -29,6 +29,7 @@ extension ActivityIdLocalization on ActivityId {
     ActivityId.operationsPractice => l10n.activityOperationsPractice,
     ActivityId.numberDragging => l10n.activityNumberDragging,
     ActivityId.numberMemory => l10n.activityNumberMemory,
+    ActivityId.balanceGame => l10n.activityBalanceGame,
     ActivityId.operatorConveyor => l10n.activityOperatorConveyor,
     ActivityId.evenOdd => l10n.activityEvenOdd,
   };

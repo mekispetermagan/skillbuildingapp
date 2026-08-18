@@ -332,8 +332,7 @@ void main() {
     expect(controller.mathMenuItems, hasLength(8));
 
     controller.mathMenuItems[5].$2();
-    expect(controller.status, SessionStatus.mathPlaceholder);
-    expect(controller.mathPlaceholderNumber, 6);
+    expect(controller.status, SessionStatus.balanceGame);
 
     controller.handleBack();
     expect(controller.status, SessionStatus.mathMenu);
@@ -444,6 +443,26 @@ void main() {
     expect(recorder.abandoned.single.feature, ActivityId.numberMemory);
     final metrics = recorder.abandoned.single.metrics as MemoryMetrics;
     expect(metrics.pairCount, 9);
+    expect(controller.status, SessionStatus.mathMenu);
+    controller.dispose();
+  });
+
+  test('balance game abandonment is recorded in the math area', () async {
+    final recorder = _FakeGameplayRecorder();
+    final controller = SessionController(
+      assetBundle: _SentenceAssetBundle(),
+      audioPlayer: _FakeAudioPlayer(),
+      gameplayRecorder: recorder,
+    );
+
+    controller.mathMenuItems[5].$2();
+    expect(controller.status, SessionStatus.balanceGame);
+    controller.openMathMenu();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(recorder.abandoned, hasLength(1));
+    expect(recorder.abandoned.single.area, LearningArea.math);
+    expect(recorder.abandoned.single.feature, ActivityId.balanceGame);
     expect(controller.status, SessionStatus.mathMenu);
     controller.dispose();
   });

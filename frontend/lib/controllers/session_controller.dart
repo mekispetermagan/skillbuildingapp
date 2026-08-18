@@ -8,6 +8,7 @@ import '../audio/asset_audio_player.dart';
 import '../models/answer_feedback.dart';
 import '../models/alphabet_letter.dart';
 import '../models/alphabet_object.dart';
+import '../models/balance_game.dart';
 import '../models/conveyor_state.dart';
 import '../models/conveyor_config.dart';
 import '../models/crossword_entry.dart';
@@ -45,6 +46,7 @@ import '../models/spelling_quiz_state.dart';
 import '../models/view_data.dart';
 import '../services/gameplay_recorder.dart';
 import 'conveyor_controller.dart';
+import 'balance_game_controller.dart';
 import 'crossword_controller.dart';
 import 'even_odd_controller.dart';
 import 'letter_catching_controller.dart';
@@ -75,6 +77,7 @@ enum SessionStatus {
   operationsPractice,
   numberDragging,
   numberMemory,
+  balanceGame,
   operatorConveyor,
   evenOdd,
   letterLearning,
@@ -134,6 +137,7 @@ class SessionController extends ChangeNotifier {
   late final OperationsPracticeController _operationsPracticeController;
   late final NumberDraggingController _numberDraggingController;
   late final NumberMemoryController _numberMemoryController;
+  late final BalanceGameController _balanceGameController;
   late final OperatorConveyorController _operatorConveyorController;
   late final EvenOddController _evenOddController;
   SessionStatus status = SessionStatus.areaMenu;
@@ -169,6 +173,8 @@ class SessionController extends ChangeNotifier {
     _numberDraggingController = NumberDraggingController(_audioPlayer)
       ..addListener(_forwardFeatureNotification);
     _numberMemoryController = NumberMemoryController()
+      ..addListener(_forwardFeatureNotification);
+    _balanceGameController = BalanceGameController(_audioPlayer)
       ..addListener(_forwardFeatureNotification);
     _operatorConveyorController = OperatorConveyorController()
       ..addListener(_forwardFeatureNotification);
@@ -228,7 +234,7 @@ class SessionController extends ChangeNotifier {
     (3, openOperationsPractice),
     (4, openNumberDragging),
     (5, openNumberMemory),
-    (6, () => openMathPlaceholder(6)),
+    (6, openBalanceGame),
     (7, openEvenOdd),
     (8, openOperatorConveyor),
   ];
@@ -285,6 +291,25 @@ class SessionController extends ChangeNotifier {
   void openNumberComparison() {
     _numberComparisonController.start();
     _beginActivity(SessionStatus.numberComparison);
+  }
+
+  BalanceGameViewData get balanceGameViewData => BalanceGameViewData(
+    state: _balanceGameController.state,
+    score: _balanceGameController.score,
+    incorrectAttempts: _balanceGameController.incorrectAttempts,
+    exerciseId: _balanceGameController.exerciseId,
+    goodsWeights: _balanceGameController.goodsWeights,
+    shelfStones: _balanceGameController.shelfStones,
+    selectedStones: _balanceGameController.selectedStones,
+    canSelect: _balanceGameController.canSelect,
+    leftTrayY: _balanceGameController.leftTrayY,
+    rightTrayY: _balanceGameController.rightTrayY,
+    handAngle: _balanceGameController.handAngle,
+    config: _balanceGameController.config,
+  );
+
+  void balanceGameSelectStone(int stoneId) {
+    unawaited(_balanceGameController.selectStone(stoneId));
   }
 
   OperationsPracticeViewData get operationsPracticeViewData =>
@@ -354,6 +379,11 @@ class SessionController extends ChangeNotifier {
   void openNumberMemory() {
     _numberMemoryController.startNewGame();
     _beginActivity(SessionStatus.numberMemory);
+  }
+
+  void openBalanceGame() {
+    _balanceGameController.start();
+    _beginActivity(SessionStatus.balanceGame);
   }
 
   PhraseBuildingViewData get phraseBuildingViewData => PhraseBuildingViewData(
@@ -904,6 +934,7 @@ class SessionController extends ChangeNotifier {
     _operationsPracticeController.stop();
     _numberDraggingController.stop();
     _numberMemoryController.stop();
+    _balanceGameController.stop();
     _operatorConveyorController.stop();
     _evenOddController.stop();
     _open(destination);
@@ -952,6 +983,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.operationsPractice => true,
     SessionStatus.numberDragging => true,
     SessionStatus.numberMemory => true,
+    SessionStatus.balanceGame => true,
     SessionStatus.operatorConveyor => true,
     SessionStatus.evenOdd => true,
     _ => false,
@@ -992,6 +1024,8 @@ class SessionController extends ChangeNotifier {
     SessionStatus.numberDragging =>
       _numberDraggingController.state == LetterDraggingState.result,
     SessionStatus.numberMemory => _numberMemoryController.isComplete,
+    SessionStatus.balanceGame =>
+      _balanceGameController.state == BalanceGameState.won,
     SessionStatus.operatorConveyor =>
       _operatorConveyorController.state != ConveyorState.playing,
     SessionStatus.evenOdd =>
@@ -1053,6 +1087,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.operationsPractice => ActivityId.operationsPractice,
     SessionStatus.numberDragging => ActivityId.numberDragging,
     SessionStatus.numberMemory => ActivityId.numberMemory,
+    SessionStatus.balanceGame => ActivityId.balanceGame,
     SessionStatus.operatorConveyor => ActivityId.operatorConveyor,
     SessionStatus.evenOdd => ActivityId.evenOdd,
     SessionStatus.areaMenu ||
@@ -1083,6 +1118,7 @@ class SessionController extends ChangeNotifier {
     SessionStatus.operationsPractice => _operationsPracticeController.score,
     SessionStatus.numberDragging => _numberDraggingController.score,
     SessionStatus.numberMemory => null,
+    SessionStatus.balanceGame => _balanceGameController.score,
     SessionStatus.operatorConveyor => _operatorConveyorController.world.score,
     SessionStatus.evenOdd => _evenOddController.world.score,
     SessionStatus.areaMenu ||
@@ -1110,6 +1146,10 @@ class SessionController extends ChangeNotifier {
       pairCount: _numberMemoryController.config.pairCount,
       pairAttempts: _numberMemoryController.pairAttempts,
       mismatches: _numberMemoryController.mismatches,
+    ),
+    SessionStatus.balanceGame => AttemptMetrics(
+      correctAnswers: _balanceGameController.score,
+      incorrectAttempts: _balanceGameController.incorrectAttempts,
     ),
     SessionStatus.letterCatching => LivesMetrics(
       correctAnswers: _letterCatchingController?.world.score ?? 0,
@@ -1582,6 +1622,8 @@ class SessionController extends ChangeNotifier {
     _numberDraggingController.dispose();
     _numberMemoryController.removeListener(_forwardFeatureNotification);
     _numberMemoryController.dispose();
+    _balanceGameController.removeListener(_forwardFeatureNotification);
+    _balanceGameController.dispose();
     _operatorConveyorController.removeListener(_forwardFeatureNotification);
     _operatorConveyorController.dispose();
     _evenOddController.removeListener(_forwardFeatureNotification);

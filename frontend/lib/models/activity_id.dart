@@ -19,6 +19,7 @@ enum ActivityId {
   operationsPractice('operations_practice'),
   numberDragging('number_dragging'),
   numberMemory('number_memory'),
+  balanceGame('balance_game'),
   operatorConveyor('operator_conveyor'),
   evenOdd('even_odd');
 
@@ -32,6 +33,7 @@ enum ActivityId {
     ActivityId.operationsPractice ||
     ActivityId.numberDragging ||
     ActivityId.numberMemory ||
+    ActivityId.balanceGame ||
     ActivityId.operatorConveyor ||
     ActivityId.evenOdd => LearningArea.math,
     _ => LearningArea.literacy,

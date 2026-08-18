@@ -214,6 +214,12 @@ abstract class AppLocalizations {
   /// **'Number memory'**
   String get activityNumberMemory;
 
+  /// No description provided for @activityBalanceGame.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance game'**
+  String get activityBalanceGame;
+
   /// No description provided for @activityOperatorConveyor.
   ///
   /// In en, this message translates to:

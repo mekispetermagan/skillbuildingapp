@@ -66,6 +66,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get activityNumberMemory => 'Zahlen-Memory';
 
   @override
+  String get activityBalanceGame => 'Waagenspiel';
+
+  @override
   String get activityOperatorConveyor => 'Rechenzeichen-Förderband';
 
   @override

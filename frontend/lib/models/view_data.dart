@@ -1,6 +1,7 @@
 import 'answer_feedback.dart';
 import 'alphabet_letter.dart';
 import 'alphabet_object.dart';
+import 'balance_game.dart';
 import 'countdown_status.dart';
 import 'conveyor_state.dart';
 import 'conveyor_config.dart';
@@ -413,6 +414,36 @@ class NumberComparisonViewData {
     required this.leftPositions,
     required this.rightPositions,
     required this.canGuess,
+    required this.config,
+  });
+}
+
+class BalanceGameViewData {
+  final BalanceGameState state;
+  final int score;
+  final int incorrectAttempts;
+  final int exerciseId;
+  final List<int> goodsWeights;
+  final List<BalanceStone> shelfStones;
+  final List<BalanceStone> selectedStones;
+  final bool canSelect;
+  final double leftTrayY;
+  final double rightTrayY;
+  final double handAngle;
+  final BalanceGameConfig config;
+
+  const BalanceGameViewData({
+    required this.state,
+    required this.score,
+    required this.incorrectAttempts,
+    required this.exerciseId,
+    required this.goodsWeights,
+    required this.shelfStones,
+    required this.selectedStones,
+    required this.canSelect,
+    required this.leftTrayY,
+    required this.rightTrayY,
+    required this.handAngle,
     required this.config,
   });
 }

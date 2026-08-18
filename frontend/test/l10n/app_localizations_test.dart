@@ -33,6 +33,7 @@ void main() {
       'Rechenübungen',
       'Zahlen ordnen',
       'Zahlen-Memory',
+      'Waagenspiel',
       'Rechenzeichen-Förderband',
       'Gerade oder ungerade',
     ]);
@@ -60,6 +61,7 @@ void main() {
       'Operations practice',
       'Number dragging',
       'Number memory',
+      'Balance game',
       'Operator conveyor',
       'Even or odd',
     ]);
@@ -87,6 +89,7 @@ void main() {
       'Műveletek gyakorlása',
       'Számrendező',
       'Számmemória',
+      'Mérlegjáték',
       'Műveleti futószalag',
       'Páros vagy páratlan',
     ]);

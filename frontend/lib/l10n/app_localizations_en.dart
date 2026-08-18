@@ -66,6 +66,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activityNumberMemory => 'Number memory';
 
   @override
+  String get activityBalanceGame => 'Balance game';
+
+  @override
   String get activityOperatorConveyor => 'Operator conveyor';
 
   @override

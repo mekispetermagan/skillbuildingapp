@@ -268,6 +268,7 @@ def test_rejects_unknown_installations_and_invalid_contracts(client: TestClient)
         "operations_practice",
         "number_dragging",
         "number_memory",
+        "balance_game",
         "operator_conveyor",
         "even_odd",
     ],

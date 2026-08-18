@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:literacy_game/main.dart';
 
 void main() {
@@ -105,6 +106,25 @@ void main() {
     expect(find.text('1–12'), findsOneWidget);
     expect(find.text('1–24'), findsOneWidget);
     expect(find.text('?'), findsNWidgets(18));
+  });
+
+  testWidgets('opens the balance game SVG playground', (tester) async {
+    await tester.pumpWidget(const LiteracyApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Math'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Balance game'),
+      100,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.ensureVisible(find.text('Balance game'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Balance game'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Balance game'), findsOneWidget);
+    expect(find.byType(SvgPicture), findsNWidgets(13));
   });
 
   testWidgets('system back follows the same math navigation hierarchy', (

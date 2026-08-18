@@ -133,6 +133,11 @@ class AppRootState extends State<AppRoot> {
             onNewGame: _sessionController.numberMemoryStartNewGame,
             onSetRange: _sessionController.numberMemorySetRange,
           ),
+          SessionStatus.balanceGame => BalanceGameScreen(
+            viewData: _sessionController.balanceGameViewData,
+            onBack: _sessionController.handleBack,
+            onSelectStone: _sessionController.balanceGameSelectStone,
+          ),
           SessionStatus.operatorConveyor => OperatorConveyorScreen(
             viewData: _sessionController.operatorConveyorViewData,
             onResize: _sessionController.operatorConveyorResize,
