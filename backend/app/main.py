@@ -21,9 +21,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         yield
 
     app = FastAPI(
-        title="Literacy Game Pre-pilot API",
+        title="Skill Building API",
         version="0.1.0",
         lifespan=lifespan,
+        docs_url="/docs" if resolved_settings.environment == "dev" else None,
+        redoc_url="/redoc" if resolved_settings.environment == "dev" else None,
+        openapi_url="/openapi.json" if resolved_settings.environment == "dev" else None,
     )
 
     @app.middleware("http")
