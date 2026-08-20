@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/models/alphabet_letter.dart';
+import 'package:skillbuilding_game/models/alphabet_letter.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

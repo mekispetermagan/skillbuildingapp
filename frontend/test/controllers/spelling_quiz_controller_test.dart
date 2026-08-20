@@ -1,10 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/audio/asset_audio_player.dart';
-import 'package:literacy_game/controllers/spelling_quiz_controller.dart';
-import 'package:literacy_game/models/image_word.dart';
-import 'package:literacy_game/models/spelling_quiz_state.dart';
+import 'package:skillbuilding_game/audio/asset_audio_player.dart';
+import 'package:skillbuilding_game/controllers/spelling_quiz_controller.dart';
+import 'package:skillbuilding_game/models/image_word.dart';
+import 'package:skillbuilding_game/models/spelling_quiz_state.dart';
 
 const _animals = [
   ImageWord(

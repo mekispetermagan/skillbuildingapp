@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/api/gameplay_api_client.dart';
-import 'package:literacy_game/models/activity_id.dart';
-import 'package:literacy_game/models/feature_metrics.dart';
-import 'package:literacy_game/models/learning_area.dart';
-import 'package:literacy_game/models/pending_completion.dart';
-import 'package:literacy_game/models/play_outcome.dart';
-import 'package:literacy_game/models/record_sync.dart';
-import 'package:literacy_game/services/gameplay_recorder.dart';
-import 'package:literacy_game/storage/gameplay_record_store.dart';
+import 'package:skillbuilding_game/api/gameplay_api_client.dart';
+import 'package:skillbuilding_game/models/activity_id.dart';
+import 'package:skillbuilding_game/models/feature_metrics.dart';
+import 'package:skillbuilding_game/models/learning_area.dart';
+import 'package:skillbuilding_game/models/pending_completion.dart';
+import 'package:skillbuilding_game/models/play_outcome.dart';
+import 'package:skillbuilding_game/models/record_sync.dart';
+import 'package:skillbuilding_game/services/gameplay_recorder.dart';
+import 'package:skillbuilding_game/storage/gameplay_record_store.dart';
 
 void main() {
   PendingCompletion completion({PlayOutcome outcome = PlayOutcome.won}) =>

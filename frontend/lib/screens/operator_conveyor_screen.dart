@@ -126,11 +126,19 @@ class _OperatorConveyorPlayAreaState extends State<_OperatorConveyorPlayArea> {
     onTick: widget.onTick,
     onFrame: _refreshFrame,
   );
+  bool _frameRefreshScheduled = false;
 
   void _refreshFrame(ConveyorState state) {
     if (!mounted) return;
     _state = state;
-    _frame.value++;
+
+    if (_frameRefreshScheduled) return;
+    _frameRefreshScheduled = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _frameRefreshScheduled = false;
+      if (mounted) _frame.value++;
+    });
   }
 
   @override

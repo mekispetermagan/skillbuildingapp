@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/controllers/sentence_quiz_controller.dart';
-import 'package:literacy_game/models/sentence_quiz_state.dart';
+import 'package:skillbuilding_game/controllers/sentence_quiz_controller.dart';
+import 'package:skillbuilding_game/models/sentence_quiz_state.dart';
 
 SentenceQuizController _controller() =>
     SentenceQuizController(random: Random(8), feedbackDuration: Duration.zero);

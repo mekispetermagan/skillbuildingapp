@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/utils/string_utils.dart';
+import 'package:skillbuilding_game/utils/string_utils.dart';
 
 void main() {
   test('splits an English sentence into lowercase words', () {

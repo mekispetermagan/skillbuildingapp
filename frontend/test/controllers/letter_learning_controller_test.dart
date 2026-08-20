@@ -1,12 +1,12 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/audio/asset_audio_player.dart';
-import 'package:literacy_game/controllers/letter_learning_controller.dart';
-import 'package:literacy_game/models/alphabet_letter.dart';
-import 'package:literacy_game/models/alphabet_object.dart';
-import 'package:literacy_game/models/letter_learning_config.dart';
-import 'package:literacy_game/models/letter_learning_state.dart';
+import 'package:skillbuilding_game/audio/asset_audio_player.dart';
+import 'package:skillbuilding_game/controllers/letter_learning_controller.dart';
+import 'package:skillbuilding_game/models/alphabet_letter.dart';
+import 'package:skillbuilding_game/models/alphabet_object.dart';
+import 'package:skillbuilding_game/models/letter_learning_config.dart';
+import 'package:skillbuilding_game/models/letter_learning_state.dart';
 
 class _FakeAudioPlayer implements AssetAudioPlayer {
   final playedPaths = <String>[];

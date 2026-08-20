@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/models/missing_letters_word.dart';
+import 'package:skillbuilding_game/models/missing_letters_word.dart';
 
 void main() {
   test('normalizes a missing-letters word from JSON', () {

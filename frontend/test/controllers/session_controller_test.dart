@@ -1,13 +1,13 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/audio/asset_audio_player.dart';
-import 'package:literacy_game/controllers/session_controller.dart';
-import 'package:literacy_game/models/activity_id.dart';
-import 'package:literacy_game/models/learning_area.dart';
-import 'package:literacy_game/models/feature_metrics.dart';
-import 'package:literacy_game/models/pending_completion.dart';
-import 'package:literacy_game/models/play_outcome.dart';
-import 'package:literacy_game/services/gameplay_recorder.dart';
+import 'package:skillbuilding_game/audio/asset_audio_player.dart';
+import 'package:skillbuilding_game/controllers/session_controller.dart';
+import 'package:skillbuilding_game/models/activity_id.dart';
+import 'package:skillbuilding_game/models/learning_area.dart';
+import 'package:skillbuilding_game/models/feature_metrics.dart';
+import 'package:skillbuilding_game/models/pending_completion.dart';
+import 'package:skillbuilding_game/models/play_outcome.dart';
+import 'package:skillbuilding_game/services/gameplay_recorder.dart';
 
 class _FakeAudioPlayer implements AssetAudioPlayer {
   final playedPaths = <String>[];

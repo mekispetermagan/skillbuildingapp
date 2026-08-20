@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/controllers/memory_controller.dart';
-import 'package:literacy_game/models/memory_card_data.dart';
-import 'package:literacy_game/models/image_word.dart';
+import 'package:skillbuilding_game/controllers/memory_controller.dart';
+import 'package:skillbuilding_game/models/memory_card_data.dart';
+import 'package:skillbuilding_game/models/image_word.dart';
 
 List<ImageWord> _pairs() => [
   for (var id = 1; id <= 12; id++)

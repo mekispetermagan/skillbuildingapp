@@ -1,10 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/controllers/operator_conveyor_controller.dart';
-import 'package:literacy_game/models/conveyor_config.dart';
-import 'package:literacy_game/models/conveyor_state.dart';
-import 'package:literacy_game/models/operator_conveyor_world.dart';
+import 'package:skillbuilding_game/controllers/operator_conveyor_controller.dart';
+import 'package:skillbuilding_game/models/conveyor_config.dart';
+import 'package:skillbuilding_game/models/conveyor_state.dart';
+import 'package:skillbuilding_game/models/operator_conveyor_world.dart';
 
 const _config = ConveyorConfig(
   leftBeltWidth: 290,

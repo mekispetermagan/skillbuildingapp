@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/l10n/app_localizations.dart';
-import 'package:literacy_game/models/missing_letter_slot.dart';
-import 'package:literacy_game/models/missing_letter_tile.dart';
-import 'package:literacy_game/models/missing_letters_state.dart';
-import 'package:literacy_game/models/view_data.dart';
-import 'package:literacy_game/screens/missing_letters_screen.dart';
+import 'package:skillbuilding_game/l10n/app_localizations.dart';
+import 'package:skillbuilding_game/models/missing_letter_slot.dart';
+import 'package:skillbuilding_game/models/missing_letter_tile.dart';
+import 'package:skillbuilding_game/models/missing_letters_state.dart';
+import 'package:skillbuilding_game/models/view_data.dart';
+import 'package:skillbuilding_game/screens/missing_letters_screen.dart';
 
 void main() {
   testWidgets('shows two targets and seven draggable pool cards', (

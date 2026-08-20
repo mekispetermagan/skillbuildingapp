@@ -1,11 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/controllers/letter_catching_controller.dart';
-import 'package:literacy_game/models/letter_catching_config.dart';
-import 'package:literacy_game/models/letter_catching_word.dart';
-import 'package:literacy_game/models/letter_catching_world.dart';
-import 'package:literacy_game/models/letter_catching_state.dart';
+import 'package:skillbuilding_game/controllers/letter_catching_controller.dart';
+import 'package:skillbuilding_game/models/letter_catching_config.dart';
+import 'package:skillbuilding_game/models/letter_catching_word.dart';
+import 'package:skillbuilding_game/models/letter_catching_world.dart';
+import 'package:skillbuilding_game/models/letter_catching_state.dart';
 
 const _config = LetterCatchingConfig(
   fallingSpeed: 0,

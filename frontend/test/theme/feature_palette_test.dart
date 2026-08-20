@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/theme/feature_palette.dart';
-import 'package:literacy_game/widgets/feature_menu_grid.dart';
+import 'package:skillbuilding_game/theme/feature_palette.dart';
+import 'package:skillbuilding_game/widgets/feature_menu_grid.dart';
 
 void main() {
   test('feature palette has six distinct schemes and repeats at seven', () {

@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:literacy_game/api/gameplay_api_client.dart';
-import 'package:literacy_game/config/gameplay_api_config.dart';
-import 'package:literacy_game/models/activity_id.dart';
-import 'package:literacy_game/models/feature_metrics.dart';
-import 'package:literacy_game/models/learning_area.dart';
-import 'package:literacy_game/models/play_outcome.dart';
-import 'package:literacy_game/models/play_record.dart';
-import 'package:literacy_game/models/record_sync.dart';
+import 'package:skillbuilding_game/api/gameplay_api_client.dart';
+import 'package:skillbuilding_game/config/gameplay_api_config.dart';
+import 'package:skillbuilding_game/models/activity_id.dart';
+import 'package:skillbuilding_game/models/feature_metrics.dart';
+import 'package:skillbuilding_game/models/learning_area.dart';
+import 'package:skillbuilding_game/models/play_outcome.dart';
+import 'package:skillbuilding_game/models/play_record.dart';
+import 'package:skillbuilding_game/models/record_sync.dart';
 
 void main() {
   final config = GameplayApiConfig(

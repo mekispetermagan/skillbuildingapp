@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/models/letter_shooting_word.dart';
+import 'package:skillbuilding_game/models/letter_shooting_word.dart';
 
 void main() {
   test('normalizes and validates a word containing a vowel', () {

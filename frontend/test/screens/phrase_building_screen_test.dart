@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/l10n/app_localizations.dart';
-import 'package:literacy_game/models/phrase_building_state.dart';
-import 'package:literacy_game/models/phrase_building_tile.dart';
-import 'package:literacy_game/models/view_data.dart';
-import 'package:literacy_game/screens/phrase_building_screen.dart';
+import 'package:skillbuilding_game/l10n/app_localizations.dart';
+import 'package:skillbuilding_game/models/phrase_building_state.dart';
+import 'package:skillbuilding_game/models/phrase_building_tile.dart';
+import 'package:skillbuilding_game/models/view_data.dart';
+import 'package:skillbuilding_game/screens/phrase_building_screen.dart';
 
 void main() {
   testWidgets('supports dragging a word onto the whole target pool', (

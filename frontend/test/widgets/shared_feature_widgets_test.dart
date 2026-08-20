@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/l10n/app_localizations.dart';
-import 'package:literacy_game/models/feature_load_error.dart';
-import 'package:literacy_game/models/answer_feedback.dart';
-import 'package:literacy_game/widgets/feature_load_state.dart';
-import 'package:literacy_game/widgets/game_end_overlay.dart';
-import 'package:literacy_game/widgets/quiz_option_button.dart';
-import 'package:literacy_game/widgets/reward_gem_row.dart';
+import 'package:skillbuilding_game/l10n/app_localizations.dart';
+import 'package:skillbuilding_game/models/feature_load_error.dart';
+import 'package:skillbuilding_game/models/answer_feedback.dart';
+import 'package:skillbuilding_game/widgets/feature_load_state.dart';
+import 'package:skillbuilding_game/widgets/game_end_overlay.dart';
+import 'package:skillbuilding_game/widgets/quiz_option_button.dart';
+import 'package:skillbuilding_game/widgets/reward_gem_row.dart';
 
 void main() {
   Widget app(Widget child) => MaterialApp(

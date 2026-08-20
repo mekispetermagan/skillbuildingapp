@@ -1,4 +1,4 @@
-# Literacy game frontend
+# Skill building game frontend
 
 The app records completed and explicitly abandoned gameplay locally, then
 attempts to synchronize the durable queue at startup and after every new

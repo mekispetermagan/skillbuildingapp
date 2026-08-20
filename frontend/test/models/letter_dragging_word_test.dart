@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/models/letter_dragging_word.dart';
+import 'package:skillbuilding_game/models/letter_dragging_word.dart';
 
 void main() {
   test('normalizes a letter-dragging word from JSON', () {

@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/controllers/number_memory_controller.dart';
-import 'package:literacy_game/models/number_memory.dart';
+import 'package:skillbuilding_game/controllers/number_memory_controller.dart';
+import 'package:skillbuilding_game/models/number_memory.dart';
 
 void main() {
   test('builds nine distinct numeral-quantity pairs in the lower range', () {

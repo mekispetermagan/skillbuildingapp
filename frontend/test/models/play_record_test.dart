@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/models/activity_id.dart';
-import 'package:literacy_game/models/feature_metrics.dart';
-import 'package:literacy_game/models/learning_area.dart';
-import 'package:literacy_game/models/pending_completion.dart';
-import 'package:literacy_game/models/play_outcome.dart';
-import 'package:literacy_game/models/play_record.dart';
+import 'package:skillbuilding_game/models/activity_id.dart';
+import 'package:skillbuilding_game/models/feature_metrics.dart';
+import 'package:skillbuilding_game/models/learning_area.dart';
+import 'package:skillbuilding_game/models/pending_completion.dart';
+import 'package:skillbuilding_game/models/play_outcome.dart';
+import 'package:skillbuilding_game/models/play_record.dart';
 
 void main() {
   final startedAt = DateTime.utc(2026, 8, 16, 9);

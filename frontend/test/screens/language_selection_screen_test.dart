@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/models/interface_language.dart';
-import 'package:literacy_game/screens/language_selection_screen.dart';
+import 'package:skillbuilding_game/models/interface_language.dart';
+import 'package:skillbuilding_game/screens/language_selection_screen.dart';
 
 void main() {
   testWidgets('offers separate native-name language buttons', (tester) async {

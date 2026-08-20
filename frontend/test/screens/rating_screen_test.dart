@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/l10n/app_localizations.dart';
-import 'package:literacy_game/models/activity_id.dart';
-import 'package:literacy_game/screens/rating_screen.dart';
+import 'package:skillbuilding_game/l10n/app_localizations.dart';
+import 'package:skillbuilding_game/models/activity_id.dart';
+import 'package:skillbuilding_game/screens/rating_screen.dart';
 
 void main() {
   testWidgets('offers five stars and reports the selected rating', (

@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/controllers/missing_letters_controller.dart';
-import 'package:literacy_game/models/missing_letters_state.dart';
-import 'package:literacy_game/models/missing_letters_word.dart';
+import 'package:skillbuilding_game/controllers/missing_letters_controller.dart';
+import 'package:skillbuilding_game/models/missing_letters_state.dart';
+import 'package:skillbuilding_game/models/missing_letters_word.dart';
 
 MissingLettersController _controller({
   List<MissingLettersWord> words = const [

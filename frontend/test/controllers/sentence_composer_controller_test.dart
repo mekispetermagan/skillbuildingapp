@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/controllers/sentence_composer_controller.dart';
-import 'package:literacy_game/models/outfit_sentence.dart';
-import 'package:literacy_game/models/sentence_composer_state.dart';
+import 'package:skillbuilding_game/controllers/sentence_composer_controller.dart';
+import 'package:skillbuilding_game/models/outfit_sentence.dart';
+import 'package:skillbuilding_game/models/sentence_composer_state.dart';
 
 SentenceComposerController _controller() => SentenceComposerController(
   random: Random(12),

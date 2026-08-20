@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/models/sentence.dart';
+import 'package:skillbuilding_game/models/sentence.dart';
 
 void main() {
   test('creates a sentence from asset JSON', () {

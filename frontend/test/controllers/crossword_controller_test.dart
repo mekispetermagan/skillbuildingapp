@@ -3,11 +3,11 @@ import 'dart:math';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/controllers/crossword_controller.dart';
-import 'package:literacy_game/controllers/crossword_generator.dart';
-import 'package:literacy_game/models/crossword_config.dart';
-import 'package:literacy_game/models/crossword_entry.dart';
-import 'package:literacy_game/models/crossword_state.dart';
+import 'package:skillbuilding_game/controllers/crossword_controller.dart';
+import 'package:skillbuilding_game/controllers/crossword_generator.dart';
+import 'package:skillbuilding_game/models/crossword_config.dart';
+import 'package:skillbuilding_game/models/crossword_entry.dart';
+import 'package:skillbuilding_game/models/crossword_state.dart';
 
 const _entries = [
   CrosswordEntry(word: 'CAT', clue: 'A pet that says meow.'),

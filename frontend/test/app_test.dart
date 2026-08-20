@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:literacy_game/main.dart';
+import 'package:skillbuilding_game/main.dart';
 
 Future<void> pumpStartedApp(WidgetTester tester) async {
   await tester.pumpWidget(const LiteracyApp());

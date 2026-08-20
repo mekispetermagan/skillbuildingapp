@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/models/outfit_sentence.dart';
+import 'package:skillbuilding_game/models/outfit_sentence.dart';
 
 void main() {
   test('uses natural shirt grammar and derives its asset path', () {

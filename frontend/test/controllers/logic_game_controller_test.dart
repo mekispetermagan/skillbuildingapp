@@ -2,9 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/audio/asset_audio_player.dart';
-import 'package:literacy_game/controllers/logic_game_controller.dart';
-import 'package:literacy_game/models/logic_game.dart';
+import 'package:skillbuilding_game/audio/asset_audio_player.dart';
+import 'package:skillbuilding_game/controllers/logic_game_controller.dart';
+import 'package:skillbuilding_game/models/logic_game.dart';
 
 class _FakeAudioPlayer implements AssetAudioPlayer {
   final playedPaths = <String>[];

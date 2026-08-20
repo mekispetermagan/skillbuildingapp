@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/l10n/app_localizations.dart';
-import 'package:literacy_game/widgets/lives_display.dart';
+import 'package:skillbuilding_game/l10n/app_localizations.dart';
+import 'package:skillbuilding_game/widgets/lives_display.dart';
 
 void main() {
   testWidgets('renders remaining and lost lives with reusable SVG images', (

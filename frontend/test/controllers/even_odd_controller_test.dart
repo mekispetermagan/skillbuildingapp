@@ -1,10 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:literacy_game/controllers/even_odd_controller.dart';
-import 'package:literacy_game/models/even_odd_config.dart';
-import 'package:literacy_game/models/even_odd_world.dart';
-import 'package:literacy_game/models/letter_catching_state.dart';
+import 'package:skillbuilding_game/controllers/even_odd_controller.dart';
+import 'package:skillbuilding_game/models/even_odd_config.dart';
+import 'package:skillbuilding_game/models/even_odd_world.dart';
+import 'package:skillbuilding_game/models/letter_catching_state.dart';
 
 const _config = EvenOddConfig(
   fallingSpeed: 0,
