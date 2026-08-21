@@ -3,6 +3,7 @@ import '../models/alphabet_letter.dart';
 import '../models/alphabet_object.dart';
 import '../models/image_word.dart';
 import '../models/interface_language.dart';
+import '../models/sentence_content.dart';
 
 class GameContentFactory {
   const GameContentFactory();
@@ -12,6 +13,7 @@ class GameContentFactory {
   String get letterLearningAlphabetPath =>
       'assets/data/alphabet_progression.json';
   String get localizedAnimalWordsPath => 'assets/data/animal_image_words.json';
+  SentenceContent get sentenceContent => englishSentenceContent;
 
   List<ImageWord> letterPracticeAlphabetWords({
     required List<AlphabetObject> englishObjects,
@@ -53,6 +55,8 @@ class HungarianGameContentFactory extends GameContentFactory {
   @override
   String get localizedAnimalWordsPath =>
       'assets/data/animal_image_words_hu.json';
+  @override
+  SentenceContent get sentenceContent => hungarianSentenceContent;
 
   @override
   List<ImageWord> letterPracticeAlphabetWords({
@@ -95,7 +99,9 @@ class HungarianGameContentFactory extends GameContentFactory {
           activity == ActivityId.missingLetters ||
           activity == ActivityId.memoryCards ||
           activity == ActivityId.wordConveyor ||
-          activity == ActivityId.spellingQuiz
+          activity == ActivityId.spellingQuiz ||
+          activity == ActivityId.sentenceQuiz ||
+          activity == ActivityId.sentenceComposer
       ? 'hu-1'
       : fallback;
 

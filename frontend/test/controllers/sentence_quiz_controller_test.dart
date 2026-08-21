@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:skillbuilding_game/controllers/sentence_quiz_controller.dart';
 import 'package:skillbuilding_game/models/sentence_quiz_state.dart';
+import 'package:skillbuilding_game/models/sentence_content.dart';
 
 SentenceQuizController _controller() =>
     SentenceQuizController(random: Random(8), feedbackDuration: Duration.zero);
@@ -25,6 +26,23 @@ void main() {
       }
       controller.start();
     }
+  });
+
+  test('presents Hungarian names, colors, pieces, and sentence pattern', () {
+    final controller = SentenceQuizController(
+      content: hungarianSentenceContent,
+      random: Random(8),
+    );
+
+    for (final text in controller.optionTexts) {
+      expect(text, endsWith('ban van.'));
+      expect(text, isNot(contains('wear')));
+    }
+    expect(
+      controller.optionTexts,
+      contains(controller.content.sentenceFor(controller.question.solution)),
+    );
+    controller.dispose();
   });
 
   test(

@@ -66,7 +66,7 @@ class _QuizContent extends StatelessWidget {
       for (var index = 0; index < viewData.question.options.length; index++)
         QuizOptionButton(
           key: ValueKey('sentence-option-$index'),
-          label: viewData.question.options[index].text,
+          label: viewData.optionTexts[index],
           feedback: viewData.correctHighlightIndex == index
               ? AnswerFeedback.correct
               : viewData.wrongHighlightIndex == index

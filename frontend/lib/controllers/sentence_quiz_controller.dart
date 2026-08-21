@@ -7,6 +7,7 @@ import '../models/layered_person_outfit.dart';
 import '../models/sentence_quiz_question.dart';
 import '../models/outfit_sentence.dart';
 import '../models/sentence_quiz_state.dart';
+import '../models/sentence_content.dart';
 
 const sentenceQuizWinningScore = 10;
 const sentenceQuizFeedbackDuration = Duration(seconds: 1);
@@ -14,6 +15,7 @@ const sentenceQuizFeedbackDuration = Duration(seconds: 1);
 class SentenceQuizController extends ChangeNotifier {
   final Random _random;
   final Duration feedbackDuration;
+  final SentenceContent content;
 
   late SentenceQuizQuestion question;
   SentenceQuizState state = SentenceQuizState.guessing;
@@ -27,11 +29,16 @@ class SentenceQuizController extends ChangeNotifier {
   SentenceQuizController({
     Random? random,
     this.feedbackDuration = sentenceQuizFeedbackDuration,
-  }) : _random = random ?? Random() {
+    SentenceContent? content,
+  }) : content = content ?? englishSentenceContent,
+       _random = random ?? Random() {
     _generateQuestion();
   }
 
   bool get canSubmit => state == SentenceQuizState.guessing;
+  List<String> get optionTexts => [
+    for (final option in question.options) content.sentenceFor(option),
+  ];
 
   void start() {
     _sessionGeneration++;

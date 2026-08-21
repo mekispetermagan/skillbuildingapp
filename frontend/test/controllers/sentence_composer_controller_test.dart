@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:skillbuilding_game/controllers/sentence_composer_controller.dart';
 import 'package:skillbuilding_game/models/outfit_sentence.dart';
 import 'package:skillbuilding_game/models/sentence_composer_state.dart';
+import 'package:skillbuilding_game/models/sentence_content.dart';
 
 SentenceComposerController _controller() => SentenceComposerController(
   random: Random(12),
@@ -32,6 +33,22 @@ void main() {
 
     controller.selectPiece(ClothingPiece.jeans);
     expect(controller.composedSentence, 'Mary wears blue jeans.');
+  });
+
+  test('composes the localized Hungarian sentence pattern', () {
+    final controller =
+        SentenceComposerController(
+            content: hungarianSentenceContent,
+            random: Random(12),
+          )
+          ..selectPerson(SentencePerson.sarah)
+          ..selectColor(GarmentColor.red)
+          ..selectPiece(ClothingPiece.jeans);
+
+    expect(controller.composedSentence, 'Sára piros nadrágban van.');
+    expect(controller.content.personName(SentencePerson.mary), 'Márti');
+    expect(controller.content.personName(SentencePerson.timothy), 'Tamás');
+    controller.dispose();
   });
 
   test('requires one selection from every selectable sentence part', () {

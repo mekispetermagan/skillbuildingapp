@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import '../models/layered_person_outfit.dart';
 import '../models/outfit_sentence.dart';
 import '../models/sentence_composer_state.dart';
+import '../models/sentence_content.dart';
 
 const sentenceComposerWinningScore = 10;
 const sentenceComposerFeedbackDuration = Duration(seconds: 1);
@@ -13,6 +14,7 @@ const sentenceComposerFeedbackDuration = Duration(seconds: 1);
 class SentenceComposerController extends ChangeNotifier {
   final Random _random;
   final Duration feedbackDuration;
+  final SentenceContent content;
 
   late LayeredPersonOutfit outfit;
   SentencePerson? selectedPerson;
@@ -27,7 +29,9 @@ class SentenceComposerController extends ChangeNotifier {
   SentenceComposerController({
     Random? random,
     this.feedbackDuration = sentenceComposerFeedbackDuration,
-  }) : _random = random ?? Random() {
+    SentenceContent? content,
+  }) : content = content ?? englishSentenceContent,
+       _random = random ?? Random() {
     _nextExercise();
   }
 
@@ -38,16 +42,11 @@ class SentenceComposerController extends ChangeNotifier {
       selectedColor != null &&
       selectedPiece != null;
 
-  String get composedSentence {
-    final name = selectedPerson?.displayName ?? '…';
-    final color = selectedColor?.name ?? '…';
-    final piece = selectedPiece;
-    return switch (piece) {
-      ClothingPiece.shirt => '$name wears a $color shirt.',
-      ClothingPiece.jeans => '$name wears $color jeans.',
-      null => '$name wears $color …',
-    };
-  }
+  String get composedSentence => content.compose(
+    person: selectedPerson,
+    color: selectedColor,
+    piece: selectedPiece,
+  );
 
   void start() {
     _sessionGeneration++;

@@ -211,6 +211,7 @@ class OperatorConveyorViewData {
 
 class SentenceQuizViewData {
   final SentenceQuizQuestion question;
+  final List<String> optionTexts;
   final SentenceQuizState state;
   final int score;
   final int? correctHighlightIndex;
@@ -219,6 +220,7 @@ class SentenceQuizViewData {
 
   const SentenceQuizViewData({
     required this.question,
+    required this.optionTexts,
     required this.state,
     required this.score,
     required this.correctHighlightIndex,
@@ -235,6 +237,9 @@ class SentenceComposerViewData {
   final SentenceComposerState state;
   final int score;
   final String composedSentence;
+  final Map<SentencePerson, String> personLabels;
+  final Map<GarmentColor, String> colorLabels;
+  final Map<ClothingPiece, String> pieceLabels;
   final bool canSelect;
   final bool canSubmit;
   final Map<SentencePerson, AnswerFeedback> personFeedback;
@@ -249,6 +254,9 @@ class SentenceComposerViewData {
     required this.state,
     required this.score,
     required this.composedSentence,
+    required this.personLabels,
+    required this.colorLabels,
+    required this.pieceLabels,
     required this.canSelect,
     required this.canSubmit,
     required this.personFeedback,

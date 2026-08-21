@@ -175,10 +175,12 @@ class SessionController extends ChangeNotifier {
        _appVersion = appVersion,
        // ignore: prefer_initializing_formals
        _contentVersion = contentVersion {
-    _sentenceQuizController = SentenceQuizController()
-      ..addListener(_forwardFeatureNotification);
-    _sentenceComposerController = SentenceComposerController()
-      ..addListener(_forwardFeatureNotification);
+    _sentenceQuizController = SentenceQuizController(
+      content: _gameContent.sentenceContent,
+    )..addListener(_forwardFeatureNotification);
+    _sentenceComposerController = SentenceComposerController(
+      content: _gameContent.sentenceContent,
+    )..addListener(_forwardFeatureNotification);
     _numberLearningController = NumberLearningController(_audioPlayer)
       ..addListener(_forwardFeatureNotification);
     _numberComparisonController = NumberComparisonController(_audioPlayer)
@@ -704,6 +706,7 @@ class SessionController extends ChangeNotifier {
 
   SentenceQuizViewData get sentenceQuizViewData => SentenceQuizViewData(
     question: _sentenceQuizController.question,
+    optionTexts: _sentenceQuizController.optionTexts,
     state: _sentenceQuizController.state,
     score: _sentenceQuizController.score,
     correctHighlightIndex: _sentenceQuizController.correctHighlightIndex,
@@ -730,6 +733,18 @@ class SessionController extends ChangeNotifier {
         state: _sentenceComposerController.state,
         score: _sentenceComposerController.score,
         composedSentence: _sentenceComposerController.composedSentence,
+        personLabels: {
+          for (final person in SentencePerson.values)
+            person: _sentenceComposerController.content.personName(person),
+        },
+        colorLabels: {
+          for (final color in GarmentColor.values)
+            color: _sentenceComposerController.content.colorName(color),
+        },
+        pieceLabels: {
+          for (final piece in ClothingPiece.values)
+            piece: _sentenceComposerController.content.pieceName(piece),
+        },
         canSelect: _sentenceComposerController.canSelect,
         canSubmit: _sentenceComposerController.canSubmit,
         personFeedback: {

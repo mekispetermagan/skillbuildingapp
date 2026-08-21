@@ -97,7 +97,7 @@ class _ComposerContent extends StatelessWidget {
             for (final person in SentencePerson.values)
               SegmentChoice(
                 value: person,
-                label: person.displayName,
+                label: viewData.personLabels[person]!,
                 feedback: viewData.personFeedback[person]!,
               ),
           ],
@@ -109,7 +109,7 @@ class _ComposerContent extends StatelessWidget {
             for (final color in GarmentColor.values)
               SegmentChoice(
                 value: color,
-                label: color.name,
+                label: viewData.colorLabels[color]!,
                 feedback: viewData.colorFeedback[color]!,
               ),
           ],
@@ -124,7 +124,7 @@ class _ComposerContent extends StatelessWidget {
             ])
               SegmentChoice(
                 value: piece,
-                label: piece.name,
+                label: viewData.pieceLabels[piece]!,
                 feedback: viewData.pieceFeedback[piece]!,
               ),
           ],

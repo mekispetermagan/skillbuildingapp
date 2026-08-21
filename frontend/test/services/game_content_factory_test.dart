@@ -83,5 +83,10 @@ void main() {
     expect(factory.contentVersionFor(ActivityId.memoryCards, 'en-1'), 'hu-1');
     expect(factory.contentVersionFor(ActivityId.wordConveyor, 'en-1'), 'hu-1');
     expect(factory.contentVersionFor(ActivityId.spellingQuiz, 'en-1'), 'hu-1');
+    expect(factory.contentVersionFor(ActivityId.sentenceQuiz, 'en-1'), 'hu-1');
+    expect(
+      factory.contentVersionFor(ActivityId.sentenceComposer, 'en-1'),
+      'hu-1',
+    );
   });
 }
