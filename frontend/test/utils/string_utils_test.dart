@@ -12,4 +12,14 @@ void main() {
       'mat',
     ]);
   });
+
+  test('preserves accented letters in Hungarian words', () {
+    expect(toWords('A madár az égen repül.'), [
+      'a',
+      'madár',
+      'az',
+      'égen',
+      'repül',
+    ]);
+  });
 }

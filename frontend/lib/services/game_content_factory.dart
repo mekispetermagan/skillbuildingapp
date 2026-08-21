@@ -13,6 +13,7 @@ class GameContentFactory {
   String get letterLearningAlphabetPath =>
       'assets/data/alphabet_progression.json';
   String get localizedAnimalWordsPath => 'assets/data/animal_image_words.json';
+  String get phraseBuildingSentencesPath => 'assets/data/sentences_en.json';
   SentenceContent get sentenceContent => englishSentenceContent;
 
   List<ImageWord> letterPracticeAlphabetWords({
@@ -55,6 +56,8 @@ class HungarianGameContentFactory extends GameContentFactory {
   @override
   String get localizedAnimalWordsPath =>
       'assets/data/animal_image_words_hu.json';
+  @override
+  String get phraseBuildingSentencesPath => 'assets/data/sentences_hu.json';
   @override
   SentenceContent get sentenceContent => hungarianSentenceContent;
 
@@ -102,7 +105,8 @@ class HungarianGameContentFactory extends GameContentFactory {
           activity == ActivityId.spellingQuiz ||
           activity == ActivityId.sentenceQuiz ||
           activity == ActivityId.sentenceComposer ||
-          activity == ActivityId.letterCatching
+          activity == ActivityId.letterCatching ||
+          activity == ActivityId.phraseBuilding
       ? 'hu-1'
       : fallback;
 

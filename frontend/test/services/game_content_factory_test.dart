@@ -7,6 +7,7 @@ import 'package:skillbuilding_game/models/activity_id.dart';
 import 'package:skillbuilding_game/models/alphabet_letter.dart';
 import 'package:skillbuilding_game/models/image_word.dart';
 import 'package:skillbuilding_game/models/interface_language.dart';
+import 'package:skillbuilding_game/models/sentence.dart';
 import 'package:skillbuilding_game/services/game_content_factory.dart';
 
 void main() {
@@ -40,10 +41,20 @@ void main() {
       englishObjects: const [],
       alphabet: alphabet,
     );
+    final sentenceData =
+        jsonDecode(
+              await rootBundle.loadString(factory.phraseBuildingSentencesPath),
+            )
+            as List<dynamic>;
+    final sentences = [
+      for (final item in sentenceData)
+        Sentence.fromJson(item as Map<String, dynamic>),
+    ];
 
     expect(words, hasLength(42));
     expect(animalWords, hasLength(30));
     expect(objects, hasLength(42));
+    expect(sentences, hasLength(12));
     expect(
       words.map((word) => word.word),
       containsAll(['[cs]észe', '[dzs]eki']),
@@ -59,6 +70,14 @@ void main() {
       expect(File(word.audioPath).existsSync(), isTrue, reason: word.audioPath);
       await rootBundle.load(word.imagePath);
       await rootBundle.load(word.audioPath);
+    }
+    for (final sentence in sentences) {
+      expect(
+        File(sentence.audioPath).existsSync(),
+        isTrue,
+        reason: sentence.audioPath,
+      );
+      await rootBundle.load(sentence.audioPath);
     }
     expect(
       objects.singleWhere((object) => object.letter == 'TY').letterTokens,
@@ -90,6 +109,10 @@ void main() {
     );
     expect(
       factory.contentVersionFor(ActivityId.letterCatching, 'en-1'),
+      'hu-1',
+    );
+    expect(
+      factory.contentVersionFor(ActivityId.phraseBuilding, 'en-1'),
       'hu-1',
     );
   });

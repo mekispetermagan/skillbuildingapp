@@ -48,6 +48,7 @@ flutter:
     - assets/data/
     - assets/audio/letter_dragging/
     - assets/audio/sentences/
+    - assets/audio/sentences_hu/
     - assets/audio/ugandan_animals/
     - assets/audio/hungarian_animals/
     - assets/audio/alphabet_objects/

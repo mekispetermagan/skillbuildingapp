@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "string": "A macska az ágyon ül.",
+    "audio_path": "assets/audio/sentences_hu/001.mp3"
+  },
+  {
+    "id": 2,
+    "string": "A kutya a kertben fut.",
+    "audio_path": "assets/audio/sentences_hu/002.mp3"
+  },
+  {
+    "id": 3,
+    "string": "A madár az égen repül.",
+    "audio_path": "assets/audio/sentences_hu/003.mp3"
+  },
+  {
+    "id": 4,
+    "string": "A gyerek könyvet olvas.",
+    "audio_path": "assets/audio/sentences_hu/004.mp3"
+  },
+  {
+    "id": 5,
+    "string": "A nap ma szépen süt.",
+    "audio_path": "assets/audio/sentences_hu/005.mp3"
+  },
+  {
+    "id": 6,
+    "string": "A fiú kék táskát visz.",
+    "audio_path": "assets/audio/sentences_hu/006.mp3"
+  },
+  {
+    "id": 7,
+    "string": "Két hal úszik a tóban.",
+    "audio_path": "assets/audio/sentences_hu/007.mp3"
+  },
+  {
+    "id": 8,
+    "string": "A lány kinyitja az ajtót.",
+    "audio_path": "assets/audio/sentences_hu/008.mp3"
+  },
+  {
+    "id": 9,
+    "string": "Egy zöld fa áll itt.",
+    "audio_path": "assets/audio/sentences_hu/009.mp3"
+  },
+  {
+    "id": 10,
+    "string": "A tanár mesét mond.",
+    "audio_path": "assets/audio/sentences_hu/010.mp3"
+  },
+  {
+    "id": 11,
+    "string": "Anya finom levest főz.",
+    "audio_path": "assets/audio/sentences_hu/011.mp3"
+  },
+  {
+    "id": 12,
+    "string": "Apa hideg vizet iszik.",
+    "audio_path": "assets/audio/sentences_hu/012.mp3"
+  }
+]

@@ -1426,7 +1426,7 @@ class SessionController extends ChangeNotifier {
   Future<void> _initializePhraseBuilding() async {
     try {
       final encoded = await _assetBundle.loadString(
-        'assets/data/sentences_en.json',
+        _gameContent.phraseBuildingSentencesPath,
       );
       final data = jsonDecode(encoded) as List<dynamic>;
       final sentences = [
