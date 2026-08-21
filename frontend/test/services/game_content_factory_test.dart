@@ -11,7 +11,7 @@ import 'package:skillbuilding_game/services/game_content_factory.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('Hungarian letter practice uses all localized object assets', () async {
+  test('Hungarian letter games use all localized object assets', () async {
     final encoded = await rootBundle.loadString(
       'assets/data/alphabet_progression_hu.json',
     );
@@ -26,8 +26,13 @@ void main() {
       englishWords: const [],
       alphabet: alphabet,
     );
+    final objects = factory.letterLearningObjects(
+      englishObjects: const [],
+      alphabet: alphabet,
+    );
 
     expect(words, hasLength(42));
+    expect(objects, hasLength(42));
     expect(
       words.map((word) => word.word),
       containsAll(['[cs]észe', '[dzs]eki']),
@@ -35,9 +40,19 @@ void main() {
     for (final word in words) {
       expect(File(word.imagePath).existsSync(), isTrue, reason: word.imagePath);
       expect(File(word.audioPath).existsSync(), isTrue, reason: word.audioPath);
+      await rootBundle.load(word.imagePath);
+      await rootBundle.load(word.audioPath);
     }
     expect(
+      objects.singleWhere((object) => object.letter == 'TY').letterTokens,
+      ['K', 'E', 'SZ', 'TY', 'Ű'],
+    );
+    expect(
       factory.contentVersionFor(ActivityId.letterPractice, 'en-1'),
+      'hu-1',
+    );
+    expect(
+      factory.contentVersionFor(ActivityId.letterLearning, 'en-1'),
       'hu-1',
     );
     expect(factory.contentVersionFor(ActivityId.memoryCards, 'en-1'), 'en-1');

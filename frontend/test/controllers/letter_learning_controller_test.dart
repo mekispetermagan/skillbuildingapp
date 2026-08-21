@@ -167,4 +167,43 @@ void main() {
     expect(controller.state, LetterLearningState.won);
     expect(controller.isTargetRevealed, isTrue);
   });
+
+  test('a combined localized prompt is played only once', () async {
+    final audio = _FakeAudioPlayer();
+    final controller = LetterLearningController(
+      audio,
+      alphabet: const [
+        AlphabetLetter(
+          id: 1,
+          letter: 'CS',
+          colorName: 'red',
+          tier: 3,
+          audioPath: 'CS.mp3',
+        ),
+      ],
+      objects: const [
+        AlphabetObject(
+          id: 1,
+          letter: 'CS',
+          word: '[cs]észe',
+          audioPath: 'CS.mp3',
+          imagePath: 'csesze.png',
+        ),
+      ],
+      config: _config,
+    );
+
+    await controller.playPrompt();
+
+    expect(audio.playedPaths, ['CS.mp3']);
+    expect(controller.slots.map((slot) => slot.letter), [
+      'CS',
+      'É',
+      'S',
+      'Z',
+      'E',
+    ]);
+    expect(controller.slots.first.isTarget, isTrue);
+    controller.dispose();
+  });
 }

@@ -1665,7 +1665,7 @@ class SessionController extends ChangeNotifier {
   Future<void> _initializeLetterLearning() async {
     try {
       final encodedResults = await Future.wait([
-        _assetBundle.loadString('assets/data/alphabet_progression.json'),
+        _assetBundle.loadString(_gameContent.letterLearningAlphabetPath),
         _assetBundle.loadString('assets/data/alphabet_objects.json'),
       ]);
       final alphabetData = jsonDecode(encodedResults[0]) as List<dynamic>;
@@ -1674,10 +1674,14 @@ class SessionController extends ChangeNotifier {
         for (final item in alphabetData)
           AlphabetLetter.fromJson(item as Map<String, dynamic>),
       ];
-      final objects = [
+      final englishObjects = [
         for (final item in objectData)
           AlphabetObject.fromJson(item as Map<String, dynamic>),
       ];
+      final objects = _gameContent.letterLearningObjects(
+        englishObjects: englishObjects,
+        alphabet: alphabet,
+      );
       if (_disposed) return;
 
       _letterLearningController = LetterLearningController(

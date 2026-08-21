@@ -51,6 +51,7 @@ flutter:
     - assets/audio/ugandan_animals/
     - assets/audio/alphabet_objects/
     - assets/audio/alphabet/
+    - assets/audio/alphabet/hu/
     - assets/images/
     - assets/images/alphabet_objects/
     - assets/images/alphabet_objects_hu/

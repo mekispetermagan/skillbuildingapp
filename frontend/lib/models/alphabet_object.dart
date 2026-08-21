@@ -13,6 +13,29 @@ class AlphabetObject {
     required this.imagePath,
   });
 
+  List<String> get letterTokens {
+    final tokens = <String>[];
+    final characters = word.toUpperCase().split('');
+    for (var index = 0; index < characters.length; index++) {
+      if (characters[index] != '[') {
+        if (characters[index] == ']') {
+          throw FormatException('Invalid bracketed letter in word: $word');
+        }
+        tokens.add(characters[index]);
+        continue;
+      }
+      final closing = characters.indexOf(']', index + 1);
+      if (closing < 0 ||
+          closing == index + 1 ||
+          characters.sublist(index + 1, closing).contains('[')) {
+        throw FormatException('Invalid bracketed letter in word: $word');
+      }
+      tokens.add(characters.sublist(index + 1, closing).join());
+      index = closing;
+    }
+    return List.unmodifiable(tokens);
+  }
+
   factory AlphabetObject.fromJson(Map<String, dynamic> json) {
     final id = json['id'];
     final letter = json['letter'];

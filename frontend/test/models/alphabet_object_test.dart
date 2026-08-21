@@ -53,4 +53,16 @@ void main() {
     expect(object.audioPath, 'audio/apple.mp3');
     expect(object.imagePath, 'images/apple.png');
   });
+
+  test('tokenizes bracketed Hungarian letters as single units', () {
+    const object = AlphabetObject(
+      id: 2,
+      letter: 'TY',
+      word: 'ke[sz][ty]ű',
+      audioPath: 'kesztyu.mp3',
+      imagePath: 'kesztyu.png',
+    );
+
+    expect(object.letterTokens, ['K', 'E', 'SZ', 'TY', 'Ű']);
+  });
 }

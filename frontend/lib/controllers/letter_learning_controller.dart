@@ -163,6 +163,7 @@ class LetterLearningController extends ChangeNotifier {
     final letterPath = currentLetter.audioPath;
     final wordPath = currentObject.audioPath;
     await _play(letterPath);
+    if (letterPath == wordPath) return;
     if (_disposed || generation != _generation) return;
     await Future<void>.delayed(config.promptGap);
     if (_disposed || generation != _generation) return;
@@ -174,7 +175,7 @@ class LetterLearningController extends ChangeNotifier {
     final alphabetByLetter = {for (final item in _alphabet) item.letter: item};
     var candidates = _objects
         .where((object) => active.contains(object.letter))
-        .where((object) => object.word.toUpperCase().contains(object.letter))
+        .where((object) => object.letterTokens.contains(object.letter))
         .toList();
     if (candidates.isEmpty) {
       throw StateError(
@@ -188,10 +189,10 @@ class LetterLearningController extends ChangeNotifier {
     currentObject = candidates[_random.nextInt(candidates.length)];
     _previousObject = currentObject;
     currentLetter = alphabetByLetter[currentObject.letter]!;
-    final word = currentObject.word.toUpperCase();
-    final targetIndex = word.indexOf(currentLetter.letter);
+    final tokens = currentObject.letterTokens;
+    final targetIndex = tokens.indexOf(currentLetter.letter);
     _slots = [
-      for (final (index, letter) in word.split('').indexed)
+      for (final (index, letter) in tokens.indexed)
         LetterLearningSlot(
           id: index,
           letter: letter,

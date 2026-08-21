@@ -205,7 +205,11 @@ class _Controls extends StatelessWidget {
           for (final tier in availableTiers)
             ButtonSegment(
               value: tier,
-              label: Text(_tierLabel(context.l10n, tier)),
+              label: Text(
+                availableTiers.length > 3
+                    ? '$tier'
+                    : _tierLabel(context.l10n, tier),
+              ),
             ),
         ],
         selected: tiers,
