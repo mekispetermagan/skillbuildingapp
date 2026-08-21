@@ -14,6 +14,10 @@ class GameContentFactory {
       'assets/data/alphabet_progression.json';
   String get localizedAnimalWordsPath => 'assets/data/animal_image_words.json';
   String get phraseBuildingSentencesPath => 'assets/data/sentences_en.json';
+  String get letterShootingWordsPath =>
+      'assets/data/letter_shooting_words.json';
+  String get crosswordWordsPath => 'assets/data/crossword_words.json';
+  List<String> get letterShootingVowels => const ['A', 'E', 'I', 'O', 'U'];
   SentenceContent get sentenceContent => englishSentenceContent;
 
   List<ImageWord> letterPracticeAlphabetWords({
@@ -58,6 +62,13 @@ class HungarianGameContentFactory extends GameContentFactory {
       'assets/data/animal_image_words_hu.json';
   @override
   String get phraseBuildingSentencesPath => 'assets/data/sentences_hu.json';
+  @override
+  String get letterShootingWordsPath =>
+      'assets/data/letter_shooting_words_hu.json';
+  @override
+  String get crosswordWordsPath => 'assets/data/crossword_words_hu.json';
+  @override
+  List<String> get letterShootingVowels => const ['A', 'E', 'É', 'Ő', 'I', 'Á'];
   @override
   SentenceContent get sentenceContent => hungarianSentenceContent;
 
@@ -106,7 +117,9 @@ class HungarianGameContentFactory extends GameContentFactory {
           activity == ActivityId.sentenceQuiz ||
           activity == ActivityId.sentenceComposer ||
           activity == ActivityId.letterCatching ||
-          activity == ActivityId.phraseBuilding
+          activity == ActivityId.phraseBuilding ||
+          activity == ActivityId.letterShooting ||
+          activity == ActivityId.crossword
       ? 'hu-1'
       : fallback;
 

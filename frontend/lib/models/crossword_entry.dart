@@ -12,7 +12,7 @@ class CrosswordEntry {
     }
     final normalizedWord = word.trim().toUpperCase();
     final normalizedClue = clue.trim();
-    if (!RegExp(r'^[A-Z]{3,6}$').hasMatch(normalizedWord)) {
+    if (!RegExp(r'^\p{L}{3,6}$', unicode: true).hasMatch(normalizedWord)) {
       throw FormatException('Invalid crossword word: $word');
     }
     if (normalizedClue.isEmpty) {

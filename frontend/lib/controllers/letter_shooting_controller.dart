@@ -35,10 +35,12 @@ class LetterShootingController extends ChangeNotifier {
   LetterShootingController({
     required List<LetterShootingWord> words,
     LetterShootingConfig config = letterShootingConfig,
+    List<String> letters = LetterShootingWorld.englishVowels,
     Random? random,
   }) : world = LetterShootingWorld(
          words: words,
          config: config,
+         letters: letters,
          random: random,
        );
 

@@ -7,6 +7,7 @@ import 'package:skillbuilding_game/models/activity_id.dart';
 import 'package:skillbuilding_game/models/alphabet_letter.dart';
 import 'package:skillbuilding_game/models/image_word.dart';
 import 'package:skillbuilding_game/models/interface_language.dart';
+import 'package:skillbuilding_game/models/letter_shooting_word.dart';
 import 'package:skillbuilding_game/models/sentence.dart';
 import 'package:skillbuilding_game/services/game_content_factory.dart';
 
@@ -50,11 +51,26 @@ void main() {
       for (final item in sentenceData)
         Sentence.fromJson(item as Map<String, dynamic>),
     ];
+    final shootingData =
+        jsonDecode(await rootBundle.loadString(factory.letterShootingWordsPath))
+            as List<dynamic>;
+    final shootingWords = [
+      for (final item in shootingData)
+        LetterShootingWord.fromJson(item as Map<String, dynamic>),
+    ];
 
     expect(words, hasLength(42));
     expect(animalWords, hasLength(30));
     expect(objects, hasLength(42));
     expect(sentences, hasLength(12));
+    expect(shootingWords.map((word) => word.word), [
+      'ANYA',
+      'APA',
+      'TESTVÉR',
+      'NŐVÉR',
+      'NÉNI',
+      'BÁCSI',
+    ]);
     expect(
       words.map((word) => word.word),
       containsAll(['[cs]észe', '[dzs]eki']),
@@ -115,5 +131,12 @@ void main() {
       factory.contentVersionFor(ActivityId.phraseBuilding, 'en-1'),
       'hu-1',
     );
+    expect(
+      factory.contentVersionFor(ActivityId.letterShooting, 'en-1'),
+      'hu-1',
+    );
+    expect(factory.contentVersionFor(ActivityId.crossword, 'en-1'), 'hu-1');
+    expect(factory.crosswordWordsPath, 'assets/data/crossword_words_hu.json');
+    expect(factory.letterShootingVowels, ['A', 'E', 'É', 'Ő', 'I', 'Á']);
   });
 }

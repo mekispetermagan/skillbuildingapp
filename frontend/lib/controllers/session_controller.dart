@@ -1503,7 +1503,7 @@ class SessionController extends ChangeNotifier {
   Future<void> _initializeLetterShooting() async {
     try {
       final encoded = await _assetBundle.loadString(
-        'assets/data/letter_shooting_words.json',
+        _gameContent.letterShootingWordsPath,
       );
       final data = jsonDecode(encoded) as List<dynamic>;
       final words = [
@@ -1512,8 +1512,10 @@ class SessionController extends ChangeNotifier {
       ];
       if (_disposed) return;
 
-      _letterShootingController = LetterShootingController(words: words)
-        ..addListener(_forwardFeatureNotification);
+      _letterShootingController = LetterShootingController(
+        words: words,
+        letters: _gameContent.letterShootingVowels,
+      )..addListener(_forwardFeatureNotification);
       if (status == SessionStatus.letterShooting) {
         _letterShootingController!.start();
       }
@@ -1627,7 +1629,7 @@ class SessionController extends ChangeNotifier {
   Future<void> _initializeCrossword() async {
     try {
       final encoded = await _assetBundle.loadString(
-        'assets/data/crossword_words.json',
+        _gameContent.crosswordWordsPath,
       );
       final data = jsonDecode(encoded) as List<dynamic>;
       final entries = [

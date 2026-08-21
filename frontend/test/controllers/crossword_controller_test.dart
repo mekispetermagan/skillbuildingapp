@@ -51,6 +51,30 @@ void main() {
     expect(puzzle.cells, isNotEmpty);
   });
 
+  test('the Hungarian vocabulary stays within bounds and generates', () async {
+    final encoded = await rootBundle.loadString(
+      'assets/data/crossword_words_hu.json',
+    );
+    final data = jsonDecode(encoded) as List<dynamic>;
+    final entries = [
+      for (final item in data)
+        CrosswordEntry.fromJson(item as Map<String, dynamic>),
+    ];
+
+    expect(entries.length, greaterThanOrEqualTo(40));
+    expect(entries.every((entry) => entry.word.length <= 6), isTrue);
+    expect(entries.map((entry) => entry.word), containsAll(['NŐVÉR', 'ÁGY']));
+    for (var seed = 0; seed < 20; seed++) {
+      final puzzle = CrosswordGenerator(
+        entries: entries,
+        config: _testConfig,
+        random: Random(seed),
+      ).generate();
+      expect(puzzle.columnCount, lessThanOrEqualTo(6));
+      expect(puzzle.rowCount, lessThanOrEqualTo(6));
+    }
+  });
+
   test('generates a bounded puzzle with numbered clues and half revealed', () {
     final generator = CrosswordGenerator(
       entries: _entries,

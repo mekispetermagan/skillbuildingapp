@@ -197,6 +197,43 @@ void main() {
     );
   });
 
+  test('uses the configured Hungarian vowel cards and accented targets', () {
+    const word = LetterShootingWord(id: 1, word: 'NŐVÉR');
+    final world = LetterShootingWorld(
+      words: const [word],
+      letters: const ['A', 'E', 'É', 'Ő', 'I', 'Á'],
+      config: _fastSpawnConfig,
+      random: Random(4),
+    )..resize(400, 700);
+    world.reset();
+
+    for (var second = 0; second < 20; second++) {
+      for (var step = 0; step < 4; step++) {
+        world.update(0.25);
+      }
+    }
+
+    expect(world.sourceLetters.map((source) => source.letter), [
+      'A',
+      'E',
+      'É',
+      'Ő',
+      'I',
+      'Á',
+    ]);
+    expect(world.targets.map((target) => target.missingLetter).toSet(), {
+      'Ő',
+      'É',
+    });
+    expect(
+      world.targets.every(
+        (target) =>
+            target.displayWord == 'N_VÉR' || target.displayWord == 'NŐV_R',
+      ),
+      isTrue,
+    );
+  });
+
   test('ends at ten points and restart resets the game', () {
     final controller = _controller();
     final world = controller.world;

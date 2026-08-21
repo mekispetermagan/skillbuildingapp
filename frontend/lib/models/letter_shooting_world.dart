@@ -88,9 +88,10 @@ class SourceLetter {
 }
 
 class LetterShootingWorld {
-  static const letters = <String>['A', 'E', 'I', 'O', 'U'];
+  static const englishVowels = <String>['A', 'E', 'I', 'O', 'U'];
 
   final List<LetterShootingWord> words;
+  final List<String> letters;
   final LetterShootingConfig config;
   final Random random;
   final List<LetterTarget> targets = [];
@@ -109,11 +110,16 @@ class LetterShootingWorld {
   LetterShootingWorld({
     required List<LetterShootingWord> words,
     required this.config,
+    List<String> letters = englishVowels,
     Random? random,
   }) : words = List.unmodifiable(words),
+       letters = List.unmodifiable(letters),
        random = random ?? Random() {
-    if (words.isEmpty) {
+    if (words.isEmpty || letters.isEmpty) {
       throw ArgumentError.value(words, 'words', 'Must not be empty');
+    }
+    if (words.any((word) => !word.word.split('').any(letters.contains))) {
+      throw ArgumentError('Every word needs a vowel from the source letters.');
     }
   }
 

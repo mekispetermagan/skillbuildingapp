@@ -14,8 +14,8 @@ class LetterShootingWord {
     }
 
     final normalizedWord = word.trim().toUpperCase();
-    if (!RegExp(r'^[A-Z]+$').hasMatch(normalizedWord) ||
-        !RegExp(r'[AEIOU]').hasMatch(normalizedWord)) {
+    if (!RegExp(r'^\p{L}+$', unicode: true).hasMatch(normalizedWord) ||
+        !RegExp(r'[AEIOUÁÉÍÓÖŐÚÜŰ]').hasMatch(normalizedWord)) {
       throw FormatException('Word needs letters and at least one vowel: $word');
     }
     return LetterShootingWord(id: id, word: normalizedWord);
