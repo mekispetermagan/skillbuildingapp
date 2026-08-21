@@ -12,12 +12,28 @@ const spellingQuizWinningScore = 10;
 const spellingQuizFeedbackDuration = Duration(seconds: 1);
 
 class SpellingQuizController extends ChangeNotifier {
-  static const _vowels = 'AEIOU';
-  static const _consonants = 'BCDFGHJKLMNPQRSTVWXYZ';
+  static const _vowels = {
+    'A',
+    'Á',
+    'E',
+    'É',
+    'I',
+    'Í',
+    'O',
+    'Ó',
+    'Ö',
+    'Ő',
+    'U',
+    'Ú',
+    'Ü',
+    'Ű',
+  };
 
   final List<ImageWord> _animals;
   final AssetAudioPlayer _audioPlayer;
   final Set<String> _animalNames;
+  final List<String> _vowelReplacements;
+  final List<String> _consonantReplacements;
   final Random _random;
   final Duration feedbackDuration;
 
@@ -38,7 +54,19 @@ class SpellingQuizController extends ChangeNotifier {
     Random? random,
     this.feedbackDuration = spellingQuizFeedbackDuration,
   }) : _animals = List.unmodifiable(animals),
-       _animalNames = animals.map((animal) => animal.uppercaseWord).toSet(),
+       _animalNames = animals
+           .map((animal) => animal.displayWord.toUpperCase())
+           .toSet(),
+       _vowelReplacements = {
+         for (final animal in animals)
+           for (final token in animal.letterTokens)
+             if (_vowels.contains(token)) token,
+       }.toList(growable: false),
+       _consonantReplacements = {
+         for (final animal in animals)
+           for (final token in animal.letterTokens)
+             if (token != ' ' && !_vowels.contains(token)) token,
+       }.toList(growable: false),
        _random = random ?? Random() {
     if (animals.isEmpty) {
       throw ArgumentError.value(animals, 'animals', 'Must not be empty');
@@ -102,8 +130,9 @@ class SpellingQuizController extends ChangeNotifier {
 
   void _generateQuestion() {
     final animal = _nextAnimal();
-    final solution = animal.uppercaseWord;
-    final distractors = _distractorsFor(solution)..shuffle(_random);
+    final solutionTokens = animal.letterTokens;
+    final solution = solutionTokens.join();
+    final distractors = _distractorsFor(solutionTokens)..shuffle(_random);
     if (distractors.length < 3) {
       throw StateError('Not enough spelling variants for $solution.');
     }
@@ -115,16 +144,19 @@ class SpellingQuizController extends ChangeNotifier {
     );
   }
 
-  List<String> _distractorsFor(String solution) {
+  List<String> _distractorsFor(List<String> solution) {
     final variants = <String>{};
     for (var index = 1; index < solution.length; index++) {
       final original = solution[index];
       if (solution[index - 1] == ' ' || original == ' ') continue;
-      final replacements = _vowels.contains(original) ? _vowels : _consonants;
-      for (final replacement in replacements.split('')) {
+      final replacements = _vowels.contains(original)
+          ? _vowelReplacements
+          : _consonantReplacements;
+      for (final replacement in replacements) {
         if (replacement == original) continue;
-        final variant = solution.replaceRange(index, index + 1, replacement);
-        if (!_animalNames.contains(variant)) variants.add(variant);
+        final variant = [...solution]..[index] = replacement;
+        final spelling = variant.join();
+        if (!_animalNames.contains(spelling)) variants.add(spelling);
       }
     }
     return variants.toList();

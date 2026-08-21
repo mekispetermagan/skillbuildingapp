@@ -53,7 +53,7 @@ ConveyorDropResult _dropMatching(
     (index) => !shelf.recoveredIndices.contains(index),
   );
   final letter = controller.world.letters.first;
-  letter.letter = shelf.word.word[missingIndex];
+  letter.letter = shelf.word.letterTokens[missingIndex];
   final result = controller.world.drop(letterId: letter.id, shelfId: shelf.id);
   controller.tick(0);
   return result;
@@ -74,7 +74,7 @@ void main() {
     final required = [
       for (final shelf in controller.world.shelves)
         for (final index in shelf.missingIndices)
-          shelf.word.uppercaseWord[index],
+          shelf.word.letterTokens[index],
     ];
 
     expect(controller.world.letters.map((letter) => letter.letter), [
@@ -87,7 +87,7 @@ void main() {
     final controller = _controller();
     final shelf = controller.world.shelves.first;
     final letter = controller.world.letters.first;
-    letter.letter = shelf.word.uppercaseWord[shelf.missingIndices.first];
+    letter.letter = shelf.word.letterTokens[shelf.missingIndices.first];
 
     controller.selectLetter(letter.id);
     expect(controller.selectedLetterId, letter.id);
@@ -151,6 +151,28 @@ void main() {
     controller.world.drop(letterId: letter.id, shelfId: sheepShelf.id);
 
     expect(sheepShelf.recoveredIndices, {2});
+  });
+
+  test('treats a bracketed Hungarian digraph as one conveyor letter', () {
+    final controller = ConveyorController(
+      words: const [
+        ImageWord(
+          id: 1,
+          word: '[ny]úl',
+          imagePath: 'nyul.png',
+          audioPath: 'nyul.mp3',
+        ),
+      ],
+      config: _config,
+      random: Random(4),
+    )..resize(420, 650);
+    controller.start();
+
+    for (final shelf in controller.world.shelves) {
+      expect(shelf.displayWord, isNot(contains('[')));
+      expect(shelf.displayWord, isNot(contains(']')));
+      expect(shelf.word.letterTokens, ['NY', 'Ú', 'L']);
+    }
   });
 
   test('wrong placement costs one life and no score', () {

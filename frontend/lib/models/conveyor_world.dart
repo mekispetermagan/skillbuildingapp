@@ -21,12 +21,11 @@ class ConveyorShelf {
   bool get isComplete => recoveredIndices.length == missingIndices.length;
 
   String get displayWord {
-    final text = word.uppercaseWord;
     final buffer = StringBuffer();
-    for (var index = 0; index < text.length; index++) {
+    for (var index = 0; index < word.letterTokens.length; index++) {
       final hidden =
           missingIndices.contains(index) && !recoveredIndices.contains(index);
-      buffer.write(hidden ? '❓' : text[index]);
+      buffer.write(hidden ? '❓' : word.letterTokens[index]);
     }
     return buffer.toString();
   }
@@ -34,7 +33,7 @@ class ConveyorShelf {
   int firstAvailableMatch(String letter) {
     for (final index in missingIndices) {
       if (!recoveredIndices.contains(index) &&
-          word.uppercaseWord[index] == letter) {
+          word.letterTokens[index] == letter) {
         return index;
       }
     }
@@ -206,8 +205,8 @@ class ConveyorWorld implements ConveyorGeometry {
   ConveyorShelf _newShelf(double y) {
     final word = _nextWord();
     final indices = <int>[
-      for (var index = 0; index < word.uppercaseWord.length; index++)
-        if (word.uppercaseWord[index] != ' ') index,
+      for (var index = 0; index < word.letterTokens.length; index++)
+        if (word.letterTokens[index] != ' ') index,
     ]..shuffle(random);
     return ConveyorShelf(
       id: _nextId++,
@@ -250,7 +249,7 @@ class ConveyorWorld implements ConveyorGeometry {
       for (final shelf in shelves)
         for (final index in shelf.missingIndices)
           if (!shelf.recoveredIndices.contains(index))
-            shelf.word.uppercaseWord[index],
+            shelf.word.letterTokens[index],
     ];
     if (required.isEmpty) {
       return fallback ??

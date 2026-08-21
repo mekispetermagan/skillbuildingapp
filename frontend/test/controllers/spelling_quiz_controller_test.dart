@@ -100,6 +100,56 @@ void main() {
     controller.dispose();
   });
 
+  test('creates Hungarian options without bracket markup', () {
+    final controller = SpellingQuizController(
+      _FakeAudioPlayer(),
+      animals: const [
+        ImageWord(
+          id: 1,
+          word: '[ny]úl',
+          imagePath: 'nyul.png',
+          audioPath: 'nyul.mp3',
+        ),
+        ImageWord(
+          id: 2,
+          word: 'róka',
+          imagePath: 'roka.png',
+          audioPath: 'roka.mp3',
+        ),
+        ImageWord(
+          id: 3,
+          word: 'ke[cs]ke',
+          imagePath: 'kecske.png',
+          audioPath: 'kecske.mp3',
+        ),
+        ImageWord(
+          id: 4,
+          word: '[ty]úk',
+          imagePath: 'tyuk.png',
+          audioPath: 'tyuk.mp3',
+        ),
+      ],
+      random: Random(7),
+      feedbackDuration: Duration.zero,
+    );
+
+    for (var questionNumber = 0; questionNumber < 8; questionNumber++) {
+      expect(controller.question.options, hasLength(4));
+      expect(
+        controller.question.options.every(
+          (option) => !option.contains('[') && !option.contains(']'),
+        ),
+        isTrue,
+      );
+      expect(
+        controller.question.solution,
+        controller.question.animal.displayWord.toUpperCase(),
+      );
+      controller.start();
+    }
+    controller.dispose();
+  });
+
   test('wrong answers do not score and correct answers win at ten', () async {
     final controller = SpellingQuizController(
       _FakeAudioPlayer(),

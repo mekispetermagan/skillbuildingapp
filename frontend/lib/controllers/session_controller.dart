@@ -1557,7 +1557,7 @@ class SessionController extends ChangeNotifier {
   Future<void> _initializeConveyor() async {
     try {
       final encoded = await _assetBundle.loadString(
-        'assets/data/animal_image_words.json',
+        _gameContent.localizedAnimalWordsPath,
       );
       final data = jsonDecode(encoded) as List<dynamic>;
       final words = [
@@ -1581,7 +1581,7 @@ class SessionController extends ChangeNotifier {
   Future<void> _initializeSpellingQuiz() async {
     try {
       final encoded = await _assetBundle.loadString(
-        'assets/data/animal_image_words.json',
+        _gameContent.localizedAnimalWordsPath,
       );
       final data = jsonDecode(encoded) as List<dynamic>;
       final animals = [

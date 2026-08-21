@@ -93,7 +93,9 @@ class HungarianGameContentFactory extends GameContentFactory {
           activity == ActivityId.letterLearning ||
           activity == ActivityId.letterDragging ||
           activity == ActivityId.missingLetters ||
-          activity == ActivityId.memoryCards
+          activity == ActivityId.memoryCards ||
+          activity == ActivityId.wordConveyor ||
+          activity == ActivityId.spellingQuiz
       ? 'hu-1'
       : fallback;
 
