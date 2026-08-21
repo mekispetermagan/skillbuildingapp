@@ -51,9 +51,11 @@ void main() {
   );
 
   test('submits record batches and parses acknowledgements', () async {
+    late http.Request captured;
     final api = GameplayApiClient(
       config: config,
       client: MockClient((request) async {
+        captured = request;
         expect(request.url.path, '/api/records/batch');
         return http.Response(
           jsonEncode({
@@ -85,8 +87,11 @@ void main() {
 
     final result = await api.submit(
       RecordBatch(installationId: 4, records: [record]),
+      accessToken: 'player-token',
     );
 
+    expect(captured.headers['Authorization'], 'Bearer player-token');
+    expect(captured.body, isNot(contains('_access_token')));
     expect(result.nextRecordNumber, 2);
     expect(result.acknowledgements.single.recordNumber, 1);
   });

@@ -1,10 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'api/gameplay_api_client.dart';
+import 'api/authentication_api_client.dart';
+import 'api/student_api_client.dart';
 import 'config/gameplay_api_config.dart';
 import 'controllers/session_controller.dart';
+import 'controllers/account_flow_controller.dart';
 import 'l10n/l10n.dart';
 import 'models/letter_dragging_state.dart';
+import 'models/authentication.dart';
+import 'models/interface_language.dart';
+import 'models/play_record.dart';
 import 'screens/screens.dart';
 import 'services/gameplay_recorder.dart';
 import 'storage/gameplay_record_store.dart';
@@ -16,39 +24,202 @@ void main() {
     SharedPreferencesGameplayRecordStore(),
     GameplayApiClient(config: config),
   );
-  runApp(LiteracyApp(gameplayRecorder: recorder));
+  runApp(
+    LiteracyApp(
+      gameplayRecorder: recorder,
+      authenticationApi: AuthenticationApiClient(config: config),
+      studentApi: StudentApiClient(config: config),
+    ),
+  );
 }
 
-class LiteracyApp extends StatelessWidget {
+class LiteracyApp extends StatefulWidget {
   final GameplayRecorder gameplayRecorder;
+  final AuthenticationApi? authenticationApi;
+  final bool authenticationEnabled;
+  final StudentApi? studentApi;
 
   const LiteracyApp({
     this.gameplayRecorder = const NoopGameplayRecorder(),
+    this.authenticationApi,
+    this.authenticationEnabled = true,
+    this.studentApi,
     super.key,
   });
 
   @override
+  State<LiteracyApp> createState() => _LiteracyAppState();
+}
+
+class _LiteracyAppState extends State<LiteracyApp> {
+  InterfaceLanguage _language = InterfaceLanguage.english;
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // Temporary pre-pilot behavior: learning content is English-only, so
-      // bypass language selection and pin the interface to English. For the
-      // pilot, remove this explicit locale and restore LanguageSelectionScreen
-      // as the gate before AppRoot (persisting the selected InterfaceLanguage).
-      locale: const Locale('en'),
+      locale: _language.locale,
       onGenerateTitle: (context) => context.l10n.appTitle,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.light,
-      home: AppRoot(gameplayRecorder: gameplayRecorder),
+      home: widget.authenticationEnabled
+          ? AccountGateway(
+              gameplayRecorder: widget.gameplayRecorder,
+              authenticationApi:
+                  widget.authenticationApi ??
+                  AuthenticationApiClient(
+                    config: GameplayApiConfig.fromEnvironment(),
+                  ),
+              onLanguageChanged: (language) {
+                if (_language != language) setState(() => _language = language);
+              },
+              studentApi: widget.studentApi,
+            )
+          : AppRoot(gameplayRecorder: widget.gameplayRecorder),
     );
+  }
+}
+
+class AccountGateway extends StatefulWidget {
+  final GameplayRecorder gameplayRecorder;
+  final AuthenticationApi authenticationApi;
+  final ValueChanged<InterfaceLanguage> onLanguageChanged;
+  final StudentApi? studentApi;
+
+  const AccountGateway({
+    required this.gameplayRecorder,
+    required this.authenticationApi,
+    required this.onLanguageChanged,
+    this.studentApi,
+    super.key,
+  });
+
+  @override
+  State<AccountGateway> createState() => _AccountGatewayState();
+}
+
+class _AccountGatewayState extends State<AccountGateway> {
+  late final AccountFlowController _controller = AccountFlowController(
+    widget.authenticationApi,
+    studentApi: widget.studentApi,
+  );
+  Timer? _timeoutTimer;
+  InterfaceLanguage? _reportedLanguage;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.initialize();
+    _controller.addListener(_reportLanguage);
+    _controller.addListener(_reportPlayer);
+    _timeoutTimer = Timer.periodic(const Duration(minutes: 1), (_) async {
+      if (_controller.checkTeacherTimeout()) return;
+      await _controller.synchronizeStudents();
+      await widget.gameplayRecorder.synchronize();
+    });
+  }
+
+  void _reportLanguage() {
+    final language = _controller.account?.preferredLanguage;
+    if (language != null && language != _reportedLanguage) {
+      _reportedLanguage = language;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) widget.onLanguageChanged(language);
+      });
+    }
+  }
+
+  void _reportPlayer() {
+    final recorder = widget.gameplayRecorder;
+    if (recorder is! PlayerAwareGameplayRecorder) return;
+    final playerAwareRecorder = recorder as PlayerAwareGameplayRecorder;
+    final account = _controller.account;
+    if (account == null) {
+      playerAwareRecorder.setPlayer(null);
+    } else if (account.role == AccountRole.learner) {
+      playerAwareRecorder.setPlayer(
+        GameplayPlayer.learner(account.accessToken),
+      );
+    } else {
+      final student = _controller.selectedStudent;
+      playerAwareRecorder.setPlayer(
+        student == null
+            ? null
+            : GameplayPlayer.student(student.id, account.accessToken),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Listener(
+    onPointerDown: (_) => _controller.recordActivity(),
+    child: ListenableBuilder(
+      listenable: _controller,
+      builder: (context, _) => switch (_controller.page) {
+        AccountFlowPage.opening => OpeningScreen(onStart: _controller.start),
+        AccountFlowPage.welcome => AuthenticationWelcomeScreen(
+          onLogin: _controller.showLogin,
+          onRegister: _controller.showRegistration,
+          onBack: _controller.back,
+        ),
+        AccountFlowPage.login => LoginScreen(
+          busy: _controller.busy,
+          errorMessage: _controller.errorMessage,
+          onSubmit: _controller.login,
+          onBack: _controller.back,
+        ),
+        AccountFlowPage.register => RegistrationScreen(
+          busy: _controller.busy,
+          errorMessage: _controller.errorMessage,
+          onSubmit: _controller.register,
+          onBack: _controller.back,
+        ),
+        AccountFlowPage.students => StudentMenuScreen(
+          teacherName: _controller.account!.name,
+          students: _controller.students,
+          onSelect: _controller.selectStudent,
+          onEdit: _controller.editStudent,
+          onAdd: _controller.addStudent,
+          onLogout: _controller.logout,
+        ),
+        AccountFlowPage.studentForm => StudentFormScreen(
+          student: _controller.editingStudent,
+          onSave: _controller.saveStudent,
+          onBack: _controller.back,
+        ),
+        AccountFlowPage.games => AppRoot(
+          key: ValueKey(
+            'games-${_controller.account!.accountId}-${_controller.selectedStudent?.id}',
+          ),
+          gameplayRecorder: widget.gameplayRecorder,
+          startAtAreaMenu: true,
+          onExit: _controller.account!.role == AccountRole.teacher
+              ? _controller.leaveGames
+              : null,
+        ),
+      },
+    ),
+  );
+
+  @override
+  void dispose() {
+    _timeoutTimer?.cancel();
+    _controller.removeListener(_reportLanguage);
+    _controller.removeListener(_reportPlayer);
+    _controller.dispose();
+    super.dispose();
   }
 }
 
 class AppRoot extends StatefulWidget {
   final GameplayRecorder gameplayRecorder;
+  final bool startAtAreaMenu;
+  final VoidCallback? onExit;
 
   const AppRoot({
     this.gameplayRecorder = const NoopGameplayRecorder(),
+    this.startAtAreaMenu = false,
+    this.onExit,
     super.key,
   });
 
@@ -57,9 +228,16 @@ class AppRoot extends StatefulWidget {
 }
 
 class AppRootState extends State<AppRoot> {
-  late final SessionController _sessionController = SessionController(
-    gameplayRecorder: widget.gameplayRecorder,
-  );
+  late final SessionController _sessionController;
+
+  @override
+  void initState() {
+    super.initState();
+    _sessionController = SessionController(
+      gameplayRecorder: widget.gameplayRecorder,
+    );
+    if (widget.startAtAreaMenu) _sessionController.openAreaMenu();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +246,12 @@ class AppRootState extends State<AppRoot> {
       builder: (_, _) => PopScope(
         canPop: _sessionController.status == SessionStatus.opening,
         onPopInvokedWithResult: (didPop, _) {
-          if (!didPop && _sessionController.status != SessionStatus.rating) {
+          if (!didPop &&
+              _sessionController.status == SessionStatus.areaMenu &&
+              widget.onExit != null) {
+            widget.onExit!();
+          } else if (!didPop &&
+              _sessionController.status != SessionStatus.rating) {
             _sessionController.handleBack();
           }
         },

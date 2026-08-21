@@ -5,6 +5,7 @@ import 'package:skillbuilding_game/models/feature_metrics.dart';
 import 'package:skillbuilding_game/models/learning_area.dart';
 import 'package:skillbuilding_game/models/pending_completion.dart';
 import 'package:skillbuilding_game/models/play_outcome.dart';
+import 'package:skillbuilding_game/models/play_record.dart';
 import 'package:skillbuilding_game/models/record_sync.dart';
 import 'package:skillbuilding_game/services/gameplay_recorder.dart';
 import 'package:skillbuilding_game/storage/gameplay_record_store.dart';
@@ -54,6 +55,26 @@ void main() {
       expect(store.state.installationId, 3);
       expect(store.state.nextRecordNumber, 2);
       expect(store.state.records, isEmpty);
+    },
+  );
+
+  test(
+    'assigns the selected student and token to synchronized records',
+    () async {
+      final store = MemoryGameplayRecordStore();
+      final api = FakeGameplayApi();
+      final recorder = SyncedGameplayRecorder(store, api)
+        ..setPlayer(
+          const GameplayPlayer.student('student-abc', 'teacher-token'),
+        );
+
+      await recorder.recordCompleted(completion(), 5);
+      await recorder.synchronize();
+
+      final submitted = api.submitted.single.records.single;
+      expect(submitted.playerType, GameplayPlayerType.student);
+      expect(submitted.studentClientId, 'student-abc');
+      expect(api.accessTokens, ['teacher-token']);
     },
   );
 
@@ -129,6 +150,7 @@ class FakeGameplayApi implements GameplayApi {
   int? unknownInstallationId;
   final List<int?> resolveIds = [];
   final List<RecordBatch> submitted = [];
+  final List<String?> accessTokens = [];
 
   FakeGameplayApi({this.nextRecordNumber = 1});
 
@@ -150,8 +172,12 @@ class FakeGameplayApi implements GameplayApi {
   }
 
   @override
-  Future<RecordBatchAcknowledgement> submit(RecordBatch batch) async {
+  Future<RecordBatchAcknowledgement> submit(
+    RecordBatch batch, {
+    String? accessToken,
+  }) async {
     submitted.add(batch);
+    accessTokens.add(accessToken);
     nextRecordNumber =
         batch.records
             .map((record) => record.recordNumber)

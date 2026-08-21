@@ -9,7 +9,7 @@ from pathlib import Path
 class Settings:
     database_path: Path
     api_key: str
-    environment: str
+    environment: str = "dev"
     maximum_batch_size: int = 100
     maximum_request_bytes: int = 256 * 1024
 

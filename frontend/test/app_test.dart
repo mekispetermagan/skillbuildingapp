@@ -4,7 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:skillbuilding_game/main.dart';
 
 Future<void> pumpStartedApp(WidgetTester tester) async {
-  await tester.pumpWidget(const LiteracyApp());
+  await tester.pumpWidget(const LiteracyApp(authenticationEnabled: false));
   await tester.pumpAndSettle();
 
   expect(find.text('Start'), findsOneWidget);

@@ -21,7 +21,10 @@ class UnknownInstallationException extends GameplayApiException {
 
 abstract interface class GameplayApi {
   Future<InstallationRegistration> resolveInstallation(int? installationId);
-  Future<RecordBatchAcknowledgement> submit(RecordBatch batch);
+  Future<RecordBatchAcknowledgement> submit(
+    RecordBatch batch, {
+    String? accessToken,
+  });
 }
 
 class GameplayApiClient implements GameplayApi {
@@ -51,8 +54,15 @@ class GameplayApiClient implements GameplayApi {
   }
 
   @override
-  Future<RecordBatchAcknowledgement> submit(RecordBatch batch) async {
-    final response = await _post('/records/batch', batch.toJson());
+  Future<RecordBatchAcknowledgement> submit(
+    RecordBatch batch, {
+    String? accessToken,
+  }) async {
+    final response = await _post(
+      '/records/batch',
+      batch.toJson(),
+      accessToken: accessToken,
+    );
     if (response.statusCode == 404) {
       throw UnknownInstallationException(_errorMessage(response));
     }
@@ -60,13 +70,18 @@ class GameplayApiClient implements GameplayApi {
     return RecordBatchAcknowledgement.fromJson(_jsonObject(response));
   }
 
-  Future<http.Response> _post(String path, Object body) => _client
+  Future<http.Response> _post(
+    String path,
+    Object body, {
+    String? accessToken,
+  }) => _client
       .post(
         config.endpoint(path),
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
           'X-API-Key': config.apiKey,
+          if (accessToken != null) 'Authorization': 'Bearer $accessToken',
         },
         body: jsonEncode(body),
       )

@@ -5,9 +5,27 @@ import 'play_outcome.dart';
 
 const playRecordSchemaVersion = 1;
 
+enum GameplayPlayerType { learner, student }
+
+class GameplayPlayer {
+  final GameplayPlayerType type;
+  final String? studentClientId;
+  final String accessToken;
+
+  const GameplayPlayer.learner(this.accessToken)
+    : type = GameplayPlayerType.learner,
+      studentClientId = null;
+
+  const GameplayPlayer.student(this.studentClientId, this.accessToken)
+    : type = GameplayPlayerType.student;
+}
+
 class PlayRecord {
   final int? installationId;
   final int recordNumber;
+  final GameplayPlayerType? playerType;
+  final String? studentClientId;
+  final String? accessToken;
   final LearningArea area;
   final ActivityId feature;
   final PlayOutcome outcome;
@@ -24,6 +42,9 @@ class PlayRecord {
   PlayRecord({
     required this.installationId,
     required this.recordNumber,
+    this.playerType,
+    this.studentClientId,
+    this.accessToken,
     required this.area,
     required this.feature,
     required this.outcome,
@@ -37,6 +58,12 @@ class PlayRecord {
     required this.contentVersion,
     this.schemaVersion = playRecordSchemaVersion,
   }) {
+    if (playerType == GameplayPlayerType.student && studentClientId == null) {
+      throw ArgumentError('Student records require a student client ID.');
+    }
+    if (playerType != GameplayPlayerType.student && studentClientId != null) {
+      throw ArgumentError('Only student records may identify a student.');
+    }
     if (installationId != null && installationId! <= 0) {
       throw ArgumentError.value(
         installationId,
@@ -89,6 +116,9 @@ class PlayRecord {
   PlayRecord withInstallationId(int value) => PlayRecord(
     installationId: value,
     recordNumber: recordNumber,
+    playerType: playerType,
+    studentClientId: studentClientId,
+    accessToken: accessToken,
     area: area,
     feature: feature,
     outcome: outcome,
@@ -109,6 +139,29 @@ class PlayRecord {
   }) => PlayRecord(
     installationId: installationId,
     recordNumber: recordNumber,
+    playerType: playerType,
+    studentClientId: studentClientId,
+    accessToken: accessToken,
+    area: area,
+    feature: feature,
+    outcome: outcome,
+    score: score,
+    rating: rating,
+    metrics: metrics,
+    startedAt: startedAt,
+    completedAt: completedAt,
+    elapsedMilliseconds: elapsedMilliseconds,
+    appVersion: appVersion,
+    contentVersion: contentVersion,
+    schemaVersion: schemaVersion,
+  );
+
+  PlayRecord withPlayer(GameplayPlayer? player) => PlayRecord(
+    installationId: installationId,
+    recordNumber: recordNumber,
+    playerType: player?.type,
+    studentClientId: player?.studentClientId,
+    accessToken: player?.accessToken,
     area: area,
     feature: feature,
     outcome: outcome,
@@ -127,6 +180,8 @@ class PlayRecord {
     'schema_version': schemaVersion,
     'installation_id': installationId,
     'record_number': recordNumber,
+    'player_type': playerType?.name,
+    'student_client_id': studentClientId,
     'area_id': area.wireName,
     'feature_id': feature.wireName,
     'outcome': outcome.wireName,
@@ -138,6 +193,7 @@ class PlayRecord {
     'elapsed_milliseconds': elapsedMilliseconds,
     'app_version': appVersion,
     'content_version': contentVersion,
+    if (accessToken != null) '_access_token': accessToken,
   };
 
   factory PlayRecord.fromJson(Map<String, dynamic> json) {
@@ -145,6 +201,14 @@ class PlayRecord {
     return PlayRecord(
       installationId: recordNullableInt(json, 'installation_id'),
       recordNumber: recordInt(json, 'record_number'),
+      playerType: switch (json['player_type']) {
+        'learner' => GameplayPlayerType.learner,
+        'student' => GameplayPlayerType.student,
+        null => null,
+        _ => throw const FormatException('Unknown player_type.'),
+      },
+      studentClientId: json['student_client_id'] as String?,
+      accessToken: json['_access_token'] as String?,
       area: area,
       feature: ActivityId.fromWireName(
         area: area,

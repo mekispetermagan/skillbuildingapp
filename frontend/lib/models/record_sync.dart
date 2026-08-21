@@ -106,7 +106,10 @@ class RecordBatch {
 
   Map<String, Object> toJson() => {
     'installation_id': installationId,
-    'records': [for (final record in records) record.toJson()],
+    'records': [
+      for (final record in records)
+        {...record.toJson()}..remove('_access_token'),
+    ],
   };
 }
 

@@ -20,6 +20,86 @@ class ContractModel(BaseModel):
 PositiveStrictInt = Annotated[StrictInt, Field(gt=0)]
 
 
+class AccountCredentials(ContractModel):
+    username: str = Field(min_length=3, max_length=32, pattern=r"^[A-Za-z0-9_.-]+$")
+    pin: str = Field(pattern=r"^\d{6}$")
+
+    @field_validator("username")
+    @classmethod
+    def normalize_username(cls, value: str) -> str:
+        return value.lower()
+
+
+class AccountRegistration(AccountCredentials):
+    name: str = Field(min_length=1, max_length=100)
+    role: Literal["learner", "teacher"]
+    preferred_language: Literal["en", "de", "hu"]
+    location: str = Field(min_length=1, max_length=100)
+    age: Annotated[StrictInt, Field(ge=1, le=120)] | None = None
+    gender: Literal["male", "female", "other_or_prefer_not_to_say"] | None = None
+
+    @field_validator("name", "location")
+    @classmethod
+    def normalize_location(cls, value: str) -> str:
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("value must not be blank")
+        return stripped
+
+    @model_validator(mode="after")
+    def validate_role_fields(self) -> AccountRegistration:
+        if self.role == "learner":
+            if self.age is None or self.gender is None:
+                raise ValueError("learner accounts require age and gender")
+        elif self.age is not None or self.gender is not None:
+            raise ValueError("teacher accounts must not include age or gender")
+        return self
+
+
+class AuthenticatedAccount(ContractModel):
+    account_id: PositiveStrictInt
+    username: str
+    name: str
+    role: Literal["learner", "teacher"]
+    preferred_language: Literal["en", "de", "hu"]
+    location: str
+    age: Annotated[StrictInt, Field(ge=1, le=120)] | None
+    gender: Literal["male", "female", "other_or_prefer_not_to_say"] | None
+    access_token: str
+
+
+class AuthenticatedIdentity(ContractModel):
+    account_id: PositiveStrictInt
+    role: Literal["learner", "teacher"]
+
+
+class StudentProfile(ContractModel):
+    client_id: str = Field(min_length=1, max_length=64)
+    name: str = Field(min_length=1, max_length=100)
+    location: str = Field(min_length=1, max_length=100)
+    age: Annotated[StrictInt, Field(ge=1, le=120)]
+    gender: Literal["male", "female", "other_or_prefer_not_to_say"]
+
+    @field_validator("client_id", "name", "location")
+    @classmethod
+    def reject_blank_values(cls, value: str) -> str:
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("value must not be blank")
+        return stripped
+
+
+class StudentBatch(ContractModel):
+    students: list[StudentProfile]
+
+    @model_validator(mode="after")
+    def require_unique_client_ids(self) -> StudentBatch:
+        ids = [student.client_id for student in self.students]
+        if len(ids) != len(set(ids)):
+            raise ValueError("student client_id values must be unique")
+        return self
+
+
 class AttemptMetrics(ContractModel):
     type: Literal["attempts"]
     schema_version: Literal[1]
@@ -110,6 +190,8 @@ class PlayRecord(ContractModel):
     schema_version: Literal[1]
     installation_id: PositiveStrictInt
     record_number: PositiveStrictInt
+    player_type: Literal["learner", "student"] | None = None
+    student_client_id: str | None = Field(default=None, min_length=1, max_length=64)
     area_id: Literal["literacy", "math"]
     feature_id: str = Field(min_length=1, max_length=64)
     outcome: Literal["completed", "won", "lost", "abandoned"]
@@ -131,6 +213,10 @@ class PlayRecord(ContractModel):
 
     @model_validator(mode="after")
     def validate_record(self) -> PlayRecord:
+        if self.player_type == "student" and self.student_client_id is None:
+            raise ValueError("student records require student_client_id")
+        if self.player_type != "student" and self.student_client_id is not None:
+            raise ValueError("only student records may include student_client_id")
         features = LITERACY_FEATURES if self.area_id == "literacy" else MATH_FEATURES
         if self.feature_id not in features:
             raise ValueError("feature_id is not registered in area_id")

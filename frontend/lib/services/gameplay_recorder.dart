@@ -10,6 +10,10 @@ abstract interface class GameplayRecorder {
   Future<void> recordAbandoned(PendingCompletion completion);
 }
 
+abstract interface class PlayerAwareGameplayRecorder {
+  void setPlayer(GameplayPlayer? player);
+}
+
 class NoopGameplayRecorder implements GameplayRecorder {
   const NoopGameplayRecorder();
 
@@ -26,14 +30,19 @@ class NoopGameplayRecorder implements GameplayRecorder {
   Future<void> recordAbandoned(PendingCompletion completion) async {}
 }
 
-class SyncedGameplayRecorder implements GameplayRecorder {
+class SyncedGameplayRecorder
+    implements GameplayRecorder, PlayerAwareGameplayRecorder {
   static const _maximumBatchSize = 100;
 
   final GameplayRecordStore _store;
   final GameplayApi _api;
   Future<void> _operations = Future.value();
+  GameplayPlayer? _player;
 
   SyncedGameplayRecorder(this._store, this._api);
+
+  @override
+  void setPlayer(GameplayPlayer? player) => _player = player;
 
   @override
   Future<void> synchronize() => _enqueue(_synchronize);
@@ -42,11 +51,13 @@ class SyncedGameplayRecorder implements GameplayRecorder {
   Future<void> recordCompleted(PendingCompletion completion, int rating) {
     final saved = _enqueue(() async {
       final state = await _store.load();
-      final record = completion.rate(
-        recordNumber: _nextLocalNumber(state),
-        rating: rating,
-        installationId: state.installationId,
-      );
+      final record = completion
+          .rate(
+            recordNumber: _nextLocalNumber(state),
+            rating: rating,
+            installationId: state.installationId,
+          )
+          .withPlayer(_player);
       await _append(state, record);
     });
     _synchronizeAfter(saved);
@@ -57,10 +68,12 @@ class SyncedGameplayRecorder implements GameplayRecorder {
   Future<void> recordAbandoned(PendingCompletion completion) {
     final saved = _enqueue(() async {
       final state = await _store.load();
-      final record = completion.abandon(
-        recordNumber: _nextLocalNumber(state),
-        installationId: state.installationId,
-      );
+      final record = completion
+          .abandon(
+            recordNumber: _nextLocalNumber(state),
+            installationId: state.installationId,
+          )
+          .withPlayer(_player);
       await _append(state, record);
     });
     _synchronizeAfter(saved);
@@ -107,7 +120,11 @@ class SyncedGameplayRecorder implements GameplayRecorder {
     await _store.save(state);
 
     while (state.records.isNotEmpty) {
-      final records = state.records.take(_maximumBatchSize).toList();
+      final firstToken = state.records.first.accessToken;
+      final records = state.records
+          .takeWhile((record) => record.accessToken == firstToken)
+          .take(_maximumBatchSize)
+          .toList();
       RecordBatchAcknowledgement acknowledgement;
       try {
         acknowledgement = await _api.submit(
@@ -115,6 +132,7 @@ class SyncedGameplayRecorder implements GameplayRecorder {
             installationId: registration.installationId,
             records: records,
           ),
+          accessToken: firstToken,
         );
       } on UnknownInstallationException {
         await _store.save(
