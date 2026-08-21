@@ -29,28 +29,11 @@ void main() {
           reason: entry.audioPath,
         );
       }
-      expect(
-        entries.where(
-          (entry) => entry.difficulty == AlphabetDifficulty.beginner,
-        ),
-        hasLength(9),
-      );
-      expect(
-        entries.where(
-          (entry) => entry.difficulty == AlphabetDifficulty.intermediate,
-        ),
-        hasLength(9),
-      );
-      expect(
-        entries.where(
-          (entry) => entry.difficulty == AlphabetDifficulty.advanced,
-        ),
-        hasLength(8),
-      );
-      for (final difficulty in AlphabetDifficulty.values) {
-        final group = entries
-            .where((entry) => entry.difficulty == difficulty)
-            .toList();
+      expect(entries.where((entry) => entry.tier == 1), hasLength(9));
+      expect(entries.where((entry) => entry.tier == 2), hasLength(9));
+      expect(entries.where((entry) => entry.tier == 3), hasLength(8));
+      for (final tier in const [1, 2, 3]) {
+        final group = entries.where((entry) => entry.tier == tier).toList();
         expect(
           group.map((entry) => entry.letter),
           orderedEquals(group.map((entry) => entry.letter).toList()..sort()),
@@ -74,9 +57,27 @@ void main() {
 
     expect(entry.letter, 'A');
     expect(entry.colorName, 'red');
-    expect(entry.difficulty, AlphabetDifficulty.beginner);
+    expect(entry.tier, 1);
     expect(entry.audioPath, 'audio/A.mp3');
   });
+
+  test(
+    'loads the five-tier Hungarian alphabet and bracketed letters',
+    () async {
+      final encoded = await rootBundle.loadString(
+        'assets/data/alphabet_progression_hu.json',
+      );
+      final data = jsonDecode(encoded) as List<dynamic>;
+      final entries = [
+        for (final item in data)
+          AlphabetLetter.fromJson(item as Map<String, dynamic>),
+      ];
+
+      expect(entries.map((entry) => entry.tier).toSet(), {1, 2, 3, 4, 5});
+      expect(entries.singleWhere((entry) => entry.id == 19).letter, 'CS');
+      expect(entries.singleWhere((entry) => entry.id == 38).letter, 'DZS');
+    },
+  );
 
   test('rejects invalid difficulty values', () {
     expect(

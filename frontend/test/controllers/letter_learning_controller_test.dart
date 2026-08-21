@@ -23,21 +23,21 @@ const _alphabet = [
     id: 1,
     letter: 'A',
     colorName: 'red',
-    difficulty: AlphabetDifficulty.beginner,
+    tier: 1,
     audioPath: 'A.mp3',
   ),
   AlphabetLetter(
     id: 2,
     letter: 'M',
     colorName: 'orange',
-    difficulty: AlphabetDifficulty.beginner,
+    tier: 1,
     audioPath: 'M.mp3',
   ),
   AlphabetLetter(
     id: 3,
     letter: 'L',
     colorName: 'blue',
-    difficulty: AlphabetDifficulty.intermediate,
+    tier: 2,
     audioPath: 'L.mp3',
   ),
 ];
@@ -149,7 +149,7 @@ void main() {
     final controller = _controller(_FakeAudioPlayer());
     await controller.guess(controller.currentLetter.letter);
 
-    controller.setDifficulties({AlphabetDifficulty.intermediate});
+    controller.setTiers({2});
 
     expect(controller.score, 1);
     expect(controller.currentLetter.letter, 'L');

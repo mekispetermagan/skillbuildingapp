@@ -29,7 +29,7 @@ class LetterLearningController extends ChangeNotifier {
   final Random _random;
   final LetterLearningConfig config;
 
-  Set<AlphabetDifficulty> _difficulties = {AlphabetDifficulty.beginner};
+  Set<int> _tiers = {1};
   LetterLearningMode _mode = LetterLearningMode.masked;
   LetterLearningState _state = LetterLearningState.playing;
   int _score = 0;
@@ -54,10 +54,13 @@ class LetterLearningController extends ChangeNotifier {
     if (_alphabet.isEmpty || _objects.isEmpty) {
       throw ArgumentError('Alphabet and object catalogs must not be empty.');
     }
+    if (!availableTiers.contains(1)) _tiers = {availableTiers.first};
     _generateExercise();
   }
 
-  Set<AlphabetDifficulty> get difficulties => Set.unmodifiable(_difficulties);
+  List<int> get availableTiers =>
+      (_alphabet.map((letter) => letter.tier).toSet().toList()..sort());
+  Set<int> get tiers => Set.unmodifiable(_tiers);
   LetterLearningMode get mode => _mode;
   LetterLearningState get state => _state;
   int get score => _score;
@@ -70,14 +73,12 @@ class LetterLearningController extends ChangeNotifier {
   List<LetterLearningSlot> get slots => List.unmodifiable(_slots);
   List<AlphabetLetter> get sourceLetters {
     final result =
-        _alphabet
-            .where((letter) => _difficulties.contains(letter.difficulty))
-            .toList()
+        _alphabet.where((letter) => _tiers.contains(letter.tier)).toList()
           ..sort((a, b) => a.letter.compareTo(b.letter));
     return List.unmodifiable(result);
   }
 
-  int get sourceColumnCount => switch (_difficulties.length) {
+  int get sourceColumnCount => switch (_tiers.length) {
     1 => 5,
     2 => 6,
     _ => 7,
@@ -96,13 +97,13 @@ class LetterLearningController extends ChangeNotifier {
 
   void stop() => _generation++;
 
-  void setDifficulties(Set<AlphabetDifficulty> values) {
-    if (values.isEmpty ||
-        const SetEquality<AlphabetDifficulty>().equals(values, _difficulties)) {
+  void setTiers(Set<int> values) {
+    if (values.isEmpty || const SetEquality<int>().equals(values, _tiers)) {
       return;
     }
     _generation++;
-    _difficulties = Set.of(values);
+    _tiers = Set.of(values.where(availableTiers.contains));
+    if (_tiers.isEmpty) return;
     _state = LetterLearningState.playing;
     _selectedLetter = null;
     _generateExercise();

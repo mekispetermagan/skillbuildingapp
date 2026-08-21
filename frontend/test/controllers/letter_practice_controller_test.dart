@@ -23,98 +23,98 @@ const _alphabet = [
     id: 1,
     letter: 'A',
     colorName: 'red',
-    difficulty: AlphabetDifficulty.beginner,
+    tier: 1,
     audioPath: 'audio/letter.mp3',
   ),
   AlphabetLetter(
     id: 2,
     letter: 'M',
     colorName: 'orange',
-    difficulty: AlphabetDifficulty.beginner,
+    tier: 1,
     audioPath: 'audio/letter.mp3',
   ),
   AlphabetLetter(
     id: 3,
     letter: 'S',
     colorName: 'amber',
-    difficulty: AlphabetDifficulty.beginner,
+    tier: 1,
     audioPath: 'audio/letter.mp3',
   ),
   AlphabetLetter(
     id: 4,
     letter: 'T',
     colorName: 'green',
-    difficulty: AlphabetDifficulty.beginner,
+    tier: 1,
     audioPath: 'audio/letter.mp3',
   ),
   AlphabetLetter(
     id: 5,
     letter: 'P',
     colorName: 'teal',
-    difficulty: AlphabetDifficulty.beginner,
+    tier: 1,
     audioPath: 'audio/letter.mp3',
   ),
   AlphabetLetter(
     id: 6,
     letter: 'F',
     colorName: 'blue',
-    difficulty: AlphabetDifficulty.beginner,
+    tier: 1,
     audioPath: 'audio/letter.mp3',
   ),
   AlphabetLetter(
     id: 7,
     letter: 'I',
     colorName: 'deepPurple',
-    difficulty: AlphabetDifficulty.beginner,
+    tier: 1,
     audioPath: 'audio/letter.mp3',
   ),
   AlphabetLetter(
     id: 8,
     letter: 'N',
     colorName: 'pink',
-    difficulty: AlphabetDifficulty.beginner,
+    tier: 1,
     audioPath: 'audio/letter.mp3',
   ),
   AlphabetLetter(
     id: 9,
     letter: 'O',
     colorName: 'brown',
-    difficulty: AlphabetDifficulty.beginner,
+    tier: 1,
     audioPath: 'audio/letter.mp3',
   ),
   AlphabetLetter(
     id: 10,
     letter: 'D',
     colorName: 'red',
-    difficulty: AlphabetDifficulty.intermediate,
+    tier: 2,
     audioPath: 'audio/letter.mp3',
   ),
   AlphabetLetter(
     id: 11,
     letter: 'E',
     colorName: 'green',
-    difficulty: AlphabetDifficulty.intermediate,
+    tier: 2,
     audioPath: 'audio/letter.mp3',
   ),
   AlphabetLetter(
     id: 12,
     letter: 'H',
     colorName: 'teal',
-    difficulty: AlphabetDifficulty.intermediate,
+    tier: 2,
     audioPath: 'audio/letter.mp3',
   ),
   AlphabetLetter(
     id: 13,
     letter: 'C',
     colorName: 'red',
-    difficulty: AlphabetDifficulty.advanced,
+    tier: 3,
     audioPath: 'audio/letter.mp3',
   ),
   AlphabetLetter(
     id: 14,
     letter: 'G',
     colorName: 'orange',
-    difficulty: AlphabetDifficulty.advanced,
+    tier: 3,
     audioPath: 'audio/letter.mp3',
   ),
 ];
@@ -150,7 +150,7 @@ void main() {
       random: Random(1),
     );
 
-    expect(controller.difficulties, {AlphabetDifficulty.beginner});
+    expect(controller.tiers, {1});
     expect(controller.sourceLetters, hasLength(9));
     expect(controller.sourceLetters.map((item) => item.letter), [
       'A',
@@ -186,10 +186,7 @@ void main() {
       random: Random(2),
     );
 
-    controller.setDifficulties({
-      AlphabetDifficulty.beginner,
-      AlphabetDifficulty.intermediate,
-    });
+    controller.setTiers({1, 2});
     expect(controller.sourceColumnCount, 6);
     expect(controller.sourceLetters, hasLength(12));
     expect(controller.sourceLetters.map((item) => item.letter), [
@@ -207,7 +204,7 @@ void main() {
       'T',
     ]);
 
-    controller.setDifficulties(AlphabetDifficulty.values.toSet());
+    controller.setTiers({1, 2, 3});
     expect(controller.sourceColumnCount, 7);
     expect(controller.sourceLetters, hasLength(14));
     expect(controller.sourceLetters.map((item) => item.letter), [
@@ -292,7 +289,7 @@ void main() {
       config: _config,
       random: Random(5),
     );
-    controller.setDifficulties({AlphabetDifficulty.intermediate});
+    controller.setTiers({2});
     final eSlots = controller.slots
         .where((slot) => slot.letter == 'E')
         .toList();
@@ -318,11 +315,11 @@ void main() {
       await _completeCurrentWord(controller);
       expect(controller.score, 1);
 
-      controller.setDifficulties({AlphabetDifficulty.advanced});
+      controller.setTiers({3});
       await Future<void>.delayed(Duration.zero);
 
       expect(controller.score, 1);
-      expect(controller.difficulties, {AlphabetDifficulty.advanced});
+      expect(controller.tiers, {3});
       expect(audio.playedPaths.last, controller.currentWord.audioPath);
       controller.dispose();
     },
@@ -346,6 +343,43 @@ void main() {
     expect(
       audio.playedPaths,
       contains('assets/audio/letter_dragging/fanfare.mp3'),
+    );
+    controller.dispose();
+  });
+
+  test('derives a long Hungarian consonant card from its base letter', () {
+    const word = ImageWord(
+      id: 3,
+      word: 've[ssz]ő',
+      imagePath: 'vesszo.png',
+      audioPath: 'vesszo.mp3',
+    );
+    const alphabet = [
+      AlphabetLetter(
+        id: 1,
+        letter: 'SZ',
+        colorName: 'orange',
+        tier: 3,
+        audioPath: 'sz.mp3',
+      ),
+    ];
+    final controller = LetterPracticeController(
+      _FakeAudioPlayer(),
+      words: const [word],
+      alphabet: alphabet,
+      config: _config,
+    );
+
+    controller.setTiers({3});
+
+    expect(controller.sourceLetters.map((letter) => letter.letter), [
+      'SSZ',
+      'SZ',
+    ]);
+    expect(controller.slots.map((slot) => slot.letter), ['V', 'E', 'SSZ', 'Ő']);
+    expect(
+      controller.slots.singleWhere((slot) => slot.letter == 'SSZ').isTarget,
+      isTrue,
     );
     controller.dispose();
   });

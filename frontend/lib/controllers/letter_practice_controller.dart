@@ -31,7 +31,7 @@ class LetterPracticeController extends ChangeNotifier {
 
   late ImageWord currentWord;
   List<LetterPracticeSlot> _slots = [];
-  Set<AlphabetDifficulty> _difficulties = {AlphabetDifficulty.beginner};
+  Set<int> _tiers = {1};
   bool _useColors = true;
   String? _selectedLetter;
   int _score = 0;
@@ -53,26 +53,42 @@ class LetterPracticeController extends ChangeNotifier {
     if (_words.isEmpty || _alphabet.isEmpty) {
       throw ArgumentError('Words and alphabet must not be empty.');
     }
+    if (!availableTiers.contains(1)) _tiers = {availableTiers.first};
     _generateExercise();
   }
 
   List<LetterPracticeSlot> get slots => List.unmodifiable(_slots);
   List<AlphabetLetter> get sourceLetters {
-    final letters = _alphabet
-        .where((item) => _difficulties.contains(item.difficulty))
-        .toList();
+    final byLetter = {for (final item in _alphabet) item.letter: item};
+    final letters = <AlphabetLetter>[
+      for (final item in _alphabet)
+        if (_tiers.contains(item.tier)) item,
+    ];
+    final derivedTokens = {
+      for (final word in _words)
+        for (final token in word.letterTokens)
+          if (!byLetter.containsKey(token)) token,
+    }.toList()..sort();
+    for (final (index, token) in derivedTokens.indexed) {
+      final base = _baseLetterFor(token, byLetter);
+      if (base != null && _tiers.contains(base.tier)) {
+        letters.add(base.withLetter(id: -index - 1, letter: token));
+      }
+    }
     letters.sort((first, second) => first.letter.compareTo(second.letter));
     return List.unmodifiable(letters);
   }
 
-  Set<AlphabetDifficulty> get difficulties => Set.unmodifiable(_difficulties);
+  List<int> get availableTiers =>
+      (_alphabet.map((letter) => letter.tier).toSet().toList()..sort());
+  Set<int> get tiers => Set.unmodifiable(_tiers);
   bool get useColors => _useColors;
   String? get selectedLetter => _selectedLetter;
   int get score => _score;
   int get incorrectAttempts => _incorrectAttempts;
   LetterPracticeState get state => _state;
   bool get canPlay => _state == LetterPracticeState.playing;
-  int get sourceColumnCount => switch (_difficulties.length) {
+  int get sourceColumnCount => switch (_tiers.length) {
     1 => 5,
     2 => 6,
     _ => 7,
@@ -93,13 +109,13 @@ class LetterPracticeController extends ChangeNotifier {
 
   Future<void> playAudio() => _play(currentWord.audioPath);
 
-  void setDifficulties(Set<AlphabetDifficulty> values) {
-    if (values.isEmpty ||
-        const SetEquality<AlphabetDifficulty>().equals(values, _difficulties)) {
+  void setTiers(Set<int> values) {
+    if (values.isEmpty || const SetEquality<int>().equals(values, _tiers)) {
       return;
     }
     _sessionGeneration++;
-    _difficulties = Set.of(values);
+    _tiers = Set.of(values.where(availableTiers.contains));
+    if (_tiers.isEmpty) return;
     _state = LetterPracticeState.playing;
     _selectedLetter = null;
     _generateExercise();
@@ -182,9 +198,7 @@ class LetterPracticeController extends ChangeNotifier {
   void _generateExercise() {
     final activeLetters = sourceLetters.map((item) => item.letter).toSet();
     final eligibleWords = _words
-        .where(
-          (word) => word.uppercaseWord.split('').any(activeLetters.contains),
-        )
+        .where((word) => word.letterTokens.any(activeLetters.contains))
         .toList();
     if (eligibleWords.isEmpty) {
       throw StateError('No word contains a selected alphabet letter.');
@@ -197,7 +211,7 @@ class LetterPracticeController extends ChangeNotifier {
     _previousWord = currentWord;
     final byLetter = {for (final item in _alphabet) item.letter: item};
     _slots = [
-      for (final (index, letter) in currentWord.uppercaseWord.split('').indexed)
+      for (final (index, letter) in currentWord.letterTokens.indexed)
         LetterPracticeSlot(
           id: index,
           letter: letter,
@@ -206,6 +220,14 @@ class LetterPracticeController extends ChangeNotifier {
         ),
     ];
     _selectedLetter = null;
+  }
+
+  AlphabetLetter? _baseLetterFor(
+    String token,
+    Map<String, AlphabetLetter> byLetter,
+  ) {
+    if (token.length < 2) return null;
+    return byLetter[token.substring(1)];
   }
 
   Future<void> _play(String path) async {

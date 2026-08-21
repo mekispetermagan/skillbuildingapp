@@ -13,6 +13,29 @@ class ImageWord {
 
   String get uppercaseWord => word.toUpperCase();
 
+  List<String> get letterTokens {
+    final tokens = <String>[];
+    final characters = uppercaseWord.split('');
+    for (var index = 0; index < characters.length; index++) {
+      if (characters[index] != '[') {
+        if (characters[index] == ']') {
+          throw FormatException('Invalid bracketed letter in word: $word');
+        }
+        tokens.add(characters[index]);
+        continue;
+      }
+      final closing = characters.indexOf(']', index + 1);
+      if (closing < 0 ||
+          closing == index + 1 ||
+          characters.sublist(index + 1, closing).contains('[')) {
+        throw FormatException('Invalid bracketed letter in word: $word');
+      }
+      tokens.add(characters.sublist(index + 1, closing).join());
+      index = closing;
+    }
+    return List.unmodifiable(tokens);
+  }
+
   factory ImageWord.fromJson(Map<String, dynamic> json) {
     final id = json['id'];
     final word = json['word'];
@@ -29,7 +52,17 @@ class ImageWord {
     final normalizedWord = word.trim().toLowerCase();
     final normalizedPath = imagePath.trim();
     final normalizedAudioPath = audioPath.trim();
-    if (!RegExp(r'^[a-z]+(?: [a-z]+)*$').hasMatch(normalizedWord)) {
+    if (!RegExp(r'^[a-záéíóöőúüű\[\] ]+$').hasMatch(normalizedWord)) {
+      throw FormatException('Invalid image word: $word');
+    }
+    try {
+      ImageWord(
+        id: id,
+        word: normalizedWord,
+        imagePath: normalizedPath,
+        audioPath: normalizedAudioPath,
+      ).letterTokens;
+    } on FormatException {
       throw FormatException('Invalid image word: $word');
     }
     if (normalizedPath.isEmpty) {

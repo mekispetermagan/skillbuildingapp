@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 
-import '../models/alphabet_letter.dart';
 import '../models/letter_practice_state.dart';
 import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
@@ -14,7 +13,7 @@ class LetterPracticeScreen extends StatelessWidget {
   final LetterPracticeViewData viewData;
   final VoidCallback onBack;
   final VoidCallback onRestart;
-  final ValueChanged<Set<AlphabetDifficulty>> onSetDifficulties;
+  final ValueChanged<Set<int>> onSetTiers;
   final ValueChanged<bool> onSetUseColors;
   final ValueChanged<String> onSelectLetter;
   final bool Function({required int slotId, required String letter}) canPlace;
@@ -27,7 +26,7 @@ class LetterPracticeScreen extends StatelessWidget {
     required this.viewData,
     required this.onBack,
     required this.onRestart,
-    required this.onSetDifficulties,
+    required this.onSetTiers,
     required this.onSetUseColors,
     required this.onSelectLetter,
     required this.canPlace,
@@ -58,9 +57,10 @@ class LetterPracticeScreen extends StatelessWidget {
                       sliver: SliverList.list(
                         children: [
                           _Controls(
-                            difficulties: viewData.difficulties,
+                            availableTiers: viewData.availableTiers,
+                            tiers: viewData.tiers,
                             useColors: viewData.useColors,
-                            onSetDifficulties: onSetDifficulties,
+                            onSetTiers: onSetTiers,
                             onSetUseColors: onSetUseColors,
                           ),
                           const SizedBox(height: 16),
@@ -165,15 +165,17 @@ class LetterPracticeScreen extends StatelessWidget {
 }
 
 class _Controls extends StatelessWidget {
-  final Set<AlphabetDifficulty> difficulties;
+  final List<int> availableTiers;
+  final Set<int> tiers;
   final bool useColors;
-  final ValueChanged<Set<AlphabetDifficulty>> onSetDifficulties;
+  final ValueChanged<Set<int>> onSetTiers;
   final ValueChanged<bool> onSetUseColors;
 
   const _Controls({
-    required this.difficulties,
+    required this.availableTiers,
+    required this.tiers,
     required this.useColors,
-    required this.onSetDifficulties,
+    required this.onSetTiers,
     required this.onSetUseColors,
   });
 
@@ -184,19 +186,23 @@ class _Controls extends StatelessWidget {
     spacing: 12,
     runSpacing: 10,
     children: [
-      SegmentedButton<AlphabetDifficulty>(
+      SegmentedButton<int>(
         segments: [
-          for (final difficulty in AlphabetDifficulty.values)
+          for (final tier in availableTiers)
             ButtonSegment(
-              value: difficulty,
-              label: Text(_difficultyLabel(context.l10n, difficulty)),
+              value: tier,
+              label: Text(
+                availableTiers.length > 3
+                    ? '$tier'
+                    : _tierLabel(context.l10n, tier),
+              ),
             ),
         ],
-        selected: difficulties,
+        selected: tiers,
         multiSelectionEnabled: true,
         emptySelectionAllowed: false,
         showSelectedIcon: false,
-        onSelectionChanged: onSetDifficulties,
+        onSelectionChanged: onSetTiers,
       ),
       SegmentedButton<bool>(
         segments: [
@@ -211,9 +217,9 @@ class _Controls extends StatelessWidget {
   );
 }
 
-String _difficultyLabel(AppLocalizations l10n, AlphabetDifficulty difficulty) =>
-    switch (difficulty) {
-      AlphabetDifficulty.beginner => l10n.difficultyBeginner,
-      AlphabetDifficulty.intermediate => l10n.difficultyIntermediate,
-      AlphabetDifficulty.advanced => l10n.difficultyAdvanced,
-    };
+String _tierLabel(AppLocalizations l10n, int tier) => switch (tier) {
+  1 => l10n.difficultyBeginner,
+  2 => l10n.difficultyIntermediate,
+  3 => l10n.difficultyAdvanced,
+  _ => '$tier',
+};

@@ -53,6 +53,7 @@ flutter:
     - assets/audio/alphabet/
     - assets/images/
     - assets/images/alphabet_objects/
+    - assets/images/alphabet_objects_hu/
     - assets/images/ugandan_animals/
     - assets/images/sentence_building/
     - assets/images/lives/

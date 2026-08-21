@@ -1,0 +1,354 @@
+[
+  {
+    "id": 1,
+    "letter": "a",
+    "color": "red",
+    "tier": 1,
+    "audio_path": "assets/audio/alphabet/hu/A.mp3",
+    "object_word": "alma"
+  },
+  {
+    "id": 2,
+    "letter": "e",
+    "color": "blue",
+    "tier": 1,
+    "audio_path": "assets/audio/alphabet/hu/E.mp3",
+    "object_word": "ecset"
+  },
+  {
+    "id": 3,
+    "letter": "i",
+    "color": "deepPurple",
+    "tier": 1,
+    "audio_path": "assets/audio/alphabet/hu/I.mp3",
+    "object_word": "ing"
+  },
+  {
+    "id": 4,
+    "letter": "m",
+    "color": "orange",
+    "tier": 1,
+    "audio_path": "assets/audio/alphabet/hu/M.mp3",
+    "object_word": "maci"
+  },
+  {
+    "id": 5,
+    "letter": "t",
+    "color": "pink",
+    "tier": 1,
+    "audio_path": "assets/audio/alphabet/hu/T.mp3",
+    "object_word": "táska"
+  },
+  {
+    "id": 6,
+    "letter": "k",
+    "color": "brown",
+    "tier": 1,
+    "audio_path": "assets/audio/alphabet/hu/K.mp3",
+    "object_word": "kanál"
+  },
+  {
+    "id": 7,
+    "letter": "r",
+    "color": "teal",
+    "tier": 1,
+    "audio_path": "assets/audio/alphabet/hu/R.mp3",
+    "object_word": "radír"
+  },
+  {
+    "id": 8,
+    "letter": "l",
+    "color": "amber",
+    "tier": 1,
+    "audio_path": "assets/audio/alphabet/hu/L.mp3",
+    "object_word": "labda"
+  },
+  {
+    "id": 9,
+    "letter": "s",
+    "color": "green",
+    "tier": 1,
+    "audio_path": "assets/audio/alphabet/hu/S.mp3",
+    "object_word": "sapka"
+  },
+  {
+    "id": 10,
+    "letter": "o",
+    "color": "red",
+    "tier": 2,
+    "audio_path": "assets/audio/alphabet/hu/O.mp3",
+    "object_word": "olló"
+  },
+  {
+    "id": 11,
+    "letter": "u",
+    "color": "blue",
+    "tier": 2,
+    "audio_path": "assets/audio/alphabet/hu/U.mp3",
+    "object_word": "uborka"
+  },
+  {
+    "id": 12,
+    "letter": "á",
+    "color": "deepPurple",
+    "tier": 2,
+    "audio_path": "assets/audio/alphabet/hu/Á.mp3",
+    "object_word": "ágy"
+  },
+  {
+    "id": 13,
+    "letter": "é",
+    "color": "orange",
+    "tier": 2,
+    "audio_path": "assets/audio/alphabet/hu/É.mp3",
+    "object_word": "érme"
+  },
+  {
+    "id": 14,
+    "letter": "n",
+    "color": "pink",
+    "tier": 2,
+    "audio_path": "assets/audio/alphabet/hu/N.mp3",
+    "object_word": "nadrág"
+  },
+  {
+    "id": 15,
+    "letter": "p",
+    "color": "brown",
+    "tier": 2,
+    "audio_path": "assets/audio/alphabet/hu/P.mp3",
+    "object_word": "pohár"
+  },
+  {
+    "id": 16,
+    "letter": "v",
+    "color": "teal",
+    "tier": 2,
+    "audio_path": "assets/audio/alphabet/hu/V.mp3",
+    "object_word": "vödör"
+  },
+  {
+    "id": 17,
+    "letter": "h",
+    "color": "amber",
+    "tier": 2,
+    "audio_path": "assets/audio/alphabet/hu/H.mp3",
+    "object_word": "hajó"
+  },
+  {
+    "id": 18,
+    "letter": "z",
+    "color": "green",
+    "tier": 2,
+    "audio_path": "assets/audio/alphabet/hu/Z.mp3",
+    "object_word": "zokni"
+  },
+  {
+    "id": 19,
+    "letter": "[cs]",
+    "color": "red",
+    "tier": 3,
+    "audio_path": "assets/audio/alphabet/hu/CS.mp3",
+    "object_word": "[cs]észe"
+  },
+  {
+    "id": 20,
+    "letter": "[gy]",
+    "color": "blue",
+    "tier": 3,
+    "audio_path": "assets/audio/alphabet/hu/GY.mp3",
+    "object_word": "[gy]ertya"
+  },
+  {
+    "id": 21,
+    "letter": "[ny]",
+    "color": "deepPurple",
+    "tier": 3,
+    "audio_path": "assets/audio/alphabet/hu/NY.mp3",
+    "object_word": "[ny]aklánc"
+  },
+  {
+    "id": 22,
+    "letter": "[sz]",
+    "color": "orange",
+    "tier": 3,
+    "audio_path": "assets/audio/alphabet/hu/SZ.mp3",
+    "object_word": "[sz]ék"
+  },
+  {
+    "id": 23,
+    "letter": "ó",
+    "color": "pink",
+    "tier": 3,
+    "audio_path": "assets/audio/alphabet/hu/Ó.mp3",
+    "object_word": "óra"
+  },
+  {
+    "id": 24,
+    "letter": "ú",
+    "color": "brown",
+    "tier": 3,
+    "audio_path": "assets/audio/alphabet/hu/Ú.mp3",
+    "object_word": "újság"
+  },
+  {
+    "id": 25,
+    "letter": "b",
+    "color": "teal",
+    "tier": 3,
+    "audio_path": "assets/audio/alphabet/hu/B.mp3",
+    "object_word": "baba"
+  },
+  {
+    "id": 26,
+    "letter": "f",
+    "color": "amber",
+    "tier": 3,
+    "audio_path": "assets/audio/alphabet/hu/F.mp3",
+    "object_word": "fésű"
+  },
+  {
+    "id": 27,
+    "letter": "j",
+    "color": "green",
+    "tier": 3,
+    "audio_path": "assets/audio/alphabet/hu/J.mp3",
+    "object_word": "jojó"
+  },
+  {
+    "id": 28,
+    "letter": "[ly]",
+    "color": "red",
+    "tier": 4,
+    "audio_path": "assets/audio/alphabet/hu/LY.mp3",
+    "object_word": "sú[ly]zó"
+  },
+  {
+    "id": 29,
+    "letter": "[ty]",
+    "color": "blue",
+    "tier": 4,
+    "audio_path": "assets/audio/alphabet/hu/TY.mp3",
+    "object_word": "ke[sz][ty]ű"
+  },
+  {
+    "id": 30,
+    "letter": "[zs]",
+    "color": "deepPurple",
+    "tier": 4,
+    "audio_path": "assets/audio/alphabet/hu/ZS.mp3",
+    "object_word": "[zs]ák"
+  },
+  {
+    "id": 31,
+    "letter": "ö",
+    "color": "orange",
+    "tier": 4,
+    "audio_path": "assets/audio/alphabet/hu/Ö.mp3",
+    "object_word": "öv"
+  },
+  {
+    "id": 32,
+    "letter": "ü",
+    "color": "pink",
+    "tier": 4,
+    "audio_path": "assets/audio/alphabet/hu/Ü.mp3",
+    "object_word": "üveg"
+  },
+  {
+    "id": 33,
+    "letter": "í",
+    "color": "brown",
+    "tier": 4,
+    "audio_path": "assets/audio/alphabet/hu/Í.mp3",
+    "object_word": "íj"
+  },
+  {
+    "id": 34,
+    "letter": "c",
+    "color": "teal",
+    "tier": 4,
+    "audio_path": "assets/audio/alphabet/hu/C.mp3",
+    "object_word": "ceruza"
+  },
+  {
+    "id": 35,
+    "letter": "d",
+    "color": "amber",
+    "tier": 4,
+    "audio_path": "assets/audio/alphabet/hu/D.mp3",
+    "object_word": "dob"
+  },
+  {
+    "id": 36,
+    "letter": "g",
+    "color": "green",
+    "tier": 4,
+    "audio_path": "assets/audio/alphabet/hu/G.mp3",
+    "object_word": "gitár"
+  },
+  {
+    "id": 37,
+    "letter": "[dz]",
+    "color": "red",
+    "tier": 5,
+    "audio_path": "assets/audio/alphabet/hu/DZ.mp3",
+    "object_word": "e[dz]őcipő"
+  },
+  {
+    "id": 38,
+    "letter": "[dzs]",
+    "color": "blue",
+    "tier": 5,
+    "audio_path": "assets/audio/alphabet/hu/DZS.mp3",
+    "object_word": "[dzs]eki"
+  },
+  {
+    "id": 39,
+    "letter": "ő",
+    "color": "deepPurple",
+    "tier": 5,
+    "audio_path": "assets/audio/alphabet/hu/Ő.mp3",
+    "object_word": "eser[ny]ő"
+  },
+  {
+    "id": 40,
+    "letter": "ű",
+    "color": "orange",
+    "tier": 5,
+    "audio_path": "assets/audio/alphabet/hu/Ű.mp3",
+    "object_word": "[gy]űrű"
+  },
+  {
+    "id": 41,
+    "letter": "q",
+    "color": "pink",
+    "tier": 5,
+    "audio_path": "assets/audio/alphabet/hu/Q.mp3",
+    "object_word": null
+  },
+  {
+    "id": 42,
+    "letter": "w",
+    "color": "brown",
+    "tier": 5,
+    "audio_path": "assets/audio/alphabet/hu/W.mp3",
+    "object_word": "wok"
+  },
+  {
+    "id": 43,
+    "letter": "x",
+    "color": "teal",
+    "tier": 5,
+    "audio_path": "assets/audio/alphabet/hu/X.mp3",
+    "object_word": "xilofon"
+  },
+  {
+    "id": 44,
+    "letter": "y",
+    "color": "amber",
+    "tier": 5,
+    "audio_path": "assets/audio/alphabet/hu/Y.mp3",
+    "object_word": null
+  }
+]

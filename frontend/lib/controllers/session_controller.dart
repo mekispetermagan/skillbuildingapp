@@ -17,6 +17,7 @@ import '../models/activity_id.dart';
 import '../models/feature_load_error.dart';
 import '../models/feature_metrics.dart';
 import '../models/image_word.dart';
+import '../models/interface_language.dart';
 import '../models/letter_catching_state.dart';
 import '../models/letter_catching_word.dart';
 import '../models/letter_dragging_state.dart';
@@ -47,6 +48,7 @@ import '../models/shopping_game.dart';
 import '../models/spelling_quiz_state.dart';
 import '../models/view_data.dart';
 import '../services/gameplay_recorder.dart';
+import '../services/game_content_factory.dart';
 import 'conveyor_controller.dart';
 import 'balance_game_controller.dart';
 import 'crossword_controller.dart';
@@ -107,6 +109,7 @@ class SessionController extends ChangeNotifier {
   final AssetBundle _assetBundle;
   final AssetAudioPlayer _audioPlayer;
   final GameplayRecorder _gameplayRecorder;
+  final GameContentFactory _gameContent;
   final DateTime Function() _now;
   final String _appVersion;
   final String _contentVersion;
@@ -159,11 +162,13 @@ class SessionController extends ChangeNotifier {
     DateTime Function()? now,
     String appVersion = '0.1.0+1',
     String contentVersion = 'en-1',
+    InterfaceLanguage language = InterfaceLanguage.english,
   }) : _assetBundle = assetBundle ?? rootBundle,
        _audioPlayer = audioPlayer ?? SoloudAssetAudioPlayer(),
        // Named public parameters keep dependency injection readable.
        // ignore: prefer_initializing_formals
        _gameplayRecorder = gameplayRecorder,
+       _gameContent = GameContentFactory.forLanguage(language),
        _now = now ?? DateTime.now,
        // ignore: prefer_initializing_formals
        _appVersion = appVersion,
@@ -823,9 +828,9 @@ class SessionController extends ChangeNotifier {
     currentObject: _letterLearningController?.currentObject,
     slots: _letterLearningController?.slots ?? const [],
     sourceLetters: _letterLearningController?.sourceLetters ?? const [],
-    difficulties:
-        _letterLearningController?.difficulties ??
-        const {AlphabetDifficulty.beginner},
+    availableTiers:
+        _letterLearningController?.availableTiers ?? const [1, 2, 3],
+    tiers: _letterLearningController?.tiers ?? const {1},
     mode: _letterLearningController?.mode ?? LetterLearningMode.masked,
     state: _letterLearningController?.state ?? LetterLearningState.playing,
     score: _letterLearningController?.score ?? 0,
@@ -836,8 +841,8 @@ class SessionController extends ChangeNotifier {
     selectedLetter: _letterLearningController?.selectedLetter,
   );
 
-  void letterLearningSetDifficulties(Set<AlphabetDifficulty> values) =>
-      _letterLearningController?.setDifficulties(values);
+  void letterLearningSetTiers(Set<int> values) =>
+      _letterLearningController?.setTiers(values);
   void letterLearningSetMode(LetterLearningMode value) =>
       _letterLearningController?.setMode(value);
   void letterLearningGuess(String letter) {
@@ -871,9 +876,9 @@ class SessionController extends ChangeNotifier {
     currentWord: _letterPracticeController?.currentWord,
     slots: _letterPracticeController?.slots ?? const [],
     sourceLetters: _letterPracticeController?.sourceLetters ?? const [],
-    difficulties:
-        _letterPracticeController?.difficulties ??
-        const {AlphabetDifficulty.beginner},
+    availableTiers:
+        _letterPracticeController?.availableTiers ?? const [1, 2, 3],
+    tiers: _letterPracticeController?.tiers ?? const {1},
     useColors: _letterPracticeController?.useColors ?? true,
     selectedLetter: _letterPracticeController?.selectedLetter,
     sourceColumnCount: _letterPracticeController?.sourceColumnCount ?? 5,
@@ -883,8 +888,8 @@ class SessionController extends ChangeNotifier {
     canPlay: _letterPracticeController?.canPlay ?? false,
   );
 
-  void letterPracticeSetDifficulties(Set<AlphabetDifficulty> values) =>
-      _letterPracticeController?.setDifficulties(values);
+  void letterPracticeSetTiers(Set<int> values) =>
+      _letterPracticeController?.setTiers(values);
   void letterPracticeSetUseColors(bool value) =>
       _letterPracticeController?.setUseColors(value);
   void letterPracticeSelectLetter(String letter) =>
@@ -1386,7 +1391,10 @@ class SessionController extends ChangeNotifier {
       completedAt: completedAt,
       elapsedMilliseconds: completedAt.difference(startedAt).inMilliseconds,
       appVersion: _appVersion,
-      contentVersion: _contentVersion,
+      contentVersion: _gameContent.contentVersionFor(
+        _activityFor(activity),
+        _contentVersion,
+      ),
     );
   }
 
@@ -1620,11 +1628,11 @@ class SessionController extends ChangeNotifier {
     try {
       final encodedResults = await Future.wait([
         _assetBundle.loadString('assets/data/animal_image_words.json'),
-        _assetBundle.loadString('assets/data/alphabet_progression.json'),
+        _assetBundle.loadString(_gameContent.letterPracticeAlphabetPath),
       ]);
       final wordData = jsonDecode(encodedResults[0]) as List<dynamic>;
       final alphabetData = jsonDecode(encodedResults[1]) as List<dynamic>;
-      final words = [
+      final englishWords = [
         for (final item in wordData)
           ImageWord.fromJson(item as Map<String, dynamic>),
       ];
@@ -1632,6 +1640,10 @@ class SessionController extends ChangeNotifier {
         for (final item in alphabetData)
           AlphabetLetter.fromJson(item as Map<String, dynamic>),
       ];
+      final words = _gameContent.letterPracticeWords(
+        englishWords: englishWords,
+        alphabet: alphabet,
+      );
       if (_disposed) return;
 
       _letterPracticeController = LetterPracticeController(

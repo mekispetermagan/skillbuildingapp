@@ -40,6 +40,17 @@ void main() {
     expect(word.audioPath, 'audio/guinea_fowl.mp3');
   });
 
+  test('tokenizes bracketed Hungarian letters as single units', () {
+    final word = ImageWord.fromJson(const {
+      'id': 2,
+      'word': ' ve[ssz]ő ',
+      'image_path': 'images/vesszo.png',
+      'audio_path': 'audio/vesszo.mp3',
+    });
+
+    expect(word.letterTokens, ['V', 'E', 'SSZ', 'Ő']);
+  });
+
   test('rejects empty image paths', () {
     expect(
       () => ImageWord.fromJson(const {

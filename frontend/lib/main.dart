@@ -76,7 +76,10 @@ class _LiteracyAppState extends State<LiteracyApp> {
               },
               studentApi: widget.studentApi,
             )
-          : AppRoot(gameplayRecorder: widget.gameplayRecorder),
+          : AppRoot(
+              gameplayRecorder: widget.gameplayRecorder,
+              language: _language,
+            ),
     );
   }
 }
@@ -207,6 +210,7 @@ class _AccountGatewayState extends State<AccountGateway> {
     AccountFlowPage.games => AppRoot(
       key: _gameKey,
       gameplayRecorder: widget.gameplayRecorder,
+      language: _controller.account!.preferredLanguage,
       startAtAreaMenu: true,
       onExit: _controller.account!.role == AccountRole.teacher
           ? _controller.leaveGames
@@ -253,11 +257,13 @@ class AppRoot extends StatefulWidget {
   final GameplayRecorder gameplayRecorder;
   final bool startAtAreaMenu;
   final VoidCallback? onExit;
+  final InterfaceLanguage language;
 
   const AppRoot({
     this.gameplayRecorder = const NoopGameplayRecorder(),
     this.startAtAreaMenu = false,
     this.onExit,
+    this.language = InterfaceLanguage.english,
     super.key,
   });
 
@@ -273,6 +279,7 @@ class AppRootState extends State<AppRoot> {
     super.initState();
     _sessionController = SessionController(
       gameplayRecorder: widget.gameplayRecorder,
+      language: widget.language,
     );
     if (widget.startAtAreaMenu) _sessionController.openAreaMenu();
   }
@@ -413,7 +420,7 @@ class AppRootState extends State<AppRoot> {
             viewData: _sessionController.letterLearningViewData,
             onBack: _sessionController.handleBack,
             onRestart: _sessionController.restartLetterLearning,
-            onSetDifficulties: _sessionController.letterLearningSetDifficulties,
+            onSetTiers: _sessionController.letterLearningSetTiers,
             onSetMode: _sessionController.letterLearningSetMode,
             onGuess: _sessionController.letterLearningGuess,
             onSelectLetter: _sessionController.letterLearningSelectLetter,
@@ -424,7 +431,7 @@ class AppRootState extends State<AppRoot> {
             viewData: _sessionController.letterPracticeViewData,
             onBack: _sessionController.handleBack,
             onRestart: _sessionController.restartLetterPractice,
-            onSetDifficulties: _sessionController.letterPracticeSetDifficulties,
+            onSetTiers: _sessionController.letterPracticeSetTiers,
             onSetUseColors: _sessionController.letterPracticeSetUseColors,
             onSelectLetter: _sessionController.letterPracticeSelectLetter,
             canPlace: _sessionController.letterPracticeCanPlace,

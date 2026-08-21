@@ -304,7 +304,8 @@ class LetterPracticeViewData {
   final ImageWord? currentWord;
   final List<LetterPracticeSlot> slots;
   final List<AlphabetLetter> sourceLetters;
-  final Set<AlphabetDifficulty> difficulties;
+  final List<int> availableTiers;
+  final Set<int> tiers;
   final bool useColors;
   final String? selectedLetter;
   final int sourceColumnCount;
@@ -319,7 +320,8 @@ class LetterPracticeViewData {
     required this.currentWord,
     required this.slots,
     required this.sourceLetters,
-    required this.difficulties,
+    required this.availableTiers,
+    required this.tiers,
     required this.useColors,
     required this.selectedLetter,
     required this.sourceColumnCount,
@@ -337,7 +339,8 @@ class LetterLearningViewData {
   final AlphabetObject? currentObject;
   final List<LetterLearningSlot> slots;
   final List<AlphabetLetter> sourceLetters;
-  final Set<AlphabetDifficulty> difficulties;
+  final List<int> availableTiers;
+  final Set<int> tiers;
   final LetterLearningMode mode;
   final LetterLearningState state;
   final int score;
@@ -354,7 +357,8 @@ class LetterLearningViewData {
     required this.currentObject,
     required this.slots,
     required this.sourceLetters,
-    required this.difficulties,
+    required this.availableTiers,
+    required this.tiers,
     required this.mode,
     required this.state,
     required this.score,
