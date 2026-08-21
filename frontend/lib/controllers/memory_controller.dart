@@ -55,7 +55,7 @@ class MemoryController extends ChangeNotifier {
                 cardId: index * 2,
                 pairId: pair.id,
                 kind: MemoryCardKind.word,
-                content: pair.word,
+                content: pair.displayWord,
               ),
               MemoryCardData(
                 cardId: index * 2 + 1,

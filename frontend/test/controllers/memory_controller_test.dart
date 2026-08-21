@@ -37,6 +37,26 @@ void main() {
     controller.dispose();
   });
 
+  test('displays Hungarian words without digraph markup', () {
+    final pairs = _pairs();
+    pairs[0] = const ImageWord(
+      id: 1,
+      word: '[ny]úl',
+      imagePath: 'nyul.png',
+      audioPath: 'nyul.mp3',
+    );
+    final controller = MemoryController(pairs: pairs, random: Random(3));
+
+    expect(
+      controller.cards
+          .where((card) => card.pairId == 1)
+          .singleWhere((card) => card.kind == MemoryCardKind.word)
+          .content,
+      'nyúl',
+    );
+    controller.dispose();
+  });
+
   test('hides a mismatch and removes a matching pair', () async {
     final controller = MemoryController(
       pairs: _pairs(),

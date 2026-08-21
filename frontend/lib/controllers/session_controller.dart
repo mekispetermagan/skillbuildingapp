@@ -1438,7 +1438,7 @@ class SessionController extends ChangeNotifier {
   Future<void> _initializeLetterDragging() async {
     try {
       final encoded = await _assetBundle.loadString(
-        'assets/data/animal_image_words.json',
+        _gameContent.localizedAnimalWordsPath,
       );
       final data = jsonDecode(encoded) as List<dynamic>;
       final words = [
@@ -1464,7 +1464,7 @@ class SessionController extends ChangeNotifier {
   Future<void> _initializeMissingLetters() async {
     try {
       final encoded = await _assetBundle.loadString(
-        'assets/data/animal_image_words.json',
+        _gameContent.localizedAnimalWordsPath,
       );
       final data = jsonDecode(encoded) as List<dynamic>;
       final words = [
@@ -1536,7 +1536,7 @@ class SessionController extends ChangeNotifier {
   Future<void> _initializeMemory() async {
     try {
       final encoded = await _assetBundle.loadString(
-        'assets/data/animal_image_words.json',
+        _gameContent.localizedAnimalWordsPath,
       );
       final data = jsonDecode(encoded) as List<dynamic>;
       final pairs = [
@@ -1632,7 +1632,7 @@ class SessionController extends ChangeNotifier {
   Future<void> _initializeLetterPractice() async {
     try {
       final encodedResults = await Future.wait([
-        _assetBundle.loadString(_gameContent.letterPracticeAnimalWordsPath),
+        _assetBundle.loadString(_gameContent.localizedAnimalWordsPath),
         _assetBundle.loadString(_gameContent.letterPracticeAlphabetPath),
         _assetBundle.loadString('assets/data/alphabet_objects.json'),
       ]);

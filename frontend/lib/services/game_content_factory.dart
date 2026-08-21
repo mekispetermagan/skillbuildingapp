@@ -11,8 +11,7 @@ class GameContentFactory {
       'assets/data/alphabet_progression.json';
   String get letterLearningAlphabetPath =>
       'assets/data/alphabet_progression.json';
-  String get letterPracticeAnimalWordsPath =>
-      'assets/data/animal_image_words.json';
+  String get localizedAnimalWordsPath => 'assets/data/animal_image_words.json';
 
   List<ImageWord> letterPracticeAlphabetWords({
     required List<AlphabetObject> englishObjects,
@@ -52,7 +51,7 @@ class HungarianGameContentFactory extends GameContentFactory {
   String get letterLearningAlphabetPath =>
       'assets/data/alphabet_progression_hu.json';
   @override
-  String get letterPracticeAnimalWordsPath =>
+  String get localizedAnimalWordsPath =>
       'assets/data/animal_image_words_hu.json';
 
   @override
@@ -91,7 +90,10 @@ class HungarianGameContentFactory extends GameContentFactory {
   @override
   String contentVersionFor(ActivityId activity, String fallback) =>
       activity == ActivityId.letterPractice ||
-          activity == ActivityId.letterLearning
+          activity == ActivityId.letterLearning ||
+          activity == ActivityId.letterDragging ||
+          activity == ActivityId.missingLetters ||
+          activity == ActivityId.memoryCards
       ? 'hu-1'
       : fallback;
 

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:characters/characters.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
@@ -13,12 +12,10 @@ import '../models/missing_letters_word.dart';
 const missingLettersWinningScore = 10;
 
 class MissingLettersController extends ChangeNotifier {
-  static final List<String> _alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.characters
-      .toList();
-
   final List<MissingLettersWord> _words;
   final Random _random;
   final Duration completionFeedbackDuration;
+  late final List<String> _alphabet;
   final List<MissingLetterSlot> _slots = [];
   final List<MissingLetterTile> _pool = [];
 
@@ -42,6 +39,10 @@ class MissingLettersController extends ChangeNotifier {
     if (_words.isEmpty) {
       throw ArgumentError.value(words, 'words', 'Must not be empty');
     }
+    _alphabet = {
+      ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+      ..._words.expand((word) => word.letterTokens),
+    }.toList(growable: false);
     start();
   }
 
@@ -154,7 +155,7 @@ class MissingLettersController extends ChangeNotifier {
     _currentWord = word;
     _state = MissingLettersState.solving;
     _selectedTileId = null;
-    final letters = word.word.characters.toList();
+    final letters = word.letterTokens;
     final missingIndices = [
       for (var index = 0; index < letters.length; index++) index,
     ].shuffled(_random).take(2).toSet();

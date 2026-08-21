@@ -1,4 +1,4 @@
-import 'package:characters/characters.dart';
+import 'bracketed_word.dart';
 
 class MissingLettersWord {
   final int id;
@@ -11,6 +11,8 @@ class MissingLettersWord {
     required this.imagePath,
   });
 
+  List<String> get letterTokens => tokenizeBracketedWord(word);
+
   factory MissingLettersWord.fromJson(Map<String, dynamic> json) {
     final id = json['id'];
     final word = json['word'];
@@ -22,7 +24,7 @@ class MissingLettersWord {
     }
 
     final normalized = word.trim().toUpperCase();
-    if (normalized.characters.length < 2) {
+    if (tokenizeBracketedWord(normalized).length < 2) {
       throw FormatException('Word needs at least two letters: $word');
     }
     return MissingLettersWord(id: id, word: normalized, imagePath: imagePath);

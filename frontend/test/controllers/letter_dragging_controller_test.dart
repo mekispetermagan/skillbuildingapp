@@ -134,6 +134,23 @@ void main() {
     controller.dispose();
   });
 
+  test('treats a bracketed Hungarian digraph as one tile', () async {
+    final controller = _controller(
+      words: const [
+        LetterDraggingWord(id: 1, word: '[NY]ÚL', imagePath: 'nyul.png'),
+      ],
+    )..start();
+
+    expect(controller.tiles.map((tile) => tile.letter), contains('NY'));
+    expect(controller.tiles, hasLength(3));
+
+    _solve(controller);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(controller.score, 1);
+    controller.dispose();
+  });
+
   test('shows results when the countdown ends', () {
     final audioPlayer = _FakeAudioPlayer();
     final controller = _controller(audioPlayer: audioPlayer)..start();

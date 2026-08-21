@@ -76,6 +76,21 @@ void main() {
     controller.dispose();
   });
 
+  test('treats a bracketed Hungarian digraph as one letter', () {
+    final controller = _controller(
+      words: const [
+        MissingLettersWord(id: 1, word: '[NY]ÚL', imagePath: 'nyul.png'),
+      ],
+    );
+
+    expect(controller.slots.map((slot) => slot.letter), ['NY', 'Ú', 'L']);
+    expect(
+      controller.pool.map((tile) => tile.letter),
+      isNot(contains(anyOf('[', ']'))),
+    );
+    controller.dispose();
+  });
+
   test('tap selection toggles and tap placement clears it only on success', () {
     final controller = _controller();
     final target = controller.slots.firstWhere((slot) => slot.isMissing);

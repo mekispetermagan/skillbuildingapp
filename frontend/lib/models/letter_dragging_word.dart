@@ -1,4 +1,4 @@
-import 'package:characters/characters.dart';
+import 'bracketed_word.dart';
 
 class LetterDraggingWord {
   final int id;
@@ -11,6 +11,8 @@ class LetterDraggingWord {
     required this.imagePath,
   });
 
+  List<String> get letterTokens => tokenizeBracketedWord(word);
+
   factory LetterDraggingWord.fromJson(Map<String, dynamic> json) {
     final id = json['id'];
     final word = json['word'];
@@ -22,8 +24,8 @@ class LetterDraggingWord {
     }
 
     final normalized = word.trim().toUpperCase();
-    final letters = normalized.characters.toSet();
-    if (normalized.characters.length < 2 || letters.length < 2) {
+    final letters = tokenizeBracketedWord(normalized);
+    if (letters.length < 2 || letters.toSet().length < 2) {
       throw FormatException('Word cannot be shuffled: $word');
     }
     return LetterDraggingWord(id: id, word: normalized, imagePath: imagePath);

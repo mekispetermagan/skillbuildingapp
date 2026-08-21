@@ -29,9 +29,7 @@ void main() {
     );
     final animalData =
         jsonDecode(
-              await rootBundle.loadString(
-                factory.letterPracticeAnimalWordsPath,
-              ),
+              await rootBundle.loadString(factory.localizedAnimalWordsPath),
             )
             as List<dynamic>;
     final animalWords = [
@@ -74,6 +72,14 @@ void main() {
       factory.contentVersionFor(ActivityId.letterLearning, 'en-1'),
       'hu-1',
     );
-    expect(factory.contentVersionFor(ActivityId.memoryCards, 'en-1'), 'en-1');
+    expect(
+      factory.contentVersionFor(ActivityId.letterDragging, 'en-1'),
+      'hu-1',
+    );
+    expect(
+      factory.contentVersionFor(ActivityId.missingLetters, 'en-1'),
+      'hu-1',
+    );
+    expect(factory.contentVersionFor(ActivityId.memoryCards, 'en-1'), 'hu-1');
   });
 }

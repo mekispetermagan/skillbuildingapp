@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:characters/characters.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
@@ -118,7 +117,10 @@ class LetterDraggingController extends ChangeNotifier {
   bool get _isSolved {
     final word = _currentWord;
     return word != null &&
-        _tiles.map((tile) => tile.letter).join() == word.word;
+        const ListEquality<String>().equals(
+          _tiles.map((tile) => tile.letter).toList(),
+          word.letterTokens,
+        );
   }
 
   Future<void> _completeWord() async {
@@ -155,7 +157,7 @@ class LetterDraggingController extends ChangeNotifier {
     final word = _deck[_deckIndex++];
     _currentWord = word;
     final ordered = [
-      for (final (index, letter) in word.word.characters.indexed)
+      for (final (index, letter) in word.letterTokens.indexed)
         LetterDraggingTile(id: index, letter: letter),
     ];
 
