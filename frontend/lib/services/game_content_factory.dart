@@ -101,7 +101,8 @@ class HungarianGameContentFactory extends GameContentFactory {
           activity == ActivityId.wordConveyor ||
           activity == ActivityId.spellingQuiz ||
           activity == ActivityId.sentenceQuiz ||
-          activity == ActivityId.sentenceComposer
+          activity == ActivityId.sentenceComposer ||
+          activity == ActivityId.letterCatching
       ? 'hu-1'
       : fallback;
 

@@ -1527,17 +1527,21 @@ class SessionController extends ChangeNotifier {
   Future<void> _initializeLetterCatching() async {
     try {
       final encoded = await _assetBundle.loadString(
-        'assets/data/letter_catching_words.json',
+        _gameContent.localizedAnimalWordsPath,
       );
       final data = jsonDecode(encoded) as List<dynamic>;
       final words = [
         for (final item in data)
           LetterCatchingWord.fromJson(item as Map<String, dynamic>),
-      ];
+      ].where((word) => !word.letterTokens.contains(' ')).toList();
       if (_disposed) return;
 
-      _letterCatchingController = LetterCatchingController(words: words)
-        ..addListener(_forwardFeatureNotification);
+      _letterCatchingController = LetterCatchingController(
+        words: words,
+        distractorLetters: {
+          for (final word in words) ...word.letterTokens,
+        }.toList(),
+      )..addListener(_forwardFeatureNotification);
       if (status == SessionStatus.letterCatching) {
         _letterCatchingController!.start();
       }

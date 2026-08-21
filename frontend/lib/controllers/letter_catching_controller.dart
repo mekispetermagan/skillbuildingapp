@@ -28,10 +28,12 @@ class LetterCatchingController extends ChangeNotifier {
   LetterCatchingController({
     required List<LetterCatchingWord> words,
     LetterCatchingConfig config = letterCatchingConfig,
+    List<String> distractorLetters = LetterCatchingWorld.defaultAlphabet,
     Random? random,
   }) : world = LetterCatchingWorld(
          words: words,
          config: config,
+         distractorLetters: distractorLetters,
          random: random,
        );
 

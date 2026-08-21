@@ -41,14 +41,17 @@ class LetterCatchingGame extends FlameGame {
   }
 
   void _renderTargetWord(Canvas canvas, LetterCatchingWorld world) {
-    const letterSize = 40.0;
+    final tokens = world.currentWord.letterTokens;
+    const maximumLetterSize = 40.0;
     const gap = 5.0;
-    final wordWidth =
-        world.currentWord.word.length * letterSize +
-        (world.currentWord.word.length - 1) * gap;
+    final letterSize = min(
+      maximumLetterSize,
+      (world.width - 24 - gap * (tokens.length - 1)) / tokens.length,
+    );
+    final wordWidth = tokens.length * letterSize + (tokens.length - 1) * gap;
     final startX = (world.width - wordWidth) / 2;
     final top = max(130.0, world.height * 0.36);
-    for (var index = 0; index < world.currentWord.word.length; index++) {
+    for (var index = 0; index < tokens.length; index++) {
       final bounds = Rect.fromLTWH(
         startX + index * (letterSize + gap),
         top,
@@ -64,7 +67,7 @@ class LetterCatchingGame extends FlameGame {
       );
       _paintCenteredText(
         canvas,
-        world.currentWord.word[index],
+        tokens[index],
         bounds,
         color: world.matchedLetters[index]
             ? Colors.white

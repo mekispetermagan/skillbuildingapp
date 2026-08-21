@@ -100,6 +100,21 @@ class _LetterCatchingPlayAreaState extends State<_LetterCatchingPlayArea> {
               ),
             ),
             Positioned(
+              top: 12,
+              left: 24,
+              right: 24,
+              height: 110,
+              child: IgnorePointer(
+                child: Opacity(
+                  opacity: 0.75,
+                  child: Image.asset(
+                    widget.world.currentWord.imagePath,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
               top: 10,
               right: 12,
               child: IgnorePointer(

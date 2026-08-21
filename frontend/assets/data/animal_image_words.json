@@ -6,7 +6,7 @@
   {"id": 5, "word": "giraffe", "image_path": "assets/images/ugandan_animals/giraffe.png", "audio_path": "assets/audio/ugandan_animals/giraffe.mp3"},
   {"id": 6, "word": "goat", "image_path": "assets/images/ugandan_animals/goat.png", "audio_path": "assets/audio/ugandan_animals/goat.mp3"},
   {"id": 7, "word": "gorilla", "image_path": "assets/images/ugandan_animals/gorilla.png", "audio_path": "assets/audio/ugandan_animals/gorilla.mp3"},
-  {"id": 8, "word": "guinea fowl", "image_path": "assets/images/ugandan_animals/guinea_fowl.png", "audio_path": "assets/audio/ugandan_animals/guinea_fowl.mp3"},
+  {"id": 8, "word": "camel", "image_path": "assets/images/ugandan_animals/camel.png", "audio_path": "assets/audio/ugandan_animals/camel.mp3"},
   {"id": 9, "word": "hen", "image_path": "assets/images/ugandan_animals/hen.png", "audio_path": "assets/audio/ugandan_animals/hen.mp3"},
   {"id": 10, "word": "lion", "image_path": "assets/images/ugandan_animals/lion.png", "audio_path": "assets/audio/ugandan_animals/lion.mp3"},
   {"id": 11, "word": "pig", "image_path": "assets/images/ugandan_animals/pig.png", "audio_path": "assets/audio/ugandan_animals/pig.mp3"},

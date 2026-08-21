@@ -88,5 +88,9 @@ void main() {
       factory.contentVersionFor(ActivityId.sentenceComposer, 'en-1'),
       'hu-1',
     );
+    expect(
+      factory.contentVersionFor(ActivityId.letterCatching, 'en-1'),
+      'hu-1',
+    );
   });
 }

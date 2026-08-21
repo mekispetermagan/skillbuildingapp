@@ -18,7 +18,7 @@ class FallingLetter {
 }
 
 class LetterCatchingWorld {
-  static const alphabet = <String>[
+  static const defaultAlphabet = <String>[
     'A',
     'B',
     'C',
@@ -50,6 +50,7 @@ class LetterCatchingWorld {
   final List<LetterCatchingWord> words;
   final LetterCatchingConfig config;
   final Random random;
+  final List<String> distractorLetters;
   final List<FallingLetter> fallingLetters = [];
 
   double width = 0;
@@ -69,14 +70,13 @@ class LetterCatchingWorld {
   LetterCatchingWorld({
     required List<LetterCatchingWord> words,
     required this.config,
+    List<String> distractorLetters = defaultAlphabet,
     Random? random,
   }) : words = List.unmodifiable(words),
+       distractorLetters = List.unmodifiable(distractorLetters),
        random = random ?? Random() {
     if (words.isEmpty) {
       throw ArgumentError.value(words, 'words', 'Must not be empty');
-    }
-    if (words.any((word) => word.word.length > config.poolSize)) {
-      throw ArgumentError('Pool must fit every target word.');
     }
     reset();
   }
@@ -178,8 +178,8 @@ class LetterCatchingWorld {
   }
 
   int _firstUnmatchedIndex(String letter) {
-    for (var index = 0; index < currentWord.word.length; index++) {
-      if (!matchedLetters[index] && currentWord.word[index] == letter) {
+    for (var index = 0; index < currentWord.letterTokens.length; index++) {
+      if (!matchedLetters[index] && currentWord.letterTokens[index] == letter) {
         return index;
       }
     }
@@ -197,13 +197,14 @@ class LetterCatchingWorld {
       _deckIndex = 0;
     }
     currentWord = _deck[_deckIndex++];
-    matchedLetters = List.filled(currentWord.word.length, false);
+    final tokens = currentWord.letterTokens;
+    matchedLetters = List.filled(tokens.length, false);
     final distractors =
-        alphabet.where((letter) => !currentWord.word.contains(letter)).toList()
+        distractorLetters.where((letter) => !tokens.contains(letter)).toList()
           ..shuffle(random);
     sourcePool = [
-      ...currentWord.word.split(''),
-      ...distractors.take(config.poolSize - currentWord.word.length),
+      ...tokens,
+      ...distractors.take(max(0, config.poolSize - tokens.length)),
     ]..shuffle(random);
   }
 }

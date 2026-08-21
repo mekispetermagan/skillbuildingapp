@@ -51,7 +51,7 @@ void _catch(LetterCatchingController controller, String letter, int id) {
 }
 
 void _solveCurrentWord(LetterCatchingController controller, int firstId) {
-  final letters = controller.world.currentWord.word.split('');
+  final letters = controller.world.currentWord.letterTokens;
   for (final (index, letter) in letters.indexed) {
     _catch(controller, letter, firstId + index);
   }
@@ -83,6 +83,26 @@ void main() {
     _catch(controller, 'E', 2);
     expect(controller.world.matchedLetters, [false, false, true, true, false]);
     expect(controller.world.score, 0);
+  });
+
+  test('supports long words and bracketed Hungarian digraphs', () {
+    final longWordController = _controller(
+      words: const [LetterCatchingWord(id: 1, word: 'CHIMPANZEE')],
+    );
+    expect(longWordController.world.sourcePool, hasLength(10));
+
+    final hungarianController = _controller(
+      words: const [LetterCatchingWord(id: 1, word: '[NY]ÚL')],
+    );
+    expect(hungarianController.world.currentWord.letterTokens, [
+      'NY',
+      'Ú',
+      'L',
+    ]);
+    expect(hungarianController.world.sourcePool, contains('NY'));
+
+    _solveCurrentWord(hungarianController, 20);
+    expect(hungarianController.world.score, 1);
   });
 
   test('wrong catches remove a life without changing score', () {
