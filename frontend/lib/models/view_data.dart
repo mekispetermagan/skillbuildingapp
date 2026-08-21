@@ -23,6 +23,7 @@ import 'letter_learning_state.dart';
 import 'letter_practice_config.dart';
 import 'letter_practice_slot.dart';
 import 'letter_practice_state.dart';
+import 'letter_practice_word_set.dart';
 import 'letter_shooting_world.dart';
 import 'letter_shooting_state.dart';
 import 'logic_game.dart';
@@ -306,6 +307,7 @@ class LetterPracticeViewData {
   final List<AlphabetLetter> sourceLetters;
   final List<int> availableTiers;
   final Set<int> tiers;
+  final LetterPracticeWordSet wordSet;
   final bool useColors;
   final String? selectedLetter;
   final int sourceColumnCount;
@@ -322,6 +324,7 @@ class LetterPracticeViewData {
     required this.sourceLetters,
     required this.availableTiers,
     required this.tiers,
+    required this.wordSet,
     required this.useColors,
     required this.selectedLetter,
     required this.sourceColumnCount,

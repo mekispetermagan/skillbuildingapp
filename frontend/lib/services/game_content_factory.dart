@@ -11,11 +11,21 @@ class GameContentFactory {
       'assets/data/alphabet_progression.json';
   String get letterLearningAlphabetPath =>
       'assets/data/alphabet_progression.json';
+  String get letterPracticeAnimalWordsPath =>
+      'assets/data/animal_image_words.json';
 
-  List<ImageWord> letterPracticeWords({
-    required List<ImageWord> englishWords,
+  List<ImageWord> letterPracticeAlphabetWords({
+    required List<AlphabetObject> englishObjects,
     required List<AlphabetLetter> alphabet,
-  }) => englishWords;
+  }) => [
+    for (final object in englishObjects)
+      ImageWord(
+        id: object.id,
+        word: object.word,
+        imagePath: object.imagePath,
+        audioPath: object.audioPath,
+      ),
+  ];
 
   List<AlphabetObject> letterLearningObjects({
     required List<AlphabetObject> englishObjects,
@@ -41,10 +51,13 @@ class HungarianGameContentFactory extends GameContentFactory {
   @override
   String get letterLearningAlphabetPath =>
       'assets/data/alphabet_progression_hu.json';
+  @override
+  String get letterPracticeAnimalWordsPath =>
+      'assets/data/animal_image_words_hu.json';
 
   @override
-  List<ImageWord> letterPracticeWords({
-    required List<ImageWord> englishWords,
+  List<ImageWord> letterPracticeAlphabetWords({
+    required List<AlphabetObject> englishObjects,
     required List<AlphabetLetter> alphabet,
   }) => [
     for (final letter in alphabet)

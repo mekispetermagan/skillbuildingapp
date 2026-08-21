@@ -432,6 +432,7 @@ class AppRootState extends State<AppRoot> {
             onBack: _sessionController.handleBack,
             onRestart: _sessionController.restartLetterPractice,
             onSetTiers: _sessionController.letterPracticeSetTiers,
+            onSetWordSet: _sessionController.letterPracticeSetWordSet,
             onSetUseColors: _sessionController.letterPracticeSetUseColors,
             onSelectLetter: _sessionController.letterPracticeSelectLetter,
             canPlace: _sessionController.letterPracticeCanPlace,

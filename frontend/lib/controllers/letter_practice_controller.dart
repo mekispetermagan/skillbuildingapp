@@ -10,6 +10,7 @@ import '../models/image_word.dart';
 import '../models/letter_practice_config.dart';
 import '../models/letter_practice_slot.dart';
 import '../models/letter_practice_state.dart';
+import '../models/letter_practice_word_set.dart';
 
 const letterPracticeConfig = LetterPracticeConfig(
   targetCellSize: 48,
@@ -24,7 +25,7 @@ class LetterPracticeController extends ChangeNotifier {
   static const _fanfarePath = 'assets/audio/letter_dragging/fanfare.mp3';
 
   final AssetAudioPlayer _audioPlayer;
-  final List<ImageWord> _words;
+  final Map<LetterPracticeWordSet, List<ImageWord>> _wordSets;
   final List<AlphabetLetter> _alphabet;
   final Random _random;
   final LetterPracticeConfig config;
@@ -40,24 +41,34 @@ class LetterPracticeController extends ChangeNotifier {
   bool _disposed = false;
   int _sessionGeneration = 0;
   ImageWord? _previousWord;
+  LetterPracticeWordSet _wordSet = LetterPracticeWordSet.alphabet;
 
   LetterPracticeController(
     this._audioPlayer, {
-    required List<ImageWord> words,
+    required List<ImageWord> alphabetWords,
+    required List<ImageWord> animalWords,
     required List<AlphabetLetter> alphabet,
     this.config = letterPracticeConfig,
     Random? random,
-  }) : _words = List.unmodifiable(words),
+  }) : _wordSets = Map<LetterPracticeWordSet, List<ImageWord>>.unmodifiable({
+         LetterPracticeWordSet.alphabet: List<ImageWord>.unmodifiable(
+           alphabetWords,
+         ),
+         LetterPracticeWordSet.animals: List<ImageWord>.unmodifiable(
+           animalWords,
+         ),
+       }),
        _alphabet = List.unmodifiable(alphabet),
        _random = random ?? Random() {
-    if (_words.isEmpty || _alphabet.isEmpty) {
-      throw ArgumentError('Words and alphabet must not be empty.');
+    if (_wordSets.values.any((words) => words.isEmpty) || _alphabet.isEmpty) {
+      throw ArgumentError('Word sets and alphabet must not be empty.');
     }
     if (!availableTiers.contains(1)) _tiers = {availableTiers.first};
     _generateExercise();
   }
 
   List<LetterPracticeSlot> get slots => List.unmodifiable(_slots);
+  List<ImageWord> get _words => _wordSets[_wordSet]!;
   List<AlphabetLetter> get sourceLetters {
     final byLetter = {for (final item in _alphabet) item.letter: item};
     final letters = <AlphabetLetter>[
@@ -82,6 +93,7 @@ class LetterPracticeController extends ChangeNotifier {
   List<int> get availableTiers =>
       (_alphabet.map((letter) => letter.tier).toSet().toList()..sort());
   Set<int> get tiers => Set.unmodifiable(_tiers);
+  LetterPracticeWordSet get wordSet => _wordSet;
   bool get useColors => _useColors;
   String? get selectedLetter => _selectedLetter;
   int get score => _score;
@@ -108,6 +120,18 @@ class LetterPracticeController extends ChangeNotifier {
   void stop() => _sessionGeneration++;
 
   Future<void> playAudio() => _play(currentWord.audioPath);
+
+  void setWordSet(LetterPracticeWordSet value) {
+    if (value == _wordSet) return;
+    _sessionGeneration++;
+    _wordSet = value;
+    _state = LetterPracticeState.playing;
+    _selectedLetter = null;
+    _previousWord = null;
+    _generateExercise();
+    notifyListeners();
+    unawaited(playAudio());
+  }
 
   void setTiers(Set<int> values) {
     if (values.isEmpty || const SetEquality<int>().equals(values, _tiers)) {

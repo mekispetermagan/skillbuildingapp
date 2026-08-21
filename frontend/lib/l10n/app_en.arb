@@ -64,6 +64,8 @@
   "difficultyHard": "Hard",
   "colorsOn": "Colors on",
   "colorsOff": "Colors off",
+  "wordSetAlphabet": "Alphabet",
+  "wordSetAnimals": "Animals",
   "imagesOn": "Images on",
   "imagesOff": "Images off",
   "masked": "Masked",

@@ -29,6 +29,7 @@ import '../models/letter_shooting_word.dart';
 import '../models/letter_shooting_world.dart';
 import '../models/logic_game.dart';
 import '../models/letter_practice_state.dart';
+import '../models/letter_practice_word_set.dart';
 import '../models/missing_letters_state.dart';
 import '../models/missing_letters_word.dart';
 import '../models/number_learning.dart';
@@ -879,6 +880,8 @@ class SessionController extends ChangeNotifier {
     availableTiers:
         _letterPracticeController?.availableTiers ?? const [1, 2, 3],
     tiers: _letterPracticeController?.tiers ?? const {1},
+    wordSet:
+        _letterPracticeController?.wordSet ?? LetterPracticeWordSet.alphabet,
     useColors: _letterPracticeController?.useColors ?? true,
     selectedLetter: _letterPracticeController?.selectedLetter,
     sourceColumnCount: _letterPracticeController?.sourceColumnCount ?? 5,
@@ -890,6 +893,8 @@ class SessionController extends ChangeNotifier {
 
   void letterPracticeSetTiers(Set<int> values) =>
       _letterPracticeController?.setTiers(values);
+  void letterPracticeSetWordSet(LetterPracticeWordSet value) =>
+      _letterPracticeController?.setWordSet(value);
   void letterPracticeSetUseColors(bool value) =>
       _letterPracticeController?.setUseColors(value);
   void letterPracticeSelectLetter(String letter) =>
@@ -1627,28 +1632,35 @@ class SessionController extends ChangeNotifier {
   Future<void> _initializeLetterPractice() async {
     try {
       final encodedResults = await Future.wait([
-        _assetBundle.loadString('assets/data/animal_image_words.json'),
+        _assetBundle.loadString(_gameContent.letterPracticeAnimalWordsPath),
         _assetBundle.loadString(_gameContent.letterPracticeAlphabetPath),
+        _assetBundle.loadString('assets/data/alphabet_objects.json'),
       ]);
-      final wordData = jsonDecode(encodedResults[0]) as List<dynamic>;
+      final animalData = jsonDecode(encodedResults[0]) as List<dynamic>;
       final alphabetData = jsonDecode(encodedResults[1]) as List<dynamic>;
-      final englishWords = [
-        for (final item in wordData)
+      final englishObjectData = jsonDecode(encodedResults[2]) as List<dynamic>;
+      final animalWords = [
+        for (final item in animalData)
           ImageWord.fromJson(item as Map<String, dynamic>),
       ];
       final alphabet = [
         for (final item in alphabetData)
           AlphabetLetter.fromJson(item as Map<String, dynamic>),
       ];
-      final words = _gameContent.letterPracticeWords(
-        englishWords: englishWords,
+      final englishObjects = [
+        for (final item in englishObjectData)
+          AlphabetObject.fromJson(item as Map<String, dynamic>),
+      ];
+      final alphabetWords = _gameContent.letterPracticeAlphabetWords(
+        englishObjects: englishObjects,
         alphabet: alphabet,
       );
       if (_disposed) return;
 
       _letterPracticeController = LetterPracticeController(
         _audioPlayer,
-        words: words,
+        alphabetWords: alphabetWords,
+        animalWords: animalWords,
         alphabet: alphabet,
       )..addListener(_forwardFeatureNotification);
       if (status == SessionStatus.letterPractice) {

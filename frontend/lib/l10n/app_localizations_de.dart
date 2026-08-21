@@ -193,6 +193,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get colorsOff => 'Farben aus';
 
   @override
+  String get wordSetAlphabet => 'Alphabet';
+
+  @override
+  String get wordSetAnimals => 'Tiere';
+
+  @override
   String get imagesOn => 'Bilder an';
 
   @override

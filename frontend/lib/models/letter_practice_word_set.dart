@@ -1,0 +1,1 @@
+enum LetterPracticeWordSet { alphabet, animals }

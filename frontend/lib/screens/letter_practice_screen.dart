@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 
 import '../models/letter_practice_state.dart';
+import '../models/letter_practice_word_set.dart';
 import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/feature_load_state.dart';
@@ -14,6 +15,7 @@ class LetterPracticeScreen extends StatelessWidget {
   final VoidCallback onBack;
   final VoidCallback onRestart;
   final ValueChanged<Set<int>> onSetTiers;
+  final ValueChanged<LetterPracticeWordSet> onSetWordSet;
   final ValueChanged<bool> onSetUseColors;
   final ValueChanged<String> onSelectLetter;
   final bool Function({required int slotId, required String letter}) canPlace;
@@ -27,6 +29,7 @@ class LetterPracticeScreen extends StatelessWidget {
     required this.onBack,
     required this.onRestart,
     required this.onSetTiers,
+    required this.onSetWordSet,
     required this.onSetUseColors,
     required this.onSelectLetter,
     required this.canPlace,
@@ -59,8 +62,10 @@ class LetterPracticeScreen extends StatelessWidget {
                           _Controls(
                             availableTiers: viewData.availableTiers,
                             tiers: viewData.tiers,
+                            wordSet: viewData.wordSet,
                             useColors: viewData.useColors,
                             onSetTiers: onSetTiers,
+                            onSetWordSet: onSetWordSet,
                             onSetUseColors: onSetUseColors,
                           ),
                           const SizedBox(height: 16),
@@ -167,15 +172,19 @@ class LetterPracticeScreen extends StatelessWidget {
 class _Controls extends StatelessWidget {
   final List<int> availableTiers;
   final Set<int> tiers;
+  final LetterPracticeWordSet wordSet;
   final bool useColors;
   final ValueChanged<Set<int>> onSetTiers;
+  final ValueChanged<LetterPracticeWordSet> onSetWordSet;
   final ValueChanged<bool> onSetUseColors;
 
   const _Controls({
     required this.availableTiers,
     required this.tiers,
+    required this.wordSet,
     required this.useColors,
     required this.onSetTiers,
+    required this.onSetWordSet,
     required this.onSetUseColors,
   });
 
@@ -203,6 +212,21 @@ class _Controls extends StatelessWidget {
         emptySelectionAllowed: false,
         showSelectedIcon: false,
         onSelectionChanged: onSetTiers,
+      ),
+      SegmentedButton<LetterPracticeWordSet>(
+        segments: [
+          ButtonSegment(
+            value: LetterPracticeWordSet.alphabet,
+            label: Text(context.l10n.wordSetAlphabet),
+          ),
+          ButtonSegment(
+            value: LetterPracticeWordSet.animals,
+            label: Text(context.l10n.wordSetAnimals),
+          ),
+        ],
+        selected: {wordSet},
+        showSelectedIcon: false,
+        onSelectionChanged: (values) => onSetWordSet(values.single),
       ),
       SegmentedButton<bool>(
         segments: [

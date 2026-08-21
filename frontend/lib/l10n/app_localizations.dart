@@ -454,6 +454,18 @@ abstract class AppLocalizations {
   /// **'Colors off'**
   String get colorsOff;
 
+  /// No description provided for @wordSetAlphabet.
+  ///
+  /// In en, this message translates to:
+  /// **'Alphabet'**
+  String get wordSetAlphabet;
+
+  /// No description provided for @wordSetAnimals.
+  ///
+  /// In en, this message translates to:
+  /// **'Animals'**
+  String get wordSetAnimals;
+
   /// No description provided for @imagesOn.
   ///
   /// In en, this message translates to:

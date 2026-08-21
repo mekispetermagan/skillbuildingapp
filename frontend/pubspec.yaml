@@ -49,6 +49,7 @@ flutter:
     - assets/audio/letter_dragging/
     - assets/audio/sentences/
     - assets/audio/ugandan_animals/
+    - assets/audio/hungarian_animals/
     - assets/audio/alphabet_objects/
     - assets/audio/alphabet/
     - assets/audio/alphabet/hu/
@@ -56,6 +57,7 @@ flutter:
     - assets/images/alphabet_objects/
     - assets/images/alphabet_objects_hu/
     - assets/images/ugandan_animals/
+    - assets/images/hungarian_animals/
     - assets/images/sentence_building/
     - assets/images/lives/
     - assets/images/area_menu/

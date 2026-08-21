@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:skillbuilding_game/models/activity_id.dart';
 import 'package:skillbuilding_game/models/alphabet_letter.dart';
+import 'package:skillbuilding_game/models/image_word.dart';
 import 'package:skillbuilding_game/models/interface_language.dart';
 import 'package:skillbuilding_game/services/game_content_factory.dart';
 
@@ -22,22 +23,40 @@ void main() {
     ];
     final factory = GameContentFactory.forLanguage(InterfaceLanguage.hungarian);
 
-    final words = factory.letterPracticeWords(
-      englishWords: const [],
+    final words = factory.letterPracticeAlphabetWords(
+      englishObjects: const [],
       alphabet: alphabet,
     );
+    final animalData =
+        jsonDecode(
+              await rootBundle.loadString(
+                factory.letterPracticeAnimalWordsPath,
+              ),
+            )
+            as List<dynamic>;
+    final animalWords = [
+      for (final item in animalData)
+        ImageWord.fromJson(item as Map<String, dynamic>),
+    ];
     final objects = factory.letterLearningObjects(
       englishObjects: const [],
       alphabet: alphabet,
     );
 
     expect(words, hasLength(42));
+    expect(animalWords, hasLength(30));
     expect(objects, hasLength(42));
     expect(
       words.map((word) => word.word),
       containsAll(['[cs]észe', '[dzs]eki']),
     );
     for (final word in words) {
+      expect(File(word.imagePath).existsSync(), isTrue, reason: word.imagePath);
+      expect(File(word.audioPath).existsSync(), isTrue, reason: word.audioPath);
+      await rootBundle.load(word.imagePath);
+      await rootBundle.load(word.audioPath);
+    }
+    for (final word in animalWords) {
       expect(File(word.imagePath).existsSync(), isTrue, reason: word.imagePath);
       expect(File(word.audioPath).existsSync(), isTrue, reason: word.audioPath);
       await rootBundle.load(word.imagePath);

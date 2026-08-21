@@ -7,6 +7,7 @@ import 'package:skillbuilding_game/models/alphabet_letter.dart';
 import 'package:skillbuilding_game/models/image_word.dart';
 import 'package:skillbuilding_game/models/letter_practice_config.dart';
 import 'package:skillbuilding_game/models/letter_practice_state.dart';
+import 'package:skillbuilding_game/models/letter_practice_word_set.dart';
 
 class _FakeAudioPlayer implements AssetAudioPlayer {
   final playedPaths = <String>[];
@@ -144,7 +145,8 @@ void main() {
   test('starts with beginner letters and masks only active groups', () {
     final controller = LetterPracticeController(
       _FakeAudioPlayer(),
-      words: const [_cat],
+      alphabetWords: const [_cat],
+      animalWords: const [_sheep],
       alphabet: _alphabet,
       config: _config,
       random: Random(1),
@@ -180,7 +182,8 @@ void main() {
   test('multi-selection unions groups and uses 5, 6, or 7 columns', () {
     final controller = LetterPracticeController(
       _FakeAudioPlayer(),
-      words: _words,
+      alphabetWords: _words,
+      animalWords: _words,
       alphabet: _alphabet,
       config: _config,
       random: Random(2),
@@ -235,7 +238,8 @@ void main() {
   test('color setting changes without replacing the exercise', () {
     final controller = LetterPracticeController(
       _FakeAudioPlayer(),
-      words: _words,
+      alphabetWords: _words,
+      animalWords: _words,
       alphabet: _alphabet,
       config: _config,
       random: Random(3),
@@ -257,7 +261,8 @@ void main() {
       final audio = _FakeAudioPlayer();
       final controller = LetterPracticeController(
         audio,
-        words: const [_cat],
+        alphabetWords: const [_cat],
+        animalWords: const [_sheep],
         alphabet: _alphabet,
         config: _config,
         random: Random(4),
@@ -284,7 +289,8 @@ void main() {
   test('repeated letters fill the leftmost matching occurrence', () async {
     final controller = LetterPracticeController(
       _FakeAudioPlayer(),
-      words: const [_sheep],
+      alphabetWords: const [_sheep],
+      animalWords: const [_cat],
       alphabet: _alphabet,
       config: _config,
       random: Random(5),
@@ -307,7 +313,8 @@ void main() {
       final audio = _FakeAudioPlayer();
       final controller = LetterPracticeController(
         audio,
-        words: _words,
+        alphabetWords: _words,
+        animalWords: _words,
         alphabet: _alphabet,
         config: _config,
         random: Random(6),
@@ -329,7 +336,8 @@ void main() {
     final audio = _FakeAudioPlayer();
     final controller = LetterPracticeController(
       audio,
-      words: const [_cat],
+      alphabetWords: const [_cat],
+      animalWords: const [_sheep],
       alphabet: _alphabet,
       config: _config,
       random: Random(7),
@@ -365,7 +373,8 @@ void main() {
     ];
     final controller = LetterPracticeController(
       _FakeAudioPlayer(),
-      words: const [word],
+      alphabetWords: const [word],
+      animalWords: const [_cat],
       alphabet: alphabet,
       config: _config,
     );
@@ -381,6 +390,29 @@ void main() {
       controller.slots.singleWhere((slot) => slot.letter == 'SSZ').isTarget,
       isTrue,
     );
+    controller.dispose();
+  });
+
+  test('defaults to alphabet words and can switch to animals', () async {
+    final audio = _FakeAudioPlayer();
+    final controller = LetterPracticeController(
+      audio,
+      alphabetWords: const [_cat],
+      animalWords: const [_sheep],
+      alphabet: _alphabet,
+      config: _config,
+      random: Random(8),
+    );
+
+    expect(controller.wordSet, LetterPracticeWordSet.alphabet);
+    expect(controller.currentWord, _cat);
+
+    controller.setWordSet(LetterPracticeWordSet.animals);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(controller.wordSet, LetterPracticeWordSet.animals);
+    expect(controller.currentWord, _sheep);
+    expect(audio.playedPaths.last, _sheep.audioPath);
     controller.dispose();
   });
 }
