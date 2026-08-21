@@ -73,6 +73,10 @@ class AuthenticatedIdentity(ContractModel):
     role: Literal["learner", "teacher"]
 
 
+class AccountPreferenceUpdate(ContractModel):
+    preferred_language: Literal["en", "de", "hu"]
+
+
 class StudentProfile(ContractModel):
     client_id: str = Field(min_length=1, max_length=64)
     name: str = Field(min_length=1, max_length=100)

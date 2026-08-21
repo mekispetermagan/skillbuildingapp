@@ -17,6 +17,7 @@ import 'screens/screens.dart';
 import 'services/gameplay_recorder.dart';
 import 'storage/gameplay_record_store.dart';
 import 'theme/app_theme.dart';
+import 'widgets/account_menu.dart';
 
 void main() {
   final config = GameplayApiConfig.fromEnvironment();
@@ -105,6 +106,7 @@ class _AccountGatewayState extends State<AccountGateway> {
   );
   Timer? _timeoutTimer;
   InterfaceLanguage? _reportedLanguage;
+  final GlobalKey<AppRootState> _gameKey = GlobalKey<AppRootState>();
 
   @override
   void initState() {
@@ -115,6 +117,7 @@ class _AccountGatewayState extends State<AccountGateway> {
     _timeoutTimer = Timer.periodic(const Duration(minutes: 1), (_) async {
       if (_controller.checkTeacherTimeout()) return;
       await _controller.synchronizeStudents();
+      await _controller.synchronizeAccountPreferences();
       await widget.gameplayRecorder.synchronize();
     });
   }
@@ -150,53 +153,88 @@ class _AccountGatewayState extends State<AccountGateway> {
     }
   }
 
+  void _changeStudent() {
+    if (_gameKey.currentState?.exitToAccount(_controller.leaveGames) != true) {
+      _controller.leaveGames();
+    }
+  }
+
+  void _logout() {
+    if (_controller.page == AccountFlowPage.games) {
+      if (_gameKey.currentState?.exitToAccount(_controller.logout) == true) {
+        return;
+      }
+    }
+    _controller.logout();
+  }
+
+  Widget _page(BuildContext context) => switch (_controller.page) {
+    AccountFlowPage.opening => OpeningScreen(onStart: _controller.start),
+    AccountFlowPage.welcome => AuthenticationWelcomeScreen(
+      onLogin: _controller.showLogin,
+      onRegister: _controller.showRegistration,
+      onBack: _controller.back,
+    ),
+    AccountFlowPage.login => LoginScreen(
+      busy: _controller.busy,
+      errorMessage: _controller.errorMessage,
+      onSubmit: _controller.login,
+      onBack: _controller.back,
+    ),
+    AccountFlowPage.register => RegistrationScreen(
+      busy: _controller.busy,
+      errorMessage: _controller.errorMessage,
+      onSubmit: _controller.register,
+      onBack: _controller.back,
+    ),
+    AccountFlowPage.students => StudentMenuScreen(
+      teacherName: _controller.account!.name,
+      students: _controller.students,
+      onSelect: _controller.selectStudent,
+      onEdit: _controller.editStudent,
+      onAdd: _controller.addStudent,
+    ),
+    AccountFlowPage.studentForm => StudentFormScreen(
+      student: _controller.editingStudent,
+      onSave: _controller.saveStudent,
+      onBack: _controller.back,
+    ),
+    AccountFlowPage.language => LanguageSelectionScreen(
+      selectedLanguage: _controller.account!.preferredLanguage,
+      onSelect: _controller.changeLanguage,
+      onBack: _controller.closeLanguage,
+    ),
+    AccountFlowPage.games => AppRoot(
+      key: _gameKey,
+      gameplayRecorder: widget.gameplayRecorder,
+      startAtAreaMenu: true,
+      onExit: _controller.account!.role == AccountRole.teacher
+          ? _controller.leaveGames
+          : null,
+    ),
+  };
+
   @override
   Widget build(BuildContext context) => Listener(
     onPointerDown: (_) => _controller.recordActivity(),
     child: ListenableBuilder(
       listenable: _controller,
-      builder: (context, _) => switch (_controller.page) {
-        AccountFlowPage.opening => OpeningScreen(onStart: _controller.start),
-        AccountFlowPage.welcome => AuthenticationWelcomeScreen(
-          onLogin: _controller.showLogin,
-          onRegister: _controller.showRegistration,
-          onBack: _controller.back,
-        ),
-        AccountFlowPage.login => LoginScreen(
-          busy: _controller.busy,
-          errorMessage: _controller.errorMessage,
-          onSubmit: _controller.login,
-          onBack: _controller.back,
-        ),
-        AccountFlowPage.register => RegistrationScreen(
-          busy: _controller.busy,
-          errorMessage: _controller.errorMessage,
-          onSubmit: _controller.register,
-          onBack: _controller.back,
-        ),
-        AccountFlowPage.students => StudentMenuScreen(
-          teacherName: _controller.account!.name,
-          students: _controller.students,
-          onSelect: _controller.selectStudent,
-          onEdit: _controller.editStudent,
-          onAdd: _controller.addStudent,
-          onLogout: _controller.logout,
-        ),
-        AccountFlowPage.studentForm => StudentFormScreen(
-          student: _controller.editingStudent,
-          onSave: _controller.saveStudent,
-          onBack: _controller.back,
-        ),
-        AccountFlowPage.games => AppRoot(
-          key: ValueKey(
-            'games-${_controller.account!.accountId}-${_controller.selectedStudent?.id}',
-          ),
-          gameplayRecorder: widget.gameplayRecorder,
-          startAtAreaMenu: true,
-          onExit: _controller.account!.role == AccountRole.teacher
-              ? _controller.leaveGames
+      builder: (context, _) {
+        final page = _page(context);
+        final account = _controller.account;
+        if (account == null || _controller.page == AccountFlowPage.language) {
+          return page;
+        }
+        return AccountMenuScope(
+          onChangeLanguage: _controller.showLanguage,
+          onChangeStudent:
+              account.role == AccountRole.teacher &&
+                  _controller.page == AccountFlowPage.games
+              ? _changeStudent
               : null,
-        ),
+          onLogout: _logout,
+          child: page,
+        );
       },
     ),
   );
@@ -237,6 +275,13 @@ class AppRootState extends State<AppRoot> {
       gameplayRecorder: widget.gameplayRecorder,
     );
     if (widget.startAtAreaMenu) _sessionController.openAreaMenu();
+  }
+
+  bool exitToAccount(VoidCallback destination) {
+    if (!_sessionController.canExitAccount) return false;
+    _sessionController.exitAccount();
+    destination();
+    return true;
   }
 
   @override

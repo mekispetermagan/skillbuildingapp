@@ -6,6 +6,7 @@ import '../api/authentication_api_client.dart';
 import '../api/gameplay_api_client.dart';
 import '../api/student_api_client.dart';
 import '../models/authentication.dart';
+import '../models/interface_language.dart';
 import '../models/student.dart';
 import '../storage/account_store.dart';
 import '../storage/student_store.dart';
@@ -17,6 +18,7 @@ enum AccountFlowPage {
   register,
   students,
   studentForm,
+  language,
   games,
 }
 
@@ -37,6 +39,7 @@ class AccountFlowController extends ChangeNotifier {
   DateTime? _lastTeacherActivity;
   int _failedAttempts = 0;
   DateTime? _lockedUntil;
+  AccountFlowPage? _pageBeforeLanguage;
 
   factory AccountFlowController(
     AuthenticationApi api, {
@@ -79,6 +82,66 @@ class AccountFlowController extends ChangeNotifier {
   void start() => _open(AccountFlowPage.welcome);
   void showLogin() => _open(AccountFlowPage.login);
   void showRegistration() => _open(AccountFlowPage.register);
+
+  void showLanguage() {
+    _pageBeforeLanguage = page;
+    _open(AccountFlowPage.language);
+  }
+
+  Future<void> changeLanguage(InterfaceLanguage language) async {
+    final current = account;
+    if (current == null) return;
+    final updated = current.withPreferredLanguage(language);
+    account = updated;
+    final accounts = [...await _accountStore.loadAccounts()];
+    final index = accounts.indexWhere(
+      (stored) => stored.account.accountId == updated.accountId,
+    );
+    if (index >= 0) {
+      final stored = accounts[index];
+      accounts[index] = StoredAccount(
+        account: updated,
+        pinSalt: stored.pinSalt,
+        pinHash: stored.pinHash,
+      );
+      await _accountStore.saveAccounts(accounts);
+    }
+    try {
+      await _api.updatePreferredLanguage(updated.accessToken, language);
+    } on Object {
+      // The local preference remains authoritative while offline.
+    }
+    final destination = _pageBeforeLanguage ?? _homePageFor(updated);
+    _pageBeforeLanguage = null;
+    _open(destination);
+  }
+
+  void closeLanguage() {
+    final current = account;
+    final destination =
+        _pageBeforeLanguage ??
+        (current == null ? AccountFlowPage.welcome : _homePageFor(current));
+    _pageBeforeLanguage = null;
+    _open(destination);
+  }
+
+  AccountFlowPage _homePageFor(AuthenticatedAccount value) =>
+      value.role == AccountRole.learner
+      ? AccountFlowPage.games
+      : AccountFlowPage.students;
+
+  Future<void> synchronizeAccountPreferences() async {
+    final current = account;
+    if (current == null) return;
+    try {
+      await _api.updatePreferredLanguage(
+        current.accessToken,
+        current.preferredLanguage,
+      );
+    } on Object {
+      // Retry during the next periodic synchronization.
+    }
+  }
 
   Future<bool> register(AccountRegistration registration) async {
     return _run(() async {
@@ -283,6 +346,8 @@ class AccountFlowController extends ChangeNotifier {
       case AccountFlowPage.studentForm:
         editingStudent = null;
         _open(AccountFlowPage.students);
+      case AccountFlowPage.language:
+        closeLanguage();
       case AccountFlowPage.welcome:
         _open(AccountFlowPage.opening);
       default:

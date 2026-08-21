@@ -10,6 +10,7 @@ from .config import Settings
 from .database import Database
 from .models import (
     AccountCredentials,
+    AccountPreferenceUpdate,
     AccountRegistration,
     AuthenticatedAccount,
     AuthenticatedIdentity,
@@ -107,6 +108,20 @@ def create_router(settings: Settings, database: Database) -> APIRouter:
                 detail="Invalid username or PIN.",
             )
         return account
+
+    @router.patch(
+        "/auth/preferences",
+        status_code=status.HTTP_204_NO_CONTENT,
+        dependencies=[key_dependency],
+    )
+    def update_preferences(
+        update: AccountPreferenceUpdate,
+        identity: AuthenticatedIdentity = Depends(require_identity),
+    ) -> Response:
+        database.update_preferred_language(
+            identity.account_id, update.preferred_language
+        )
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     @router.get(
         "/students",

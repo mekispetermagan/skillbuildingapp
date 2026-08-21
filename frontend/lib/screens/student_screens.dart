@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/authentication.dart';
 import '../models/student.dart';
+import '../widgets/account_menu.dart';
 
 class StudentMenuScreen extends StatelessWidget {
   final String teacherName;
@@ -9,7 +10,6 @@ class StudentMenuScreen extends StatelessWidget {
   final ValueChanged<Student> onSelect;
   final ValueChanged<Student> onEdit;
   final VoidCallback onAdd;
-  final VoidCallback onLogout;
 
   const StudentMenuScreen({
     required this.teacherName,
@@ -17,7 +17,6 @@ class StudentMenuScreen extends StatelessWidget {
     required this.onSelect,
     required this.onEdit,
     required this.onAdd,
-    required this.onLogout,
     super.key,
   });
 
@@ -25,9 +24,7 @@ class StudentMenuScreen extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       title: Text('$teacherName’s students'),
-      actions: [
-        IconButton(onPressed: onLogout, icon: const Icon(Icons.logout)),
-      ],
+      actions: const [AccountMenuButton()],
     ),
     floatingActionButton: FloatingActionButton.extended(
       onPressed: onAdd,
@@ -103,6 +100,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
     appBar: AppBar(
       title: Text(widget.student == null ? 'Add student' : 'Edit student'),
       leading: BackButton(onPressed: widget.onBack),
+      actions: const [AccountMenuButton()],
     ),
     body: SafeArea(
       child: Center(

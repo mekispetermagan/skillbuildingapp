@@ -4,11 +4,22 @@ import '../models/interface_language.dart';
 
 class LanguageSelectionScreen extends StatelessWidget {
   final ValueChanged<InterfaceLanguage> onSelect;
+  final InterfaceLanguage selectedLanguage;
+  final VoidCallback onBack;
 
-  const LanguageSelectionScreen({required this.onSelect, super.key});
+  const LanguageSelectionScreen({
+    required this.onSelect,
+    required this.selectedLanguage,
+    required this.onBack,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(
+      title: const Text('Change language'),
+      leading: BackButton(onPressed: onBack),
+    ),
     body: SafeArea(
       child: Center(
         child: ConstrainedBox(
@@ -27,7 +38,16 @@ class LanguageSelectionScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 20),
                       textStyle: const TextStyle(fontSize: 22),
                     ),
-                    child: Text(language.nativeName),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (language == selectedLanguage) ...[
+                          const Icon(Icons.check),
+                          const SizedBox(width: 8),
+                        ],
+                        Text(language.nativeName),
+                      ],
+                    ),
                   ),
                   if (language != InterfaceLanguage.values.last)
                     const SizedBox(height: 16),

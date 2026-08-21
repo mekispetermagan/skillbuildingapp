@@ -78,6 +78,21 @@ void main() {
     },
   );
 
+  test('captures the player before a queued record operation runs', () async {
+    final store = MemoryGameplayRecordStore();
+    final api = FakeGameplayApi()..resolveError = Exception('offline');
+    final recorder = SyncedGameplayRecorder(store, api)
+      ..setPlayer(const GameplayPlayer.student('first-student', 'token'));
+
+    final saving = recorder.recordAbandoned(
+      completion(outcome: PlayOutcome.abandoned),
+    );
+    recorder.setPlayer(const GameplayPlayer.student('next-student', 'token'));
+    await saving;
+
+    expect(store.state.records.single.studentClientId, 'first-student');
+  });
+
   test('backend sequence confirms a record whose response was lost', () async {
     final pending = completion().rate(
       installationId: 3,

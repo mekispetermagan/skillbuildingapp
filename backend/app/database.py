@@ -316,6 +316,16 @@ class Database:
             role=account["role"],
         )
 
+    def update_preferred_language(
+        self, account_id: int, preferred_language: str
+    ) -> None:
+        with self.connect() as connection:
+            connection.execute(
+                "UPDATE accounts SET preferred_language = ? WHERE id = ?",
+                (preferred_language, account_id),
+            )
+            connection.commit()
+
     def sync_students(
         self, teacher_account_id: int, students: list[StudentProfile]
     ) -> list[StudentProfile]:

@@ -975,6 +975,13 @@ class SessionController extends ChangeNotifier {
     _open(SessionStatus.areaMenu);
   }
 
+  bool get canExitAccount => status != SessionStatus.rating;
+
+  void exitAccount() {
+    if (!canExitAccount) return;
+    _leaveActivity(SessionStatus.areaMenu);
+  }
+
   void openMathMenu() {
     mathPlaceholderNumber = null;
     _leaveActivity(SessionStatus.mathMenu);

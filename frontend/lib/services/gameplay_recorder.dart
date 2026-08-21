@@ -49,6 +49,7 @@ class SyncedGameplayRecorder
 
   @override
   Future<void> recordCompleted(PendingCompletion completion, int rating) {
+    final player = _player;
     final saved = _enqueue(() async {
       final state = await _store.load();
       final record = completion
@@ -57,7 +58,7 @@ class SyncedGameplayRecorder
             rating: rating,
             installationId: state.installationId,
           )
-          .withPlayer(_player);
+          .withPlayer(player);
       await _append(state, record);
     });
     _synchronizeAfter(saved);
@@ -66,6 +67,7 @@ class SyncedGameplayRecorder
 
   @override
   Future<void> recordAbandoned(PendingCompletion completion) {
+    final player = _player;
     final saved = _enqueue(() async {
       final state = await _store.load();
       final record = completion
@@ -73,7 +75,7 @@ class SyncedGameplayRecorder
             recordNumber: _nextLocalNumber(state),
             installationId: state.installationId,
           )
-          .withPlayer(_player);
+          .withPlayer(player);
       await _append(state, record);
     });
     _synchronizeAfter(saved);

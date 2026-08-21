@@ -4,11 +4,16 @@ import 'package:http/http.dart' as http;
 
 import '../config/gameplay_api_config.dart';
 import '../models/authentication.dart';
+import '../models/interface_language.dart';
 import 'gameplay_api_client.dart';
 
 abstract interface class AuthenticationApi {
   Future<AuthenticatedAccount> register(AccountRegistration registration);
   Future<AuthenticatedAccount> login(AccountCredentials credentials);
+  Future<void> updatePreferredLanguage(
+    String accessToken,
+    InterfaceLanguage language,
+  );
 }
 
 class AuthenticationApiClient implements AuthenticationApi {
@@ -29,6 +34,28 @@ class AuthenticationApiClient implements AuthenticationApi {
   @override
   Future<AuthenticatedAccount> login(AccountCredentials credentials) =>
       _post('/auth/login', credentials.toJson());
+
+  @override
+  Future<void> updatePreferredLanguage(
+    String accessToken,
+    InterfaceLanguage language,
+  ) async {
+    final response = await _client
+        .patch(
+          config.endpoint('/auth/preferences'),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-API-Key': config.apiKey,
+            'Authorization': 'Bearer $accessToken',
+          },
+          body: jsonEncode({'preferred_language': language.wireName}),
+        )
+        .timeout(requestTimeout);
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw GameplayApiException(response.statusCode, _errorMessage(response));
+    }
+  }
 
   Future<AuthenticatedAccount> _post(
     String path,

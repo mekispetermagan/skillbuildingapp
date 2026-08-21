@@ -87,4 +87,25 @@ void main() {
       ),
     );
   });
+
+  test('updates the authenticated preferred language', () async {
+    late http.Request captured;
+    final api = AuthenticationApiClient(
+      config: config,
+      client: MockClient((request) async {
+        captured = request;
+        return http.Response('', 204);
+      }),
+    );
+
+    await api.updatePreferredLanguage(
+      'account-token',
+      InterfaceLanguage.german,
+    );
+
+    expect(captured.method, 'PATCH');
+    expect(captured.url.path, '/api/auth/preferences');
+    expect(captured.headers['Authorization'], 'Bearer account-token');
+    expect(jsonDecode(captured.body), {'preferred_language': 'de'});
+  });
 }

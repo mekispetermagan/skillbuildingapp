@@ -321,6 +321,24 @@ void main() {
     },
   );
 
+  test('exiting the account abandons active gameplay', () async {
+    final recorder = _FakeGameplayRecorder();
+    final controller = SessionController(
+      assetBundle: _SentenceAssetBundle(),
+      audioPlayer: _FakeAudioPlayer(),
+      gameplayRecorder: recorder,
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    controller.openPhraseBuilding();
+    controller.exitAccount();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(controller.status, SessionStatus.areaMenu);
+    expect(recorder.abandoned, hasLength(1));
+    controller.dispose();
+  });
+
   test('area and math menus use the expected navigation hierarchy', () {
     final controller = SessionController(
       assetBundle: _SentenceAssetBundle(),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
+import '../widgets/account_menu.dart';
 
 class AreaMenuScreen extends StatelessWidget {
   final VoidCallback onOpenLiteracy;
@@ -14,6 +15,7 @@ class AreaMenuScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(actions: const [AccountMenuButton()]),
     body: SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(24),

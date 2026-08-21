@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'account_menu.dart';
+
 class FeatureAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final VoidCallback onBack;
@@ -17,6 +19,7 @@ class FeatureAppBar extends StatelessWidget implements PreferredSizeWidget {
         onPressed: onBack,
         icon: const Icon(Icons.arrow_back),
       ),
+      actions: const [AccountMenuButton()],
     );
   }
 }

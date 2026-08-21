@@ -124,6 +124,19 @@ class AuthenticatedAccount {
     required this.accessToken,
   });
 
+  AuthenticatedAccount withPreferredLanguage(InterfaceLanguage language) =>
+      AuthenticatedAccount(
+        accountId: accountId,
+        username: username,
+        name: name,
+        role: role,
+        preferredLanguage: language,
+        location: location,
+        age: age,
+        gender: gender,
+        accessToken: accessToken,
+      );
+
   factory AuthenticatedAccount.fromJson(Map<String, dynamic> json) {
     final accountId = json['account_id'];
     final username = json['username'];

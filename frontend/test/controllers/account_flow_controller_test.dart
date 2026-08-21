@@ -105,6 +105,12 @@ class _FakeAuthenticationApi implements AuthenticationApi {
   Future<AuthenticatedAccount> register(
     AccountRegistration registration,
   ) async => account;
+
+  @override
+  Future<void> updatePreferredLanguage(
+    String accessToken,
+    InterfaceLanguage language,
+  ) async {}
 }
 
 class _MemoryAccountStore implements AccountStore {

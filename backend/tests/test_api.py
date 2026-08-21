@@ -113,6 +113,25 @@ def test_api_key_is_required(client: TestClient):
     assert response.status_code == 401
 
 
+def test_updates_authenticated_preferred_language(client: TestClient):
+    account = register_account(client, "teacher.preferences", "teacher")
+
+    response = client.patch(
+        "/auth/preferences",
+        headers=account_headers(account["access_token"]),
+        json={"preferred_language": "de"},
+    )
+
+    assert response.status_code == 204
+    logged_in = client.post(
+        "/auth/login",
+        headers=headers(),
+        json={"username": "teacher.preferences", "pin": "123456"},
+    )
+    assert logged_in.status_code == 200
+    assert logged_in.json()["preferred_language"] == "de"
+
+
 def test_registers_and_authenticates_both_account_roles(client: TestClient):
     for index, role in enumerate(("learner", "teacher"), start=1):
         username = f"User_{index}"

@@ -10,11 +10,14 @@ void main() {
       MaterialApp(
         home: LanguageSelectionScreen(
           onSelect: (language) => selected = language,
+          selectedLanguage: InterfaceLanguage.english,
+          onBack: () {},
         ),
       ),
     );
 
     expect(find.text('English'), findsOneWidget);
+    expect(find.byIcon(Icons.check), findsOneWidget);
     expect(find.text('Deutsch'), findsOneWidget);
     expect(find.text('Magyar'), findsOneWidget);
     expect(
