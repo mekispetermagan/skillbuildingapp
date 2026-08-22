@@ -14,6 +14,18 @@ import 'package:skillbuilding_game/services/game_content_factory.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  test('Hungarian math content uses Hungarian operation notation', () {
+    final english = GameContentFactory.forLanguage(InterfaceLanguage.english);
+    final hungarian = GameContentFactory.forLanguage(
+      InterfaceLanguage.hungarian,
+    );
+
+    expect(english.mathNotation.multiplicationSymbol, '×');
+    expect(english.mathNotation.divisionSymbol, '÷');
+    expect(hungarian.mathNotation.multiplicationSymbol, '·');
+    expect(hungarian.mathNotation.divisionSymbol, ':');
+  });
+
   test('Hungarian letter games use all localized object assets', () async {
     final encoded = await rootBundle.loadString(
       'assets/data/alphabet_progression_hu.json',

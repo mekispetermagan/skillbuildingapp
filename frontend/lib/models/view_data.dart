@@ -27,6 +27,7 @@ import 'letter_practice_word_set.dart';
 import 'letter_shooting_world.dart';
 import 'letter_shooting_state.dart';
 import 'logic_game.dart';
+import 'math_notation.dart';
 import 'memory_card_data.dart';
 import 'memory_config.dart';
 import 'missing_letter_slot.dart';
@@ -197,12 +198,14 @@ class ConveyorViewData {
 
 class OperatorConveyorViewData {
   final OperatorConveyorWorld world;
+  final MathNotation mathNotation;
   final ConveyorState state;
   final int? selectedOperatorId;
   final ConveyorDifficulty difficulty;
 
   const OperatorConveyorViewData({
     required this.world,
+    required this.mathNotation,
     required this.state,
     required this.selectedOperatorId,
     required this.difficulty,
@@ -527,6 +530,7 @@ class OperationsPracticeViewData {
   final List<int> choices;
   final bool canGuess;
   final OperationsPracticeConfig config;
+  final MathNotation mathNotation;
 
   const OperationsPracticeViewData({
     required this.operators,
@@ -538,6 +542,7 @@ class OperationsPracticeViewData {
     required this.choices,
     required this.canGuess,
     required this.config,
+    required this.mathNotation,
   });
 }
 

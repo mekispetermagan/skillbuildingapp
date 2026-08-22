@@ -47,7 +47,11 @@ class OperationsPracticeScreen extends StatelessWidget {
                     for (final operator in ElementaryOperator.values)
                       ButtonSegment(
                         value: operator,
-                        label: Text(operatorSymbol(operator)),
+                        label: Text(
+                          viewData.mathNotation.elementaryOperatorSymbol(
+                            operator,
+                          ),
+                        ),
                       ),
                   ],
                   selected: viewData.operators,
@@ -136,7 +140,7 @@ class _EquationDisplay extends StatelessWidget {
     ).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold);
     return Semantics(
       label:
-          '${equation.left} ${operatorSymbol(equation.operator)} '
+          '${equation.left} ${viewData.mathNotation.elementaryOperatorSymbol(equation.operator)} '
           '${equation.right} = ?',
       child: Wrap(
         alignment: WrapAlignment.center,
@@ -144,7 +148,10 @@ class _EquationDisplay extends StatelessWidget {
         spacing: 14,
         children: [
           Text('${equation.left}', style: style),
-          Text(operatorSymbol(equation.operator), style: style),
+          Text(
+            viewData.mathNotation.elementaryOperatorSymbol(equation.operator),
+            style: style,
+          ),
           Text('${equation.right}', style: style),
           Text('=', style: style),
           Text(
@@ -162,10 +169,3 @@ class _EquationDisplay extends StatelessWidget {
     );
   }
 }
-
-String operatorSymbol(ElementaryOperator operator) => switch (operator) {
-  ElementaryOperator.addition => '+',
-  ElementaryOperator.subtraction => '−',
-  ElementaryOperator.multiplication => '×',
-  ElementaryOperator.division => '÷',
-};

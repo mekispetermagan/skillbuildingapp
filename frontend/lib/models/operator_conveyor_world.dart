@@ -4,13 +4,10 @@ import 'conveyor_config.dart';
 import 'conveyor_geometry.dart';
 
 enum ArithmeticOperator {
-  add('+'),
-  subtract('−'),
-  multiply('×'),
-  divide('÷');
-
-  final String symbol;
-  const ArithmeticOperator(this.symbol);
+  add,
+  subtract,
+  multiply,
+  divide;
 
   int? evaluate(int left, int right) => switch (this) {
     ArithmeticOperator.add => left + right,
@@ -48,10 +45,6 @@ class OperatorConveyorShelf {
     required this.equation,
     required this.y,
   });
-
-  String get display => isComplete
-      ? '${equation.left}  ${placedOperator!.symbol}  ${equation.right} = ${equation.result}'
-      : equation.display;
 }
 
 class OperatorConveyorTile {

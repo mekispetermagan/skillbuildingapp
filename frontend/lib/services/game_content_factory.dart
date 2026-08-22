@@ -3,6 +3,7 @@ import '../models/alphabet_letter.dart';
 import '../models/alphabet_object.dart';
 import '../models/image_word.dart';
 import '../models/interface_language.dart';
+import '../models/math_notation.dart';
 import '../models/sentence_content.dart';
 
 class GameContentFactory {
@@ -19,6 +20,7 @@ class GameContentFactory {
   String get crosswordWordsPath => 'assets/data/crossword_words.json';
   List<String> get letterShootingVowels => const ['A', 'E', 'I', 'O', 'U'];
   SentenceContent get sentenceContent => englishSentenceContent;
+  MathNotation get mathNotation => westernMathNotation;
 
   List<ImageWord> letterPracticeAlphabetWords({
     required List<AlphabetObject> englishObjects,
@@ -71,6 +73,8 @@ class HungarianGameContentFactory extends GameContentFactory {
   List<String> get letterShootingVowels => const ['A', 'E', 'É', 'Ő', 'I', 'Á'];
   @override
   SentenceContent get sentenceContent => hungarianSentenceContent;
+  @override
+  MathNotation get mathNotation => hungarianMathNotation;
 
   @override
   List<ImageWord> letterPracticeAlphabetWords({

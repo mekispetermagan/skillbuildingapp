@@ -377,6 +377,7 @@ class SessionController extends ChangeNotifier {
         choices: _operationsPracticeController.choices,
         canGuess: _operationsPracticeController.canGuess,
         config: _operationsPracticeController.config,
+        mathNotation: _gameContent.mathNotation,
       );
 
   void operationsPracticeSetOperators(Set<ElementaryOperator> values) =>
@@ -666,6 +667,7 @@ class SessionController extends ChangeNotifier {
   OperatorConveyorViewData get operatorConveyorViewData =>
       OperatorConveyorViewData(
         world: _operatorConveyorController.world,
+        mathNotation: _gameContent.mathNotation,
         state: _operatorConveyorController.state,
         selectedOperatorId: _operatorConveyorController.selectedOperatorId,
         difficulty: _operatorConveyorController.difficulty,

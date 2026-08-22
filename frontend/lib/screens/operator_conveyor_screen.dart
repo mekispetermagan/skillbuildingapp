@@ -6,6 +6,7 @@ import '../l10n/l10n.dart';
 import '../models/conveyor_state.dart';
 import '../models/conveyor_config.dart';
 import '../models/operator_conveyor_world.dart';
+import '../models/math_notation.dart';
 import '../models/view_data.dart';
 import '../widgets/feature_app_bar.dart';
 import '../widgets/conveyor_difficulty_segments.dart';
@@ -64,6 +65,7 @@ class OperatorConveyorScreen extends StatelessWidget {
             child: _OperatorConveyorPlayArea(
               initialState: viewData.state,
               world: viewData.world,
+              mathNotation: viewData.mathNotation,
               onResize: onResize,
               onTick: onTick,
               canAccept: canAccept,
@@ -85,6 +87,7 @@ class OperatorConveyorScreen extends StatelessWidget {
 class _OperatorConveyorPlayArea extends StatefulWidget {
   final ConveyorState initialState;
   final OperatorConveyorWorld world;
+  final MathNotation mathNotation;
   final void Function(double width, double height) onResize;
   final ConveyorState Function(double) onTick;
   final bool Function({required int operatorId, required int shelfId})
@@ -100,6 +103,7 @@ class _OperatorConveyorPlayArea extends StatefulWidget {
   const _OperatorConveyorPlayArea({
     required this.initialState,
     required this.world,
+    required this.mathNotation,
     required this.onResize,
     required this.onTick,
     required this.canAccept,
@@ -160,6 +164,7 @@ class _OperatorConveyorPlayAreaState extends State<_OperatorConveyorPlayArea> {
                   listenable: _frame,
                   builder: (_, _) => _MovingOperatorPieces(
                     world: widget.world,
+                    mathNotation: widget.mathNotation,
                     canAccept: widget.canAccept,
                     onStartDragging: widget.onStartDragging,
                     onSelectOperator: widget.onSelectOperator,
@@ -213,6 +218,7 @@ class _OperatorConveyorPlayAreaState extends State<_OperatorConveyorPlayArea> {
 
 class _MovingOperatorPieces extends StatelessWidget {
   final OperatorConveyorWorld world;
+  final MathNotation mathNotation;
   final bool Function({required int operatorId, required int shelfId})
   canAccept;
   final ValueChanged<int> onStartDragging;
@@ -224,6 +230,7 @@ class _MovingOperatorPieces extends StatelessWidget {
 
   const _MovingOperatorPieces({
     required this.world,
+    required this.mathNotation,
     required this.canAccept,
     required this.onStartDragging,
     required this.onSelectOperator,
@@ -256,6 +263,7 @@ class _MovingOperatorPieces extends StatelessWidget {
                   : () => onPlaceSelected(shelf.id),
               child: _EquationCard(
                 shelf: shelf,
+                mathNotation: mathNotation,
                 isHovering: candidates.isNotEmpty,
               ),
             ),
@@ -281,14 +289,16 @@ class _MovingOperatorPieces extends StatelessWidget {
               color: Colors.transparent,
               child: SizedBox.square(
                 dimension: world.config.letterSize,
-                child: _OperatorCard(symbol: tile.operator.symbol),
+                child: _OperatorCard(
+                  symbol: mathNotation.arithmeticOperatorSymbol(tile.operator),
+                ),
               ),
             ),
             childWhenDragging: const SizedBox.shrink(),
             child: GestureDetector(
               onTap: () => onSelectOperator(tile.id),
               child: _OperatorCard(
-                symbol: tile.operator.symbol,
+                symbol: mathNotation.arithmeticOperatorSymbol(tile.operator),
                 isSelected: selectedOperatorId == tile.id,
               ),
             ),
@@ -300,8 +310,13 @@ class _MovingOperatorPieces extends StatelessWidget {
 
 class _EquationCard extends StatelessWidget {
   final OperatorConveyorShelf shelf;
+  final MathNotation mathNotation;
   final bool isHovering;
-  const _EquationCard({required this.shelf, required this.isHovering});
+  const _EquationCard({
+    required this.shelf,
+    required this.mathNotation,
+    required this.isHovering,
+  });
 
   @override
   Widget build(BuildContext context) => DecoratedBox(
@@ -320,7 +335,9 @@ class _EquationCard extends StatelessWidget {
       child: FittedBox(
         fit: BoxFit.scaleDown,
         child: Text(
-          shelf.display,
+          shelf.isComplete
+              ? '${shelf.equation.left}  ${mathNotation.arithmeticOperatorSymbol(shelf.placedOperator!)}  ${shelf.equation.right} = ${shelf.equation.result}'
+              : shelf.equation.display,
           maxLines: 1,
           style: TextStyle(
             fontSize: 30,
