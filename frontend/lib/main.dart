@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'api/gameplay_api_client.dart';
 import 'api/authentication_api_client.dart';
 import 'api/student_api_client.dart';
+import 'api/student_group_api_client.dart';
 import 'config/gameplay_api_config.dart';
 import 'controllers/session_controller.dart';
 import 'controllers/account_flow_controller.dart';
@@ -30,6 +31,7 @@ void main() {
       gameplayRecorder: recorder,
       authenticationApi: AuthenticationApiClient(config: config),
       studentApi: StudentApiClient(config: config),
+      studentGroupApi: StudentGroupApiClient(config: config),
     ),
   );
 }
@@ -39,12 +41,14 @@ class LiteracyApp extends StatefulWidget {
   final AuthenticationApi? authenticationApi;
   final bool authenticationEnabled;
   final StudentApi? studentApi;
+  final StudentGroupApi? studentGroupApi;
 
   const LiteracyApp({
     this.gameplayRecorder = const NoopGameplayRecorder(),
     this.authenticationApi,
     this.authenticationEnabled = true,
     this.studentApi,
+    this.studentGroupApi,
     super.key,
   });
 
@@ -75,6 +79,7 @@ class _LiteracyAppState extends State<LiteracyApp> {
                 if (_language != language) setState(() => _language = language);
               },
               studentApi: widget.studentApi,
+              studentGroupApi: widget.studentGroupApi,
             )
           : AppRoot(
               gameplayRecorder: widget.gameplayRecorder,
@@ -89,12 +94,14 @@ class AccountGateway extends StatefulWidget {
   final AuthenticationApi authenticationApi;
   final ValueChanged<InterfaceLanguage> onLanguageChanged;
   final StudentApi? studentApi;
+  final StudentGroupApi? studentGroupApi;
 
   const AccountGateway({
     required this.gameplayRecorder,
     required this.authenticationApi,
     required this.onLanguageChanged,
     this.studentApi,
+    this.studentGroupApi,
     super.key,
   });
 
@@ -106,6 +113,7 @@ class _AccountGatewayState extends State<AccountGateway> {
   late final AccountFlowController _controller = AccountFlowController(
     widget.authenticationApi,
     studentApi: widget.studentApi,
+    groupApi: widget.studentGroupApi,
   );
   Timer? _timeoutTimer;
   InterfaceLanguage? _reportedLanguage;
@@ -192,14 +200,50 @@ class _AccountGatewayState extends State<AccountGateway> {
     ),
     AccountFlowPage.students => StudentMenuScreen(
       teacherName: _controller.account!.name,
-      students: _controller.students,
+      ungroupedStudents: _controller.ungroupedStudents,
+      groups: _controller.groups,
       onSelect: _controller.selectStudent,
       onEdit: _controller.editStudent,
-      onAdd: _controller.addStudent,
+      onAddStudent: _controller.addStudent,
+      onAddGroup: _controller.addGroup,
+      onOpenGroup: _controller.openGroup,
+      onJoinGroup: _controller.showJoinGroup,
     ),
     AccountFlowPage.studentForm => StudentFormScreen(
       student: _controller.editingStudent,
       onSave: _controller.saveStudent,
+      onBack: _controller.back,
+    ),
+    AccountFlowPage.groupForm => GroupFormScreen(
+      group: _controller.editingGroup,
+      onSave: _controller.saveGroup,
+      onBack: _controller.back,
+    ),
+    AccountFlowPage.groupStudents => GroupStudentsScreen(
+      group: _controller.selectedGroup!,
+      students: _controller.selectedGroupStudents,
+      busy: _controller.busy,
+      errorMessage: _controller.errorMessage,
+      onSelect: _controller.selectStudent,
+      onEditStudent: _controller.editStudent,
+      onRemoveStudent: _controller.removeStudentFromSelectedGroup,
+      onCreateStudent: () =>
+          _controller.addStudent(groupId: _controller.selectedGroup!.id),
+      onAddExistingStudents: _controller.showAddStudentsToGroup,
+      onRename: _controller.editSelectedGroup,
+      onShare: _controller.generateSelectedGroupShareCode,
+      onBack: _controller.back,
+    ),
+    AccountFlowPage.groupAddStudents => GroupStudentPickerScreen(
+      groupName: _controller.selectedGroup!.name,
+      students: _controller.studentsOutsideSelectedGroup,
+      onAdd: _controller.addStudentsToSelectedGroup,
+      onBack: _controller.back,
+    ),
+    AccountFlowPage.groupJoin => JoinGroupScreen(
+      busy: _controller.busy,
+      errorMessage: _controller.errorMessage,
+      onJoin: _controller.joinGroup,
       onBack: _controller.back,
     ),
     AccountFlowPage.language => LanguageSelectionScreen(

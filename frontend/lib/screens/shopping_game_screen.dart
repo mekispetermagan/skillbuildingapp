@@ -186,6 +186,7 @@ class _ShoppingStage extends StatelessWidget {
           child: RotatedBox(
             quarterTurns: 3,
             child: _CashRegister(
+              assetPath: config.cashRegisterAssetPath,
               state: viewData.cashRegisterState,
               denominationAreaFraction:
                   config.cashRegisterDenominationAreaFraction,
@@ -233,7 +234,7 @@ class _ShoppingStage extends StatelessWidget {
               viewData.paymentIntroState == PaymentIntroState.incomingAtStart ||
                       viewData.paymentIntroState == PaymentIntroState.incoming
                   ? viewData.payment.handAssetPath
-                  : 'assets/images/shopping_game/paid/empty hand.png',
+                  : config.emptyHandAssetPath,
               fit: BoxFit.fill,
             ),
           ),
@@ -268,6 +269,7 @@ class _ShoppingStage extends StatelessWidget {
 }
 
 class _CashRegister extends StatelessWidget {
+  final String assetPath;
   final CashRegisterState state;
   final double denominationAreaFraction;
   final int denominationCount;
@@ -275,6 +277,7 @@ class _CashRegister extends StatelessWidget {
   final ValueChanged<int> onSelectDenomination;
 
   const _CashRegister({
+    required this.assetPath,
     required this.state,
     required this.denominationAreaFraction,
     required this.denominationCount,
@@ -301,10 +304,7 @@ class _CashRegister extends StatelessWidget {
         );
         onSelectDenomination(index);
       },
-      child: Image.asset(
-        'assets/images/shopping_game/cash register.png',
-        fit: BoxFit.fill,
-      ),
+      child: Image.asset(assetPath, fit: BoxFit.fill),
     ),
   );
 }

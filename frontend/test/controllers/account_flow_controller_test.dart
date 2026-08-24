@@ -4,8 +4,10 @@ import 'package:skillbuilding_game/controllers/account_flow_controller.dart';
 import 'package:skillbuilding_game/models/authentication.dart';
 import 'package:skillbuilding_game/models/interface_language.dart';
 import 'package:skillbuilding_game/models/student.dart';
+import 'package:skillbuilding_game/models/student_group.dart';
 import 'package:skillbuilding_game/storage/account_store.dart';
 import 'package:skillbuilding_game/storage/student_store.dart';
+import 'package:skillbuilding_game/storage/student_group_store.dart';
 
 void main() {
   test('keeps an active learner signed in and opens games', () async {
@@ -18,6 +20,7 @@ void main() {
       _FakeAuthenticationApi(account),
       accountStore: accountStore,
       studentStore: _MemoryStudentStore(),
+      groupStore: _MemoryStudentGroupStore(),
     );
 
     await controller.initialize();
@@ -36,6 +39,7 @@ void main() {
       _FakeAuthenticationApi(account, failIfCalled: true),
       accountStore: accountStore,
       studentStore: students,
+      groupStore: _MemoryStudentGroupStore(),
     );
 
     final loggedIn = await controller.login(
@@ -63,6 +67,7 @@ void main() {
       _FakeAuthenticationApi(account),
       accountStore: _MemoryAccountStore(),
       studentStore: _MemoryStudentStore(),
+      groupStore: _MemoryStudentGroupStore(),
       now: () => now,
     );
     await controller.login(
@@ -75,6 +80,38 @@ void main() {
 
     expect(controller.account, isNull);
     expect(controller.page, AccountFlowPage.welcome);
+  });
+
+  test('manages students independently from offline groups', () async {
+    final account = _account(AccountRole.teacher);
+    final groupStore = _MemoryStudentGroupStore();
+    final controller = AccountFlowController(
+      _FakeAuthenticationApi(account),
+      accountStore: _MemoryAccountStore(),
+      studentStore: _MemoryStudentStore(),
+      groupStore: groupStore,
+    );
+    await controller.login(
+      AccountCredentials(username: 'teacher', pin: '123456'),
+    );
+
+    controller.addGroup();
+    await controller.saveGroup('Primary One');
+    final group = controller.groups.single;
+    controller.addStudent(groupId: group.id);
+    await controller.saveStudent(
+      name: 'Student One',
+      location: 'Kampala',
+      age: 8,
+      gender: LearnerGender.female,
+    );
+
+    expect(controller.selectedGroupStudents.single.name, 'Student One');
+    expect(controller.ungroupedStudents, isEmpty);
+    await controller.removeStudentFromSelectedGroup(controller.students.single);
+    expect(controller.students.single.name, 'Student One');
+    expect(controller.ungroupedStudents.single.name, 'Student One');
+    expect(groupStore.saved.single.studentIds, isEmpty);
   });
 }
 
@@ -142,4 +179,15 @@ class _MemoryStudentStore implements StudentStore {
   @override
   Future<void> save(int teacherAccountId, List<Student> students) async =>
       saved = students;
+}
+
+class _MemoryStudentGroupStore implements StudentGroupStore {
+  List<StudentGroup> saved = const [];
+
+  @override
+  Future<List<StudentGroup>> load(int teacherAccountId) async => saved;
+
+  @override
+  Future<void> save(int teacherAccountId, List<StudentGroup> groups) async =>
+      saved = groups;
 }

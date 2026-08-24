@@ -1,17 +1,22 @@
 # Pre-pilot backend
 
-This is a deliberately small, disposable FastAPI service for anonymous
-pre-pilot gameplay records. It has no learner accounts and is not intended to
-grow into the later pilot backend.
+This is the FastAPI service for offline-first accounts, teacher-managed
+students and groups, and pre-pilot gameplay records.
 
 ## API
 
-Both endpoints require the shared `X-API-Key` header.
+All endpoints require the shared `X-API-Key` header. Account, student, group,
+and identified gameplay operations also require an account bearer token.
 
 - `POST /installations` accepts a required nullable `installation_id`. `null`
   allocates a new ID; an existing ID returns its authoritative next record number.
 - `POST /records/batch` stores a batch and returns one acknowledgement per
   record: `accepted`, `already_accepted`, or `stored_as_conflict`.
+- `GET /students` and `PUT /students/sync` expose students owned by a teacher
+  or shared through a group.
+- `GET /groups` and `PUT /groups/sync` expose group membership.
+- `POST /groups/{client_id}/share-code` lets a group owner generate a code.
+- `POST /groups/join` grants another teaching account access using that code.
 
 Records are uniquely identified by `(installation_id, record_number)`. An
 identical retry is acknowledged without inserting another row. A different
@@ -20,6 +25,9 @@ returned with a reference such as `3-42-e1`.
 
 Completed plays require a rating from 1 to 5. Plays with the `abandoned`
 outcome have a null rating and may contain a partial metrics snapshot.
+Student gameplay remains attached to the student record independently of group
+membership. Removing a student from a group or removing a group therefore does
+not alter historical gameplay data.
 
 ## Run locally
 

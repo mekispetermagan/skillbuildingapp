@@ -26,6 +26,64 @@ void main() {
     expect(hungarian.mathNotation.divisionSymbol, ':');
   });
 
+  test(
+    'Hungarian shopping content uses forint assets and denominations',
+    () async {
+      final english = GameContentFactory.forLanguage(InterfaceLanguage.english);
+      final hungarian = GameContentFactory.forLanguage(
+        InterfaceLanguage.hungarian,
+      );
+      final config = hungarian.shoppingGameConfig;
+
+      expect(english.shoppingGameConfig.goods, hasLength(11));
+      expect(config.goods, hasLength(12));
+      expect(config.goods.map((good) => good.price), [
+        1000,
+        1500,
+        1500,
+        1500,
+        2000,
+        2000,
+        3000,
+        3500,
+        4500,
+        5000,
+        6000,
+        7500,
+      ]);
+      expect(config.payments.map((payment) => payment.value), [
+        2000,
+        5000,
+        10000,
+        20000,
+      ]);
+      expect(
+        config.balanceDenominations.map((denomination) => denomination.value),
+        [500, 1000, 2000, 5000, 10000, 20000],
+      );
+      final assetPaths = {
+        config.cashRegisterAssetPath,
+        config.emptyHandAssetPath,
+        for (final good in config.goods) good.assetPath,
+        for (final payment in config.payments) ...[
+          payment.handAssetPath,
+          payment.noteAssetPath,
+        ],
+        for (final denomination in config.balanceDenominations)
+          denomination.assetPath,
+      };
+      expect(assetPaths, hasLength(28));
+      for (final path in assetPaths) {
+        expect(File(path).existsSync(), isTrue, reason: path);
+        await rootBundle.load(path);
+      }
+      expect(
+        hungarian.contentVersionFor(ActivityId.shoppingGame, 'en-1'),
+        'hu-1',
+      );
+    },
+  );
+
   test('Hungarian letter games use all localized object assets', () async {
     final encoded = await rootBundle.loadString(
       'assets/data/alphabet_progression_hu.json',

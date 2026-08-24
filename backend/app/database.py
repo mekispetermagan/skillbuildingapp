@@ -14,6 +14,8 @@ from .models import (
     AuthenticatedIdentity,
     AuthenticatedAccount,
     InstallationRegistration,
+    StudentGroupProfile,
+    StudentGroupUpdate,
     PlayRecord,
     StudentProfile,
     RecordAcknowledgement,
@@ -58,6 +60,35 @@ CREATE TABLE IF NOT EXISTS students (
     UNIQUE (teacher_account_id, client_id)
 );
 
+CREATE TABLE IF NOT EXISTS student_groups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    owner_account_id INTEGER NOT NULL,
+    client_id TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    share_code TEXT UNIQUE,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY (owner_account_id) REFERENCES accounts(id)
+);
+
+CREATE TABLE IF NOT EXISTS student_group_teachers (
+    group_id INTEGER NOT NULL,
+    teacher_account_id INTEGER NOT NULL,
+    joined_at TEXT NOT NULL,
+    PRIMARY KEY (group_id, teacher_account_id),
+    FOREIGN KEY (group_id) REFERENCES student_groups(id) ON DELETE CASCADE,
+    FOREIGN KEY (teacher_account_id) REFERENCES accounts(id)
+);
+
+CREATE TABLE IF NOT EXISTS student_group_memberships (
+    group_id INTEGER NOT NULL,
+    student_id INTEGER NOT NULL,
+    added_at TEXT NOT NULL,
+    PRIMARY KEY (group_id, student_id),
+    FOREIGN KEY (group_id) REFERENCES student_groups(id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES students(id)
+);
+
 CREATE TABLE IF NOT EXISTS play_records (
     installation_id INTEGER NOT NULL,
     record_number INTEGER NOT NULL,
@@ -95,6 +126,10 @@ CREATE TABLE IF NOT EXISTS record_conflicts (
 
 CREATE INDEX IF NOT EXISTS play_records_feature_index
     ON play_records(area_id, feature_id);
+CREATE INDEX IF NOT EXISTS student_group_memberships_student_index
+    ON student_group_memberships(student_id);
+CREATE INDEX IF NOT EXISTS student_group_teachers_teacher_index
+    ON student_group_teachers(teacher_account_id);
 """
 
 
@@ -333,30 +368,49 @@ class Database:
         with self.connect() as connection:
             connection.execute("BEGIN IMMEDIATE")
             for student in students:
-                connection.execute(
-                    """
-                    INSERT INTO students(
-                        teacher_account_id, client_id, name, location, age,
-                        gender, created_at, updated_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                    ON CONFLICT(teacher_account_id, client_id) DO UPDATE SET
-                        name = excluded.name,
-                        location = excluded.location,
-                        age = excluded.age,
-                        gender = excluded.gender,
-                        updated_at = excluded.updated_at
-                    """,
-                    (
-                        teacher_account_id,
-                        student.client_id,
-                        student.name,
-                        student.location,
-                        student.age,
-                        student.gender,
-                        now,
-                        now,
-                    ),
-                )
+                existing = connection.execute(
+                    "SELECT id FROM students WHERE client_id = ?",
+                    (student.client_id,),
+                ).fetchone()
+                if existing is None:
+                    connection.execute(
+                        """
+                        INSERT INTO students(
+                            teacher_account_id, client_id, name, location, age,
+                            gender, created_at, updated_at
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        (
+                            teacher_account_id,
+                            student.client_id,
+                            student.name,
+                            student.location,
+                            student.age,
+                            student.gender,
+                            now,
+                            now,
+                        ),
+                    )
+                elif self._teacher_can_access_student(
+                    connection, teacher_account_id, existing["id"]
+                ):
+                    connection.execute(
+                        """
+                        UPDATE students SET name = ?, location = ?, age = ?,
+                            gender = ?, updated_at = ? WHERE id = ?
+                        """,
+                        (
+                            student.name,
+                            student.location,
+                            student.age,
+                            student.gender,
+                            now,
+                            existing["id"],
+                        ),
+                    )
+                else:
+                    connection.rollback()
+                    raise PermissionError("Student is not accessible to this account")
             connection.commit()
         return self.list_students(teacher_account_id)
 
@@ -364,12 +418,200 @@ class Database:
         with self.connect() as connection:
             rows = connection.execute(
                 """
-                SELECT client_id, name, location, age, gender
-                FROM students WHERE teacher_account_id = ? ORDER BY id
+                SELECT DISTINCT s.client_id, s.name, s.location, s.age, s.gender,
+                       s.teacher_account_id AS owner_account_id
+                FROM students s
+                LEFT JOIN student_group_memberships gm ON gm.student_id = s.id
+                LEFT JOIN student_group_teachers gt ON gt.group_id = gm.group_id
+                WHERE s.teacher_account_id = ? OR gt.teacher_account_id = ?
+                ORDER BY s.id
+                """,
+                (teacher_account_id, teacher_account_id),
+            ).fetchall()
+        return [StudentProfile(**dict(row)) for row in rows]
+
+    def sync_student_groups(
+        self, teacher_account_id: int, groups: list[StudentGroupUpdate]
+    ) -> list[StudentGroupProfile]:
+        now = _now()
+        with self.connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            for group in groups:
+                stored = connection.execute(
+                    "SELECT id, owner_account_id, name FROM student_groups WHERE client_id = ?",
+                    (group.client_id,),
+                ).fetchone()
+                if stored is None:
+                    cursor = connection.execute(
+                        """
+                        INSERT INTO student_groups(
+                            owner_account_id, client_id, name, created_at, updated_at
+                        ) VALUES (?, ?, ?, ?, ?)
+                        """,
+                        (teacher_account_id, group.client_id, group.name, now, now),
+                    )
+                    group_id = cursor.lastrowid
+                    connection.execute(
+                        """
+                        INSERT INTO student_group_teachers(
+                            group_id, teacher_account_id, joined_at
+                        ) VALUES (?, ?, ?)
+                        """,
+                        (group_id, teacher_account_id, now),
+                    )
+                    owner_account_id = teacher_account_id
+                else:
+                    group_id = stored["id"]
+                    owner_account_id = stored["owner_account_id"]
+                    if not self._teacher_can_access_group(
+                        connection, teacher_account_id, group_id
+                    ):
+                        connection.rollback()
+                        raise PermissionError("Group is not accessible to this account")
+                    if owner_account_id == teacher_account_id:
+                        connection.execute(
+                            "UPDATE student_groups SET name = ?, updated_at = ? WHERE id = ?",
+                            (group.name, now, group_id),
+                        )
+
+                student_ids: list[int] = []
+                for client_id in group.student_client_ids:
+                    student = connection.execute(
+                        "SELECT id FROM students WHERE client_id = ?",
+                        (client_id,),
+                    ).fetchone()
+                    if student is None or not self._teacher_can_access_student(
+                        connection, teacher_account_id, student["id"]
+                    ):
+                        connection.rollback()
+                        raise PermissionError(
+                            "A group member is not accessible to this account"
+                        )
+                    student_ids.append(student["id"])
+                connection.execute(
+                    "DELETE FROM student_group_memberships WHERE group_id = ?",
+                    (group_id,),
+                )
+                connection.executemany(
+                    """
+                    INSERT INTO student_group_memberships(group_id, student_id, added_at)
+                    VALUES (?, ?, ?)
+                    """,
+                    [(group_id, student_id, now) for student_id in student_ids],
+                )
+            connection.commit()
+        return self.list_student_groups(teacher_account_id)
+
+    def list_student_groups(
+        self, teacher_account_id: int
+    ) -> list[StudentGroupProfile]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT g.id, g.client_id, g.name, g.owner_account_id
+                FROM student_groups g
+                JOIN student_group_teachers gt ON gt.group_id = g.id
+                WHERE gt.teacher_account_id = ? ORDER BY g.id
                 """,
                 (teacher_account_id,),
             ).fetchall()
-        return [StudentProfile(**dict(row)) for row in rows]
+            result = []
+            for row in rows:
+                member_rows = connection.execute(
+                    """
+                    SELECT s.client_id FROM students s
+                    JOIN student_group_memberships gm ON gm.student_id = s.id
+                    WHERE gm.group_id = ? ORDER BY gm.added_at, s.id
+                    """,
+                    (row["id"],),
+                ).fetchall()
+                result.append(
+                    StudentGroupProfile(
+                        client_id=row["client_id"],
+                        name=row["name"],
+                        student_client_ids=[member["client_id"] for member in member_rows],
+                        owner_account_id=row["owner_account_id"],
+                        is_owner=row["owner_account_id"] == teacher_account_id,
+                    )
+                )
+        return result
+
+    def create_group_share_code(self, teacher_account_id: int, client_id: str) -> str:
+        alphabet = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
+        with self.connect() as connection:
+            group = connection.execute(
+                """
+                SELECT id FROM student_groups
+                WHERE client_id = ? AND owner_account_id = ?
+                """,
+                (client_id, teacher_account_id),
+            ).fetchone()
+            if group is None:
+                raise PermissionError("Only the group owner can share this group")
+            while True:
+                code = "".join(secrets.choice(alphabet) for _ in range(8))
+                try:
+                    connection.execute(
+                        "UPDATE student_groups SET share_code = ? WHERE id = ?",
+                        (code, group["id"]),
+                    )
+                    connection.commit()
+                    return code
+                except sqlite3.IntegrityError:
+                    continue
+
+    def join_student_group(
+        self, teacher_account_id: int, code: str
+    ) -> StudentGroupProfile | None:
+        with self.connect() as connection:
+            group = connection.execute(
+                "SELECT id, client_id FROM student_groups WHERE share_code = ?",
+                (code.upper(),),
+            ).fetchone()
+            if group is None:
+                return None
+            connection.execute(
+                """
+                INSERT OR IGNORE INTO student_group_teachers(
+                    group_id, teacher_account_id, joined_at
+                ) VALUES (?, ?, ?)
+                """,
+                (group["id"], teacher_account_id, _now()),
+            )
+            connection.commit()
+        return next(
+            profile
+            for profile in self.list_student_groups(teacher_account_id)
+            if profile.client_id == group["client_id"]
+        )
+
+    def _teacher_can_access_group(
+        self, connection: sqlite3.Connection, teacher_account_id: int, group_id: int
+    ) -> bool:
+        return connection.execute(
+            """
+            SELECT 1 FROM student_group_teachers
+            WHERE group_id = ? AND teacher_account_id = ?
+            """,
+            (group_id, teacher_account_id),
+        ).fetchone() is not None
+
+    def _teacher_can_access_student(
+        self, connection: sqlite3.Connection, teacher_account_id: int, student_id: int
+    ) -> bool:
+        return connection.execute(
+            """
+            SELECT 1 FROM students s
+            WHERE s.id = ? AND (
+                s.teacher_account_id = ? OR EXISTS (
+                    SELECT 1 FROM student_group_memberships gm
+                    JOIN student_group_teachers gt ON gt.group_id = gm.group_id
+                    WHERE gm.student_id = s.id AND gt.teacher_account_id = ?
+                )
+            )
+            """,
+            (student_id, teacher_account_id, teacher_account_id),
+        ).fetchone() is not None
 
     def resolve_installation(
         self, installation_id: int
@@ -542,10 +784,16 @@ class Database:
             return None
         student = connection.execute(
             """
-            SELECT id FROM students
-            WHERE teacher_account_id = ? AND client_id = ?
+            SELECT s.id FROM students s
+            WHERE s.client_id = ? AND (
+                s.teacher_account_id = ? OR EXISTS (
+                    SELECT 1 FROM student_group_memberships gm
+                    JOIN student_group_teachers gt ON gt.group_id = gm.group_id
+                    WHERE gm.student_id = s.id AND gt.teacher_account_id = ?
+                )
+            )
             """,
-            (identity.account_id, record.student_client_id),
+            (record.student_client_id, identity.account_id, identity.account_id),
         ).fetchone()
         return None if student is None else (identity.account_id, student["id"])
 

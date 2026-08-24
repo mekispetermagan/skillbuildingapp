@@ -8,6 +8,8 @@ class Student {
   final String location;
   final int age;
   final LearnerGender gender;
+  final int? ownerAccountId;
+  final bool pendingChanges;
 
   Student({
     required this.id,
@@ -15,6 +17,8 @@ class Student {
     required String location,
     required this.age,
     required this.gender,
+    this.ownerAccountId,
+    this.pendingChanges = false,
   }) : name = name.trim(),
        location = location.trim() {
     if (id.trim().isEmpty || id.length > 64) {
@@ -40,12 +44,15 @@ class Student {
     required String location,
     required int age,
     required LearnerGender gender,
+    int? ownerAccountId,
   }) => Student(
     id: _newStudentId(),
     name: name,
     location: location,
     age: age,
     gender: gender,
+    ownerAccountId: ownerAccountId,
+    pendingChanges: true,
   );
 
   Map<String, Object> toJson() => {
@@ -56,12 +63,40 @@ class Student {
     'gender': gender.wireName,
   };
 
+  Map<String, Object?> toStoredJson() => {
+    ...toJson(),
+    'owner_account_id': ownerAccountId,
+    'pending_changes': pendingChanges,
+  };
+
   factory Student.fromJson(Map<String, dynamic> json) => Student(
     id: _storedId(json),
     name: json['name'] as String,
     location: json['location'] as String,
     age: json['age'] as int,
     gender: LearnerGender.fromWireName(json['gender'] as String),
+    ownerAccountId: json['owner_account_id'] as int?,
+    pendingChanges: false,
+  );
+
+  factory Student.fromStoredJson(Map<String, dynamic> json) => Student(
+    id: _storedId(json),
+    name: json['name'] as String,
+    location: json['location'] as String,
+    age: json['age'] as int,
+    gender: LearnerGender.fromWireName(json['gender'] as String),
+    ownerAccountId: json['owner_account_id'] as int?,
+    pendingChanges: json['pending_changes'] as bool? ?? true,
+  );
+
+  Student withOwnerAccountId(int accountId) => Student(
+    id: id,
+    name: name,
+    location: location,
+    age: age,
+    gender: gender,
+    ownerAccountId: ownerAccountId ?? accountId,
+    pendingChanges: pendingChanges,
   );
 }
 

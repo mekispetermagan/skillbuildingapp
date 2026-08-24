@@ -5,6 +5,7 @@ import '../models/image_word.dart';
 import '../models/interface_language.dart';
 import '../models/math_notation.dart';
 import '../models/sentence_content.dart';
+import '../models/shopping_game.dart';
 
 class GameContentFactory {
   const GameContentFactory();
@@ -21,6 +22,7 @@ class GameContentFactory {
   List<String> get letterShootingVowels => const ['A', 'E', 'I', 'O', 'U'];
   SentenceContent get sentenceContent => englishSentenceContent;
   MathNotation get mathNotation => westernMathNotation;
+  ShoppingGameConfig get shoppingGameConfig => const ShoppingGameConfig();
 
   List<ImageWord> letterPracticeAlphabetWords({
     required List<AlphabetObject> englishObjects,
@@ -75,6 +77,8 @@ class HungarianGameContentFactory extends GameContentFactory {
   SentenceContent get sentenceContent => hungarianSentenceContent;
   @override
   MathNotation get mathNotation => hungarianMathNotation;
+  @override
+  ShoppingGameConfig get shoppingGameConfig => hungarianShoppingGameConfig;
 
   @override
   List<ImageWord> letterPracticeAlphabetWords({
@@ -123,7 +127,8 @@ class HungarianGameContentFactory extends GameContentFactory {
           activity == ActivityId.letterCatching ||
           activity == ActivityId.phraseBuilding ||
           activity == ActivityId.letterShooting ||
-          activity == ActivityId.crossword
+          activity == ActivityId.crossword ||
+          activity == ActivityId.shoppingGame
       ? 'hu-1'
       : fallback;
 

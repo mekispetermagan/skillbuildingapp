@@ -68,3 +68,7 @@ flutter:
     - assets/images/shopping_game/balance/
     - assets/images/shopping_game/goods/
     - assets/images/shopping_game/paid/
+    - assets/images/shopping_game_hu/
+    - assets/images/shopping_game_hu/balance/
+    - assets/images/shopping_game_hu/goods/
+    - assets/images/shopping_game_hu/paid/

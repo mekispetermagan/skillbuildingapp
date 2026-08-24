@@ -195,8 +195,10 @@ class SessionController extends ChangeNotifier {
       ..addListener(_forwardFeatureNotification);
     _logicGameController = LogicGameController(_audioPlayer)
       ..addListener(_forwardFeatureNotification);
-    _shoppingGameController = ShoppingGameController(_audioPlayer)
-      ..addListener(_forwardFeatureNotification);
+    _shoppingGameController = ShoppingGameController(
+      _audioPlayer,
+      config: _gameContent.shoppingGameConfig,
+    )..addListener(_forwardFeatureNotification);
     _operatorConveyorController = OperatorConveyorController()
       ..addListener(_forwardFeatureNotification);
     _evenOddController = EvenOddController()

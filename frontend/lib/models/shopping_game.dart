@@ -72,6 +72,7 @@ class ShoppingGameConfig {
   final ShoppingSize stageSize;
   final double spriteScale;
   final ShoppingSize cashRegisterSize;
+  final String cashRegisterAssetPath;
   final ShoppingPosition cashRegisterClosedCenter;
   final ShoppingPosition cashRegisterOpenCenter;
   final Duration cashRegisterAnimationDuration;
@@ -81,6 +82,7 @@ class ShoppingGameConfig {
   final List<ShoppingGood> goods;
   final List<ShoppingPayment> payments;
   final ShoppingSize emptyHandSize;
+  final String emptyHandAssetPath;
   final ShoppingPosition paymentStartPosition;
   final ShoppingPosition paymentEndPosition;
   final Duration paymentAnimationDuration;
@@ -99,6 +101,8 @@ class ShoppingGameConfig {
     this.stageSize = const ShoppingSize(480, 640),
     this.spriteScale = 0.8,
     this.cashRegisterSize = const ShoppingSize(236, 555),
+    this.cashRegisterAssetPath =
+        'assets/images/shopping_game/cash register.png',
     this.cashRegisterClosedCenter = const ShoppingPosition(0, -376.64),
     this.cashRegisterOpenCenter = const ShoppingPosition(0, -225.6),
     this.cashRegisterAnimationDuration = const Duration(milliseconds: 300),
@@ -197,6 +201,7 @@ class ShoppingGameConfig {
       ),
     ],
     this.emptyHandSize = const ShoppingSize(556, 195),
+    this.emptyHandAssetPath = 'assets/images/shopping_game/paid/empty hand.png',
     this.paymentStartPosition = const ShoppingPosition(480, -30),
     this.paymentEndPosition = const ShoppingPosition(-60, -30),
     this.paymentAnimationDuration = const Duration(seconds: 1),
@@ -243,3 +248,134 @@ class ShoppingGameConfig {
     this.feedbackDuration = const Duration(seconds: 2),
   });
 }
+
+const hungarianShoppingGameConfig = ShoppingGameConfig(
+  cashRegisterSize: ShoppingSize(235, 554),
+  cashRegisterAssetPath: 'assets/images/shopping_game_hu/cash_register.png',
+  goods: [
+    ShoppingGood(
+      1000,
+      'assets/images/shopping_game_hu/goods/1000_socks.png',
+      ShoppingSize(269, 274),
+    ),
+    ShoppingGood(
+      1500,
+      'assets/images/shopping_game_hu/goods/1500_cap.png',
+      ShoppingSize(358, 324),
+    ),
+    ShoppingGood(
+      1500,
+      'assets/images/shopping_game_hu/goods/1500_flip_flops.png',
+      ShoppingSize(310, 209),
+    ),
+    ShoppingGood(
+      1500,
+      'assets/images/shopping_game_hu/goods/1500_shorts.png',
+      ShoppingSize(335, 290),
+    ),
+    ShoppingGood(
+      2000,
+      'assets/images/shopping_game_hu/goods/2000_belt.png',
+      ShoppingSize(304, 201),
+    ),
+    ShoppingGood(
+      2000,
+      'assets/images/shopping_game_hu/goods/2000_tshirt.png',
+      ShoppingSize(322, 304),
+    ),
+    ShoppingGood(
+      3000,
+      'assets/images/shopping_game_hu/goods/3000_ball.png',
+      ShoppingSize(283, 238),
+    ),
+    ShoppingGood(
+      3500,
+      'assets/images/shopping_game_hu/goods/3500_sunglasses.png',
+      ShoppingSize(307, 184),
+    ),
+    ShoppingGood(
+      4500,
+      'assets/images/shopping_game_hu/goods/4500_headphones.png',
+      ShoppingSize(280, 267),
+    ),
+    ShoppingGood(
+      5000,
+      'assets/images/shopping_game_hu/goods/5000_scooter.png',
+      ShoppingSize(239, 276),
+    ),
+    ShoppingGood(
+      6000,
+      'assets/images/shopping_game_hu/goods/6000_jeans.png',
+      ShoppingSize(290, 270),
+    ),
+    ShoppingGood(
+      7500,
+      'assets/images/shopping_game_hu/goods/7500_wristwatch.png',
+      ShoppingSize(258, 310),
+    ),
+  ],
+  payments: [
+    ShoppingPayment(
+      value: 2000,
+      handAssetPath: 'assets/images/shopping_game_hu/paid/2000 hand.png',
+      handOriginalSize: ShoppingSize(679, 315),
+      noteAssetPath: 'assets/images/shopping_game_hu/paid/2000.png',
+      noteOriginalSize: ShoppingSize(304, 248),
+    ),
+    ShoppingPayment(
+      value: 5000,
+      handAssetPath: 'assets/images/shopping_game_hu/paid/5000 hand.png',
+      handOriginalSize: ShoppingSize(676, 313),
+      noteAssetPath: 'assets/images/shopping_game_hu/paid/5000.png',
+      noteOriginalSize: ShoppingSize(300, 245),
+    ),
+    ShoppingPayment(
+      value: 10000,
+      handAssetPath: 'assets/images/shopping_game_hu/paid/10000 hand.png',
+      handOriginalSize: ShoppingSize(678, 315),
+      noteAssetPath: 'assets/images/shopping_game_hu/paid/10000.png',
+      noteOriginalSize: ShoppingSize(304, 247),
+    ),
+    ShoppingPayment(
+      value: 20000,
+      handAssetPath: 'assets/images/shopping_game_hu/paid/20000 hand.png',
+      handOriginalSize: ShoppingSize(676, 316),
+      noteAssetPath: 'assets/images/shopping_game_hu/paid/20000.png',
+      noteOriginalSize: ShoppingSize(303, 245),
+    ),
+  ],
+  emptyHandSize: ShoppingSize(554, 194),
+  emptyHandAssetPath: 'assets/images/shopping_game_hu/paid/empty hand.png',
+  balanceDenominations: [
+    ShoppingBalanceDenomination(
+      value: 500,
+      assetPath: 'assets/images/shopping_game_hu/balance/500.png',
+      originalSize: ShoppingSize(148, 284),
+    ),
+    ShoppingBalanceDenomination(
+      value: 1000,
+      assetPath: 'assets/images/shopping_game_hu/balance/1000.png',
+      originalSize: ShoppingSize(140, 272),
+    ),
+    ShoppingBalanceDenomination(
+      value: 2000,
+      assetPath: 'assets/images/shopping_game_hu/balance/2000.png',
+      originalSize: ShoppingSize(139, 269),
+    ),
+    ShoppingBalanceDenomination(
+      value: 5000,
+      assetPath: 'assets/images/shopping_game_hu/balance/5000.png',
+      originalSize: ShoppingSize(145, 280),
+    ),
+    ShoppingBalanceDenomination(
+      value: 10000,
+      assetPath: 'assets/images/shopping_game_hu/balance/10000.png',
+      originalSize: ShoppingSize(146, 285),
+    ),
+    ShoppingBalanceDenomination(
+      value: 20000,
+      assetPath: 'assets/images/shopping_game_hu/balance/20000.png',
+      originalSize: ShoppingSize(154, 294),
+    ),
+  ],
+);

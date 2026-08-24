@@ -83,6 +83,7 @@ class StudentProfile(ContractModel):
     location: str = Field(min_length=1, max_length=100)
     age: Annotated[StrictInt, Field(ge=1, le=120)]
     gender: Literal["male", "female", "other_or_prefer_not_to_say"]
+    owner_account_id: PositiveStrictInt | None = None
 
     @field_validator("client_id", "name", "location")
     @classmethod
@@ -102,6 +103,55 @@ class StudentBatch(ContractModel):
         if len(ids) != len(set(ids)):
             raise ValueError("student client_id values must be unique")
         return self
+
+
+class StudentGroupUpdate(ContractModel):
+    client_id: str = Field(min_length=1, max_length=64)
+    name: str = Field(min_length=1, max_length=100)
+    student_client_ids: list[str] = Field(default_factory=list)
+
+    @field_validator("client_id", "name")
+    @classmethod
+    def reject_blank_values(cls, value: str) -> str:
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("value must not be blank")
+        return stripped
+
+    @model_validator(mode="after")
+    def require_unique_student_ids(self) -> StudentGroupUpdate:
+        if len(self.student_client_ids) != len(set(self.student_client_ids)):
+            raise ValueError("student_client_ids must be unique")
+        return self
+
+
+class StudentGroupBatch(ContractModel):
+    groups: list[StudentGroupUpdate]
+
+    @model_validator(mode="after")
+    def require_unique_client_ids(self) -> StudentGroupBatch:
+        ids = [group.client_id for group in self.groups]
+        if len(ids) != len(set(ids)):
+            raise ValueError("group client_id values must be unique")
+        return self
+
+
+class StudentGroupProfile(StudentGroupUpdate):
+    owner_account_id: PositiveStrictInt
+    is_owner: bool
+
+
+class GroupShareCode(ContractModel):
+    code: str = Field(min_length=8, max_length=8)
+
+
+class GroupJoinRequest(ContractModel):
+    code: str = Field(min_length=8, max_length=8)
+
+    @field_validator("code")
+    @classmethod
+    def normalize_code(cls, value: str) -> str:
+        return value.strip().upper()
 
 
 class AttemptMetrics(ContractModel):

@@ -25,7 +25,7 @@ class SharedPreferencesStudentStore implements StudentStore {
       final decoded = jsonDecode(encoded) as List<dynamic>;
       return [
         for (final item in decoded)
-          Student.fromJson(item as Map<String, dynamic>),
+          Student.fromStoredJson(item as Map<String, dynamic>),
       ];
     } on Object {
       return const [];
@@ -36,6 +36,6 @@ class SharedPreferencesStudentStore implements StudentStore {
   Future<void> save(int teacherAccountId, List<Student> students) =>
       _preferences.setString(
         _key(teacherAccountId),
-        jsonEncode([for (final student in students) student.toJson()]),
+        jsonEncode([for (final student in students) student.toStoredJson()]),
       );
 }

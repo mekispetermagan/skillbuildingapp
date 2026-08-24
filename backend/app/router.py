@@ -16,9 +16,13 @@ from .models import (
     AuthenticatedIdentity,
     InstallationRegistration,
     InstallationResolution,
+    GroupJoinRequest,
+    GroupShareCode,
     RecordBatch,
     RecordBatchAcknowledgement,
     StudentBatch,
+    StudentGroupBatch,
+    StudentGroupProfile,
     StudentProfile,
 )
 
@@ -142,7 +146,72 @@ def create_router(settings: Settings, database: Database) -> APIRouter:
         batch: StudentBatch,
         teacher: AuthenticatedIdentity = Depends(require_teacher),
     ) -> list[StudentProfile]:
-        return database.sync_students(teacher.account_id, batch.students)
+        try:
+            return database.sync_students(teacher.account_id, batch.students)
+        except PermissionError as error:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail=str(error)
+            ) from error
+
+    @router.get(
+        "/groups",
+        response_model=list[StudentGroupProfile],
+        dependencies=[key_dependency],
+    )
+    def list_groups(
+        teacher: AuthenticatedIdentity = Depends(require_teacher),
+    ) -> list[StudentGroupProfile]:
+        return database.list_student_groups(teacher.account_id)
+
+    @router.put(
+        "/groups/sync",
+        response_model=list[StudentGroupProfile],
+        dependencies=[key_dependency],
+    )
+    def sync_groups(
+        batch: StudentGroupBatch,
+        teacher: AuthenticatedIdentity = Depends(require_teacher),
+    ) -> list[StudentGroupProfile]:
+        try:
+            return database.sync_student_groups(teacher.account_id, batch.groups)
+        except PermissionError as error:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail=str(error)
+            ) from error
+
+    @router.post(
+        "/groups/{client_id}/share-code",
+        response_model=GroupShareCode,
+        dependencies=[key_dependency],
+    )
+    def share_group(
+        client_id: str,
+        teacher: AuthenticatedIdentity = Depends(require_teacher),
+    ) -> GroupShareCode:
+        try:
+            code = database.create_group_share_code(teacher.account_id, client_id)
+        except PermissionError as error:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail=str(error)
+            ) from error
+        return GroupShareCode(code=code)
+
+    @router.post(
+        "/groups/join",
+        response_model=StudentGroupProfile,
+        dependencies=[key_dependency],
+    )
+    def join_group(
+        request: GroupJoinRequest,
+        teacher: AuthenticatedIdentity = Depends(require_teacher),
+    ) -> StudentGroupProfile:
+        group = database.join_student_group(teacher.account_id, request.code)
+        if group is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Sharing code does not match a group.",
+            )
+        return group
 
     @router.post(
         "/installations",

@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 from app.config import Settings
 from app.database import Database, SCHEMA
 from app.main import create_app
+from app.models import AccountRegistration, StudentProfile
 
 
 API_KEY = "test-prepilot-key"
@@ -70,6 +71,42 @@ def test_initialization_migrates_a_legacy_required_rating(database_path: Path):
             if column[1] == "rating"
         )
     assert rating_column[3] == 0
+
+
+def test_group_schema_initialization_preserves_existing_students(
+    database_path: Path,
+):
+    database = Database(database_path)
+    database.initialize()
+    teacher = database.register_account(
+        AccountRegistration(
+            username="migration.teacher",
+            name="Migration Teacher",
+            pin="123456",
+            role="teacher",
+            preferred_language="en",
+            location="Kampala",
+        )
+    )
+    assert teacher is not None
+    database.sync_students(
+        teacher.account_id,
+        [
+            StudentProfile(
+                client_id="preserved-student",
+                name="Preserved Student",
+                location="Kampala",
+                age=10,
+                gender="female",
+            )
+        ],
+    )
+
+    database.initialize()
+
+    assert database.list_students(teacher.account_id)[0].client_id == (
+        "preserved-student"
+    )
 
 
 def record(installation_id: int, number: int, *, rating: int = 4) -> dict:
@@ -273,8 +310,9 @@ def test_teacher_synchronizes_owned_students(client: TestClient):
     )
 
     assert created.status_code == 200
-    assert created.json() == [student]
-    assert listed.json() == [student]
+    expected = {**student, "owner_account_id": teacher["account_id"]}
+    assert created.json() == [expected]
+    assert listed.json() == [expected]
 
 
 def test_students_are_isolated_between_teachers(client: TestClient):
@@ -355,6 +393,129 @@ def test_rejects_a_student_record_not_owned_by_teacher(client: TestClient):
     )
 
     assert response.status_code == 403
+
+
+def test_shares_a_group_and_its_students_between_teachers(client: TestClient):
+    owner = register_account(client, "teacher.group.owner", "teacher")
+    colleague = register_account(client, "teacher.group.colleague", "teacher")
+    student = {
+        "client_id": "student-in-shared-group",
+        "name": "Shared Student",
+        "location": "Kampala",
+        "age": 9,
+        "gender": "female",
+    }
+    client.put(
+        "/students/sync",
+        headers=account_headers(owner["access_token"]),
+        json={"students": [student]},
+    )
+    group = {
+        "client_id": "group-one",
+        "name": "Group One",
+        "student_client_ids": [student["client_id"]],
+    }
+    created = client.put(
+        "/groups/sync",
+        headers=account_headers(owner["access_token"]),
+        json={"groups": [group]},
+    )
+    shared = client.post(
+        "/groups/group-one/share-code",
+        headers=account_headers(owner["access_token"]),
+    )
+    joined = client.post(
+        "/groups/join",
+        headers=account_headers(colleague["access_token"]),
+        json={"code": shared.json()["code"].lower()},
+    )
+    colleague_students = client.get(
+        "/students", headers=account_headers(colleague["access_token"])
+    )
+
+    assert created.status_code == 200
+    assert created.json() == [
+        {
+            **group,
+            "owner_account_id": owner["account_id"],
+            "is_owner": True,
+        }
+    ]
+    assert len(shared.json()["code"]) == 8
+    assert joined.status_code == 200
+    assert joined.json() == {
+        **group,
+        "owner_account_id": owner["account_id"],
+        "is_owner": False,
+    }
+    assert colleague_students.json() == [
+        {**student, "owner_account_id": owner["account_id"]}
+    ]
+
+
+def test_shared_teacher_can_record_play_but_cannot_share_group(
+    client: TestClient, database_path: Path
+):
+    owner = register_account(client, "teacher.play.owner", "teacher")
+    colleague = register_account(client, "teacher.play.colleague", "teacher")
+    student = {
+        "client_id": "shared-record-student",
+        "name": "Shared Record Student",
+        "location": "Kampala",
+        "age": 8,
+        "gender": "male",
+    }
+    client.put(
+        "/students/sync",
+        headers=account_headers(owner["access_token"]),
+        json={"students": [student]},
+    )
+    client.put(
+        "/groups/sync",
+        headers=account_headers(owner["access_token"]),
+        json={
+            "groups": [
+                {
+                    "client_id": "shared-play-group",
+                    "name": "Shared Play Group",
+                    "student_client_ids": [student["client_id"]],
+                }
+            ]
+        },
+    )
+    code = client.post(
+        "/groups/shared-play-group/share-code",
+        headers=account_headers(owner["access_token"]),
+    ).json()["code"]
+    client.post(
+        "/groups/join",
+        headers=account_headers(colleague["access_token"]),
+        json={"code": code},
+    )
+
+    forbidden_share = client.post(
+        "/groups/shared-play-group/share-code",
+        headers=account_headers(colleague["access_token"]),
+    )
+    installation_id = register(client)
+    assigned = record(installation_id, 1)
+    assigned.update(
+        {"player_type": "student", "student_client_id": student["client_id"]}
+    )
+    played = client.post(
+        "/records/batch",
+        headers=account_headers(colleague["access_token"]),
+        json={"installation_id": installation_id, "records": [assigned]},
+    )
+
+    assert forbidden_share.status_code == 403
+    assert played.status_code == 200
+    with sqlite3.connect(database_path) as connection:
+        stored = connection.execute(
+            "SELECT account_id, student_id FROM play_records"
+        ).fetchone()
+    assert stored[0] == colleague["account_id"]
+    assert stored[1] is not None
 
 
 def test_assigns_gameplay_to_learner_account(

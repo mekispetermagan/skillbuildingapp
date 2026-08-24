@@ -5,11 +5,14 @@ import 'package:flutter/foundation.dart';
 import '../api/authentication_api_client.dart';
 import '../api/gameplay_api_client.dart';
 import '../api/student_api_client.dart';
+import '../api/student_group_api_client.dart';
 import '../models/authentication.dart';
 import '../models/interface_language.dart';
 import '../models/student.dart';
+import '../models/student_group.dart';
 import '../storage/account_store.dart';
 import '../storage/student_store.dart';
+import '../storage/student_group_store.dart';
 
 enum AccountFlowPage {
   opening,
@@ -18,6 +21,10 @@ enum AccountFlowPage {
   register,
   students,
   studentForm,
+  groupForm,
+  groupStudents,
+  groupAddStudents,
+  groupJoin,
   language,
   games,
 }
@@ -26,13 +33,18 @@ class AccountFlowController extends ChangeNotifier {
   final AuthenticationApi _api;
   final AccountStore _accountStore;
   final StudentStore _studentStore;
+  final StudentGroupStore _groupStore;
   final StudentApi? _studentApi;
+  final StudentGroupApi? _groupApi;
   final DateTime Function() _now;
 
   AccountFlowPage page = AccountFlowPage.opening;
   AuthenticatedAccount? account;
   List<Student> students = const [];
+  List<StudentGroup> groups = const [];
   Student? editingStudent;
+  StudentGroup? editingGroup;
+  StudentGroup? selectedGroup;
   Student? selectedStudent;
   String? errorMessage;
   bool busy = false;
@@ -40,29 +52,39 @@ class AccountFlowController extends ChangeNotifier {
   int _failedAttempts = 0;
   DateTime? _lockedUntil;
   AccountFlowPage? _pageBeforeLanguage;
+  AccountFlowPage _studentFormReturnPage = AccountFlowPage.students;
+  String? _studentCreationGroupId;
+  AccountFlowPage _gamesReturnPage = AccountFlowPage.students;
 
   factory AccountFlowController(
     AuthenticationApi api, {
     AccountStore? accountStore,
     StudentStore? studentStore,
     StudentApi? studentApi,
+    StudentGroupStore? groupStore,
+    StudentGroupApi? groupApi,
     DateTime Function()? now,
   }) => AccountFlowController._(
     api,
     studentApi,
+    groupApi,
     accountStore: accountStore,
     studentStore: studentStore,
+    groupStore: groupStore,
     now: now,
   );
 
   AccountFlowController._(
     this._api,
-    this._studentApi, {
+    this._studentApi,
+    this._groupApi, {
     AccountStore? accountStore,
     StudentStore? studentStore,
+    StudentGroupStore? groupStore,
     DateTime Function()? now,
   }) : _accountStore = accountStore ?? SharedPreferencesAccountStore(),
        _studentStore = studentStore ?? SharedPreferencesStudentStore(),
+       _groupStore = groupStore ?? SharedPreferencesStudentGroupStore(),
        _now = now ?? DateTime.now;
 
   Future<void> initialize() async {
@@ -184,7 +206,12 @@ class AccountFlowController extends ChangeNotifier {
     } else {
       _lastTeacherActivity = _now();
       students = await _studentStore.load(authenticated.accountId);
-      await _synchronizeStudents(authenticated);
+      students = [
+        for (final student in students)
+          student.withOwnerAccountId(authenticated.accountId),
+      ];
+      groups = await _groupStore.load(authenticated.accountId);
+      await _synchronizeTeacherData(authenticated);
       page = AccountFlowPage.students;
     }
   }
@@ -236,14 +263,43 @@ class AccountFlowController extends ChangeNotifier {
     _lockedUntil = delay == Duration.zero ? null : _now().add(delay);
   }
 
-  void addStudent() {
+  List<Student> get ungroupedStudents {
+    final groupedIds = {for (final group in groups) ...group.studentIds};
+    return List.unmodifiable(
+      students.where((student) => !groupedIds.contains(student.id)),
+    );
+  }
+
+  List<Student> get selectedGroupStudents {
+    final memberIds = selectedGroup?.studentIds.toSet() ?? const <String>{};
+    return List.unmodifiable(
+      students.where((student) => memberIds.contains(student.id)),
+    );
+  }
+
+  List<Student> get studentsOutsideSelectedGroup {
+    final memberIds = selectedGroup?.studentIds.toSet() ?? const <String>{};
+    return List.unmodifiable(
+      students.where((student) => !memberIds.contains(student.id)),
+    );
+  }
+
+  void addStudent({String? groupId}) {
     editingStudent = null;
+    _studentCreationGroupId = groupId;
+    _studentFormReturnPage = groupId == null
+        ? AccountFlowPage.students
+        : AccountFlowPage.groupStudents;
     _touchTeacher();
     _open(AccountFlowPage.studentForm);
   }
 
   void editStudent(Student student) {
     editingStudent = student;
+    _studentCreationGroupId = null;
+    _studentFormReturnPage = selectedGroup == null
+        ? AccountFlowPage.students
+        : AccountFlowPage.groupStudents;
     _touchTeacher();
     _open(AccountFlowPage.studentForm);
   }
@@ -262,6 +318,7 @@ class AccountFlowController extends ChangeNotifier {
             location: location,
             age: age,
             gender: gender,
+            ownerAccountId: teacher.accountId,
           )
         : Student(
             id: editingStudent!.id,
@@ -269,6 +326,8 @@ class AccountFlowController extends ChangeNotifier {
             location: location,
             age: age,
             gender: gender,
+            ownerAccountId: editingStudent!.ownerAccountId,
+            pendingChanges: true,
           );
     final updated = [...students];
     final index = updated.indexWhere((item) => item.id == student.id);
@@ -278,20 +337,37 @@ class AccountFlowController extends ChangeNotifier {
       updated[index] = student;
     }
     students = List.unmodifiable(updated);
+    final creationGroupId = _studentCreationGroupId;
+    if (editingStudent == null && creationGroupId != null) {
+      groups = List.unmodifiable([
+        for (final group in groups)
+          group.id == creationGroupId
+              ? group.copyWith(studentIds: [...group.studentIds, student.id])
+              : group,
+      ]);
+      selectedGroup = groups.singleWhere(
+        (group) => group.id == creationGroupId,
+      );
+      await _groupStore.save(teacher.accountId, groups);
+    }
     await _studentStore.save(teacher.accountId, students);
-    await _synchronizeStudents(teacher);
+    await _synchronizeTeacherData(teacher);
     editingStudent = null;
+    _studentCreationGroupId = null;
     _touchTeacher();
-    _open(AccountFlowPage.students);
+    _open(_studentFormReturnPage);
   }
 
   Future<void> _synchronizeStudents(AuthenticatedAccount teacher) async {
     final api = _studentApi;
     if (api == null) return;
     try {
-      final remote = students.isEmpty
+      final pending = students
+          .where((student) => student.pendingChanges)
+          .toList();
+      final remote = pending.isEmpty
           ? await api.list(teacher.accessToken)
-          : await api.synchronize(teacher.accessToken, students);
+          : await api.synchronize(teacher.accessToken, pending);
       students = List.unmodifiable(remote);
       await _studentStore.save(teacher.accountId, students);
     } on Object {
@@ -299,15 +375,43 @@ class AccountFlowController extends ChangeNotifier {
     }
   }
 
+  Future<void> _synchronizeGroups(AuthenticatedAccount teacher) async {
+    final api = _groupApi;
+    if (api == null) return;
+    try {
+      final pending = groups.where((group) => group.pendingChanges).toList();
+      final remote = pending.isEmpty
+          ? await api.list(teacher.accessToken)
+          : await api.synchronize(teacher.accessToken, pending);
+      groups = List.unmodifiable(remote);
+      final selectedId = selectedGroup?.id;
+      selectedGroup = selectedId == null
+          ? null
+          : groups.where((group) => group.id == selectedId).firstOrNull;
+      await _groupStore.save(teacher.accountId, groups);
+    } on Object {
+      // Local group management remains available while offline.
+    }
+  }
+
+  Future<void> _synchronizeTeacherData(AuthenticatedAccount teacher) async {
+    await _synchronizeStudents(teacher);
+    await _synchronizeGroups(teacher);
+    await _synchronizeStudents(teacher);
+  }
+
   Future<void> synchronizeStudents() async {
     final current = account;
     if (current?.role == AccountRole.teacher) {
-      await _synchronizeStudents(current!);
+      await _synchronizeTeacherData(current!);
     }
   }
 
   void selectStudent(Student student) {
     selectedStudent = student;
+    _gamesReturnPage = selectedGroup == null
+        ? AccountFlowPage.students
+        : AccountFlowPage.groupStudents;
     _touchTeacher();
     _open(AccountFlowPage.games);
   }
@@ -316,14 +420,141 @@ class AccountFlowController extends ChangeNotifier {
     if (account?.role == AccountRole.teacher) {
       selectedStudent = null;
       _touchTeacher();
-      _open(AccountFlowPage.students);
+      _open(_gamesReturnPage);
     }
+  }
+
+  void addGroup() {
+    editingGroup = null;
+    selectedGroup = null;
+    _touchTeacher();
+    _open(AccountFlowPage.groupForm);
+  }
+
+  void editSelectedGroup() {
+    editingGroup = selectedGroup;
+    _touchTeacher();
+    _open(AccountFlowPage.groupForm);
+  }
+
+  Future<void> saveGroup(String name) async {
+    final teacher = account;
+    if (teacher == null || teacher.role != AccountRole.teacher) return;
+    final group = editingGroup == null
+        ? StudentGroup.create(name: name, ownerAccountId: teacher.accountId)
+        : editingGroup!.copyWith(name: name);
+    final updated = [...groups];
+    final index = updated.indexWhere((item) => item.id == group.id);
+    if (index < 0) {
+      updated.add(group);
+    } else {
+      updated[index] = group;
+    }
+    groups = List.unmodifiable(updated);
+    selectedGroup = group;
+    await _groupStore.save(teacher.accountId, groups);
+    await _synchronizeGroups(teacher);
+    editingGroup = null;
+    _touchTeacher();
+    _open(AccountFlowPage.groupStudents);
+  }
+
+  void openGroup(StudentGroup group) {
+    selectedGroup = group;
+    _touchTeacher();
+    _open(AccountFlowPage.groupStudents);
+  }
+
+  void showAddStudentsToGroup() {
+    _touchTeacher();
+    _open(AccountFlowPage.groupAddStudents);
+  }
+
+  Future<void> addStudentsToSelectedGroup(Set<String> studentIds) async {
+    final teacher = account;
+    final group = selectedGroup;
+    if (teacher == null || group == null) return;
+    await _replaceGroup(
+      teacher,
+      group.copyWith(studentIds: {...group.studentIds, ...studentIds}),
+    );
+    _open(AccountFlowPage.groupStudents);
+  }
+
+  Future<void> removeStudentFromSelectedGroup(Student student) async {
+    final teacher = account;
+    final group = selectedGroup;
+    if (teacher == null || group == null) return;
+    await _replaceGroup(
+      teacher,
+      group.copyWith(
+        studentIds: group.studentIds.where((id) => id != student.id),
+      ),
+    );
+  }
+
+  Future<void> _replaceGroup(
+    AuthenticatedAccount teacher,
+    StudentGroup updatedGroup,
+  ) async {
+    groups = List.unmodifiable([
+      for (final group in groups)
+        if (group.id == updatedGroup.id) updatedGroup else group,
+    ]);
+    selectedGroup = updatedGroup;
+    await _groupStore.save(teacher.accountId, groups);
+    await _synchronizeGroups(teacher);
+    await _synchronizeStudents(teacher);
+    _touchTeacher();
+    notifyListeners();
+  }
+
+  void showJoinGroup() => _open(AccountFlowPage.groupJoin);
+
+  Future<bool> joinGroup(String code) async {
+    final teacher = account;
+    final api = _groupApi;
+    if (teacher == null || api == null) {
+      errorMessage = 'Connecting to the server is required to join a group.';
+      notifyListeners();
+      return false;
+    }
+    return _run(() async {
+      final joined = await api.join(teacher.accessToken, code.trim());
+      groups = List.unmodifiable([
+        ...groups.where((group) => group.id != joined.id),
+        joined,
+      ]);
+      selectedGroup = joined;
+      await _groupStore.save(teacher.accountId, groups);
+      await _synchronizeTeacherData(teacher);
+      page = AccountFlowPage.groupStudents;
+    });
+  }
+
+  Future<String?> generateSelectedGroupShareCode() async {
+    final teacher = account;
+    final group = selectedGroup;
+    final api = _groupApi;
+    if (teacher == null || group == null || api == null || !group.isOwner) {
+      errorMessage = 'Only the group owner can generate a sharing code.';
+      notifyListeners();
+      return null;
+    }
+    String? code;
+    final succeeded = await _run(() async {
+      await _synchronizeGroups(teacher);
+      code = await api.generateShareCode(teacher.accessToken, group.id);
+    });
+    return succeeded ? code : null;
   }
 
   Future<void> logout() async {
     account = null;
     selectedStudent = null;
     students = const [];
+    groups = const [];
+    selectedGroup = null;
     _lastTeacherActivity = null;
     await _accountStore.saveActiveAccountId(null);
     _open(AccountFlowPage.welcome);
@@ -345,6 +576,21 @@ class AccountFlowController extends ChangeNotifier {
         _open(AccountFlowPage.welcome);
       case AccountFlowPage.studentForm:
         editingStudent = null;
+        _studentCreationGroupId = null;
+        _open(_studentFormReturnPage);
+      case AccountFlowPage.groupForm:
+        editingGroup = null;
+        _open(
+          selectedGroup == null
+              ? AccountFlowPage.students
+              : AccountFlowPage.groupStudents,
+        );
+      case AccountFlowPage.groupStudents:
+        selectedGroup = null;
+        _open(AccountFlowPage.students);
+      case AccountFlowPage.groupAddStudents:
+        _open(AccountFlowPage.groupStudents);
+      case AccountFlowPage.groupJoin:
         _open(AccountFlowPage.students);
       case AccountFlowPage.language:
         closeLanguage();
